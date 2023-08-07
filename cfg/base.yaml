@@ -1,0 +1,16 @@
+dataset:
+  name: SauerLab
+  path: data/lab_logo.npy
+microscope_params:
+  name: Flim
+  px_size: 206
+  expected_number_of_photons: 300.
+  exposure_time: 20e-3,
+  dark_noise: 100.
+  quantum_efficiency: 0.99
+  gain: 10.
+  redout_noise: 0.3
+emitter:
+  switching_probability: [[0.8,0.2],[0.9998, 0.0002]]
+  wavelength: 660
+device: cuda

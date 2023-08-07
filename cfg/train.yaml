@@ -1,0 +1,10 @@
+network:
+  name: AttentionUNet
+  device: cuda
+  dtype: float32
+training:
+  iterations: 100
+defaults:
+  - dataset: random
+  - optimizer: lion
+

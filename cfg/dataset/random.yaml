@@ -1,0 +1,4 @@
+train: random
+size: 5000
+offset: 50
+validation: lab_logo

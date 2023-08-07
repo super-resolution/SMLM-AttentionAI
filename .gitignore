@@ -1,0 +1,17 @@
+venv/
+figures/
+__pycache__/
+.idea/
+test_data/
+resources/
+trainings/
+outputs/
+data/
+build/
+dist/
+*.tif
+*.npy
+setup.py
+*.ini
+*.csv
+*.svg
