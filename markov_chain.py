@@ -14,6 +14,7 @@ class HiddenMarkovModel(torch.nn.Module):
         # Number of possible states
         self.initial = torch.tensor(initial, dtype=dtype, device=device)
         # transition probabilities
+        self.initial_trans = torch.tensor(transition[1][1], device=device)
         self.transition = torch.distributions.Categorical(torch.tensor(transition, device=device))
         #not transition matrix and transition matrix
         self.transition_matrix = torch.tensor([[[1,0],[0,1]],[[0,1],[1,0]]], dtype=dtype, device=device)
@@ -23,15 +24,15 @@ class HiddenMarkovModel(torch.nn.Module):
         state = self.initial
         chain = []
         for i in tqdm(range(self.n_frames)):
-            if i% 500 ==0:
-                p = np.random.rand(1)*0.001
-                self.transition = torch.distributions.Categorical(torch.tensor([[0.8,0.2],[1.-p, p]], device="cuda"))
+            if i %100 == 0:
+                p = self.initial_trans*torch.randint(low=1,high=10,size=(1,),device="cuda").type(torch.float32)
+                self.transition = torch.distributions.Categorical(torch.tensor([[0.5,0.5],[1.-p, p]], device="cuda"))
 
             A = self.transition.sample([state.shape[0]])
             t= torch.sum(state*A, dim=-1).int()
             m = self.transition_matrix[t]
             state = (state.unsqueeze(1)@m).squeeze()
-            chain.append(state.cpu())
+            chain.append(np.where(state.cpu().numpy()[:,0]==1)[0])
         return chain
 
 

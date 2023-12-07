@@ -27,7 +27,7 @@ class GMMLoss(torch.nn.Module):
         return pos_xy + self.grid
 
 
-    def forward(self, output, pos, mask):
+    def forward(self, output, pos, mask, bg_truth):
 
         torch.cuda.synchronize()
 
@@ -35,13 +35,16 @@ class GMMLoss(torch.nn.Module):
         p_xy = output[:, 1:3]
         p_sig = output[:, 3:5]
         bg = output[:, 5]
-        N = output[:, 6]
+        N = output[:, 6:7]
+        N_sig = output[:, 7:8]
+
+
         batch_size = p_xy.shape[0]
-        X = p_xy.cpu().detach().numpy()
         p_xy = self.grid_coords_xy(p_xy)
-        y = np.mean(X)
         p_xy = torch.permute(p_xy, (0, 2, 3, 1)).reshape(batch_size, -1, 2)
         # test = p_xy.masked_select(torch.tensor(mask)[:,:,:,None]).reshape((-1,2))
+        N = torch.permute(N, (0, 2, 3, 1)).reshape(batch_size, -1, 1)+0.01
+        N_sig = torch.permute(N_sig, (0, 2, 3, 1)).reshape(batch_size, -1, 1)
 
         p_sig = torch.permute(p_sig, (0, 2, 3, 1)).reshape(batch_size, -1, 2)
         prob_normed = prob / torch.sum(prob, dim=[-1, -2], keepdim=True)
@@ -57,16 +60,17 @@ class GMMLoss(torch.nn.Module):
         # var estimate of bernoulli
         p_gauss = td.Normal(p_mean, torch.sqrt(p_var))
 
-        c_loss = torch.sum(-p_gauss.log_prob(n)*n)
+        c_loss = torch.sum(-p_gauss.log_prob(n)*n)/100
 
         cat = td.Categorical(prob_normed.reshape(batch_size, -1))
         comp = td.Independent(td.Normal(p_xy, p_sig), 1)
         gmm = td.mixture_same_family.MixtureSameFamily(cat, comp)
-        truth = pos.reshape((batch_size, -1, 2))
+        truth = pos.reshape((batch_size, -1, 3))[:,:,0:2]
 
         gmm_loss = -gmm.log_prob(truth.transpose(0, 1)).transpose(0, 1)
         gmm_loss = torch.sum(gmm_loss * mask)
-        loss = gmm_loss+c_loss
+        bg_loss = torch.nn.MSELoss()(bg,bg_truth)*10
+        loss = gmm_loss+c_loss + bg_loss
 
         return loss
 

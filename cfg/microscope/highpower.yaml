@@ -1,0 +1,8 @@
+name: HighPower
+px_size: 128
+expected_number_of_photons: 400.
+exposure_time: 20e-3,
+dark_noise: 10.
+quantum_efficiency: 0.80
+gain: 200.
+redout_noise: 0.1

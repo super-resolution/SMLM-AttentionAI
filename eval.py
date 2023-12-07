@@ -1,14 +1,14 @@
-import cv2
 import hydra
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from tifffile.tifffile import TiffWriter
 from tifffile.tifffile import imread
+from compare_metrics import validate
 
 from emitters import Emitter
-from network import Network2
-
+from network import Network2,AttentionIsAllYouNeed,RecursiveUNet, FFTAttentionUNet,Network3
+from visualization import plot_emitter_set
+from models.VIT import ViT
 
 def reshape_data(images):
     #add temporal context to additional dimnesion
@@ -19,39 +19,7 @@ def reshape_data(images):
     return dataset
 
 
-def plot_emitter_set(emitters, frc=False):
-    """
-    Image from emitter set class
-    :param emitters:
-    :return:
-    """
-    # todo: show first and second half for FRC
-    # data_in = data_in[np.where(data_in[:,2]<data_in[:,2].max()/3)]
-    # data_in = data_in[1::2]
 
-    localizations = emitters.xyz  # +np.random.random((data_in.shape[0],2))
-    array = np.zeros(
-        (int(localizations[:, 0].max()) + 1, int(localizations[:, 1].max()) + 1))  # create better rendering...
-    for i in range(localizations.shape[0]):
-            array[int(localizations[i, 0]), int(localizations[i, 1])] += 300# * emitters.photons[i]
-
-
-    array = cv2.GaussianBlur(array, (21, 21), 0)
-    # array -= 10
-    array = np.clip(array, 0, 255)
-    downsampled = cv2.resize(array, (int(array.shape[1] / 10), int(array.shape[0] / 10)), interpolation=cv2.INTER_AREA)
-    # todo: make 10 px scalebar
-    with TiffWriter('temp.tif', bigtiff=True) as tif:
-        tif.save(downsampled)
-    #
-    cm = plt.get_cmap('hot')
-    v = cm(downsampled / 255)
-    v[:, :, 3] = 255
-    v[-25:-20, 10:110, 0:3] = 1
-
-    # array = np.log(array+1)
-    plt.imshow(array, cmap='hot')
-    plt.show()
 
 
 @hydra.main(config_name="eval.yaml", config_path="cfg")
@@ -62,18 +30,24 @@ def myapp(cfg):
 
 
     dtype = getattr(torch, cfg.network.dtype)
-    arr = np.load("data/"+ dataset_name + "/coords.npy" , allow_pickle=True)
+    arr = np.load("data/"+ dataset_name + "/coords.npy" , allow_pickle=True)[:,::-1]
+    indices = np.load("data/" + dataset_name + "/indices.npy", allow_pickle=True)[dataset_offset:]
+    truth = []
+    for i, ind in enumerate(indices):
+        val = arr[np.where(ind[:, 0] != 0)]
+        truth.append(val)
 
 
-    images = imread("data/"+ dataset_name + "/images.tif")[dataset_offset:]
-
+    images = imread("data/"+ dataset_name + "/images.tif")[dataset_offset:3000,0:60,0:60]*2
+    # images = imread(r"D:\Daten\Patrick\STORMHD\643\COS7_Phalloidin_ATTO643_1_200_2perHQ_4.tif")[10000:15000,60:120,60:120].astype(np.float32)/12
+    #images -= images.min()
     #reshape for temporal context
     images = torch.tensor(images, dtype=dtype, device=device)
-
-    model_path = 'trainings/model_AttentionUNet'
+    images = torch.nn.functional.pad(images, (0,0,0,1,0,1))
+    model_path = 'trainings/model_ViTV2'
     print(model_path)
 
-    net = Network2()
+    net = ViT()
     #opt_cls = getattr(torch.optim, cfg.optimizer.name)
     #opt = opt_cls(net.parameters(), **cfg.optimizer.params)
 
@@ -86,16 +60,25 @@ def myapp(cfg):
     loss = checkpoint['loss']
     print(loss)
 
-
     net.eval()
     with torch.no_grad():
         out_data = net(images).cpu()
 
     out_data = out_data.numpy()
     plt.imshow(out_data[0,0])
+    plt.scatter(truth[0][:,1],truth[0][:,0])
     plt.show()
-    data = Emitter.from_result_tensor(out_data[:,], .2)
-    plot_emitter_set(data)
+    #truth = Emitter.from_ground_truth(truth)
+    jac= []
+    # for i in range(8):
+    dat = Emitter.from_result_tensor(out_data[:, ], .5)
+    #
+    #dat = dat.filter(sig_y=0.3,sig_x=0.3)
+    #     jac.append(validate(dat, truth))
+    #plt.plot(jac)
+    #plt.savefig("eval_jaccard.svg")
+    #plt.show()
+    plot_emitter_set(dat)
 
 if __name__ == '__main__':
     myapp()

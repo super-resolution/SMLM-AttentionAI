@@ -1,4 +1,4 @@
-train: random
+train: random_highpower
 size: 5000
-offset: 50
+offset: 100
 validation: lab_logo

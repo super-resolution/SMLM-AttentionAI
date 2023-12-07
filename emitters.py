@@ -173,7 +173,7 @@ class Emitter():
         conditions=[]
         conditions.append(self.sigxsigy[:,0]<sig_x)
         conditions.append(self.sigxsigy[:,1]<sig_y)
-        conditions.append(self.photons>photons)
+        #conditions.append(self.photons>photons)
         conditions.append(self.p>p)
         if frames:
             conditions.append(self.frames>frames[0])
@@ -321,9 +321,9 @@ class Emitter():
         coords = []
         for i, crop in enumerate(coordinate_tensor):
             for coord in crop:
-                if coord[2] != 0:
+                #if coord[2] != 0:
                     #todo add photons
-                    coords.append(np.array([coord[0], coord[1], i, coord[3]]))
+                coords.append(np.array([coord[0], coord[1], i,0]))#no intensity yet
         coords = np.array(coords)
         coords[:, 0:2] *= 100
         return cls(coords[:,0:2], coords[:,3], coords[:,2])

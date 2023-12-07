@@ -14,6 +14,9 @@ class Activation(nn.Module):
         input[:, 0] = self.sig(input[:, 0])
         input[:, 1:3] = self.tanh(input[:, 1:3])
         input[:, 3:5] = self.sig(input[:, 3:5])*2
+        input[:, 6] = self.sig(input[:, 6])*2
+        input[:, 7] = self.sig(input[:, 7])*3
+
         return input
 class DoubleConv(nn.Module):
     def __init__(self, in_channels, out_channels, mid_channels=None):
@@ -187,14 +190,14 @@ class AttentionUNet(nn.Module):
 
 
 class AttentionUNetV2(nn.Module):
-    def __init__(self,inp=3):
+    def __init__(self,inp=3, out_size=8):
         super().__init__()
         #works
         size=1
         self.down1 = Down(inp,64*size,2)#30
         self.down2 = Down(64*size, 128*size, 2)  # 15
         self.down3 = Down(128*size, 256*size, 3)  # 5
-        conf = {"hidden_size": 256, "intermediate_size": 64, "num_attention_heads":8}
+        conf = {"hidden_size": 256, "intermediate_size": 256, "num_attention_heads":16}
 
         self.ff = FeedForward(conf)
         self.attention = MultiHeadAttention(conf)
@@ -203,7 +206,7 @@ class AttentionUNetV2(nn.Module):
         self.up1 = Up((256+128)*size, 128*size, scale=3)
         self.up2 = Up((128+64)*size, 64*size, )
         self.up3 = Up(64*size+inp, 32*size, )
-        self.final = nn.Conv2d(32*size,8,3,padding="same")
+        self.final = nn.Conv2d(32*size,out_size,3,padding="same")
 
     def forward(self, input):
         x1 = self.down1(input)
@@ -211,7 +214,7 @@ class AttentionUNetV2(nn.Module):
         x3 = self.down3(x2)
         x4 = torch.permute(x3, (0,2,3,1))
         x5 = self.ff(x4)
-
+        #todo: try multiple attention layers
         x5 = self.attention(x5)
         x6 = torch.permute(x5, (0,3,1,2))
 
@@ -221,12 +224,142 @@ class AttentionUNetV2(nn.Module):
         out = self.final(x9)
         return out
 
+
+class AttentionUNetV3(nn.Module):
+    def __init__(self,inp=3, out_size=8):
+        super().__init__()
+        #works
+        size=1
+        self.down1 = Down(inp,64*size,2)#30
+        self.down2 = Down(64*size, 128*size, 2)  # 15
+        self.down3 = Down(128*size, 256*size, 3)  # 5
+        conf = {"hidden_size": 256, "intermediate_size": 256, "num_attention_heads":16}
+
+        self.ff = FeedForward(conf)
+        self.attention = MultiHeadAttention(conf)
+        self.attention2 = MultiHeadAttention(conf)
+        self.up0 = Up((512+256)*size, 256*size, scale=5)
+
+        self.up1 = Up((256+128)*size, 128*size, scale=3)
+        self.up2 = Up((128+64)*size, 64*size, )
+        self.up3 = Up(64*size+inp, 32*size, )
+        self.final = nn.Conv2d(32*size,out_size,3,padding="same")
+
+    def forward(self, input):
+        x1 = self.down1(input)
+        x2 = self.down2(x1)
+        x3 = self.down3(x2)
+        x4 = torch.permute(x3, (0,2,3,1))
+        x5 = self.ff(x4)
+        #todo: try multiple attention layers
+        x5 = self.attention(x5)
+        x5 = self.attention2(x5)
+        x6 = torch.permute(x5, (0,3,1,2))
+
+        x7 = self.up1(x6,x2)
+        x8 = self.up2(x7,x1)
+        x9 = self.up3(x8,input)
+        out = self.final(x9)
+        return out
+
+class FFTAttentionUNetBlockV2(nn.Module):
+    def __init__(self,inp=2, out_size=8):
+        super().__init__()
+        #works
+        size=1
+        self.down1 = Down(inp,64*size,2)#30
+        self.down2 = Down(64*size, 128*size, 2)  # 15
+        self.down3 = Down(128*size, 256*size, 3)  # 5
+        conf = {"hidden_size": 256, "intermediate_size": 256, "num_attention_heads":16}
+
+        self.ff = FeedForward(conf)
+        self.attention = MultiHeadAttention(conf)
+        self.attention2 = MultiHeadAttention(conf)
+        self.up0 = Up((512+256)*size, 256*size, scale=5)
+
+        self.up1 = Up((256+128)*size, 128*size, scale=3)
+        self.up2 = Up((128+64)*size, 64*size, )
+        self.up3 = Up(64*size+inp, 32*size, )
+        self.final = nn.Conv2d(32*size,out_size,3,padding="same")
+
+    def forward(self, input):
+        x = torch.fft.fft2(input)
+        x = torch.stack([x.real,x.imag,input], dim=1)
+        x1 = self.down1(x)
+        x2 = self.down2(x1)
+        x3 = self.down3(x2)
+        x4 = torch.permute(x3, (0,2,3,1))
+        x5 = self.ff(x4)
+        #todo: try multiple attention layers
+        x5 = self.attention(x5)
+        x5 = self.attention2(x5)
+        x6 = torch.permute(x5, (0,3,1,2))
+
+        x7 = self.up1(x6,x2)
+        x8 = self.up2(x7,x1)
+        x9 = self.up3(x8,x)
+        out = self.final(x9)
+        return out
+
+class FFTAttentionUNetBlock(nn.Module):
+    def __init__(self,inp=2, out_size=8):
+        super().__init__()
+        #works
+        size=1
+        self.down1 = Down(inp,64*size,2)#30
+        self.down2 = Down(64*size, 128*size, 2)  # 15
+        self.down3 = Down(128*size, 256*size, 3)  # 5
+        conf = {"hidden_size": 256, "intermediate_size": 256, "num_attention_heads":16}
+
+        self.ff = FeedForward(conf)
+        self.attention = MultiHeadAttention(conf)
+        self.attention2 = MultiHeadAttention(conf)
+        self.up0 = Up((512+256)*size, 256*size, scale=5)
+
+        self.up1 = Up((256+128)*size, 128*size, scale=3)
+        self.up2 = Up((128+64)*size, 64*size, )
+        self.up3 = Up(64*size+inp, 32*size, )
+        self.final = nn.Conv2d(32*size,out_size,3,padding="same")
+
+    def forward(self, input):
+        x = torch.fft.fft2(input)
+        x = torch.stack([x.real,x.imag], dim=1)
+        x1 = self.down1(x)
+        x2 = self.down2(x1)
+        x3 = self.down3(x2)
+        x4 = torch.permute(x3, (0,2,3,1))
+        x5 = self.ff(x4)
+        #todo: try multiple attention layers
+        x5 = self.attention(x5)
+        x5 = self.attention2(x5)
+        x6 = torch.permute(x5, (0,3,1,2))
+
+        x7 = self.up1(x6,x2)
+        x8 = self.up2(x7,x1)
+        x9 = self.up3(x8,x)
+        out = self.final(x9)
+        return out
+
+
+class FFTAttentionUNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.act = Activation()
+        #double UNet >> normal Unet
+        self.unet = FFTAttentionUNetBlockV2(inp=3)
+
+    def forward(self, input):
+        x = self.unet(input)
+        out = self.act(x)
+        return out
+
+
 class Network(nn.Module):
     def __init__(self):
         super().__init__()
         self.act = Activation()
         #double UNet >> normal Unet
-        self.z_size =9
+        self.z_size =15
 
         self.unet = AttentionUNet(inp=self.z_size)
         self.unet2 = AttentionUNet(8)
@@ -259,3 +392,98 @@ class Network2(nn.Module):
         #x7 = self.unet3(x7)
         out = self.act(x6)
         return out
+
+
+class Network3(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.act = Activation()
+        #double UNet >> normal Unet
+        self.z_size =9
+        self.unet = AttentionUNetV2(inp=9)
+        self.unet1 = AttentionUNet(inp=8)
+
+
+
+    def forward(self, input):
+        input = F.pad(input=input, pad=( 0,0,0,0,(self.z_size-1)//2, (self.z_size-1)//2,), mode='constant', value=0)
+        x = torch.permute(input.unfold(0,self.z_size,1), (0,3,1,2))
+        x6 = self.unet(x)
+        x7 = self.unet1(x6)
+        #x7 = self.unet3(x7)
+        out = self.act(x7)
+        return out
+
+
+
+
+
+
+
+class RecursiveUNet(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.act = Activation()
+        #double UNet >> normal Unet
+        self.z_size =9
+        #todo: try more iterations
+        self.unet = AttentionUNetV2(inp=9)
+        self.unet2 = AttentionUNetV2(inp=8, out_size=1)
+        self.iterations = 4
+
+
+    def forward(self, input):
+        x_o = input
+        for i in range(self.iterations):
+            if i >0:
+                x_o = input - x2.squeeze()
+            x = F.pad(input=x_o, pad=(0, 0, 0, 0, (self.z_size - 1) // 2, (self.z_size - 1) // 2,),
+                          mode='constant', value=0)
+            x = torch.permute(x.unfold(0, self.z_size, 1), (0, 3, 1, 2))
+            x = self.unet(x)
+            x2 = self.unet2(x)
+        #x7 = self.unet3(x7)
+        out = self.act(x)
+        return out
+
+class AttentionIsAllYouNeed(nn.Module):
+    def __init__(self):
+        super().__init__()
+        self.act = Activation()
+
+        self.x_size = 5
+        conf = {"hidden_size": self.x_size, "intermediate_size": 256, "num_attention_heads":5}
+        self.ff_x = FeedForward(conf)
+        self.attention_x = MultiHeadAttention(conf)
+        self.y_size = 5
+        conf = {"hidden_size": self.y_size, "intermediate_size": 256, "num_attention_heads":5}
+        self.ff_y = FeedForward(conf)
+        self.attention_y = MultiHeadAttention(conf)
+        self.z_size = 9
+        conf = {"hidden_size": self.z_size, "intermediate_size": 256, "num_attention_heads":9}
+        self.ff_z = FeedForward(conf)
+        self.attention_z = MultiHeadAttention(conf)
+        self.conv = nn.Conv2d(9, 32, 3, padding="same")
+        self.final = nn.Conv2d(32,8,3,padding="same")
+
+
+    def forward(self, inp):
+        inp = F.pad(input=inp, pad=( (self.x_size-1)//2, (self.x_size-1)//2, 0,0, 0,0,), mode='constant', value=0)
+        x = inp.unfold(2, self.x_size, 1)
+        x = self.ff_x(x)
+        x = self.attention_x(x)
+        x = x.sum(-1)
+        #todo: folding neeeded
+        x = F.pad(input=x, pad=( 0,0, (self.y_size-1)//2, (self.y_size-1)//2, 0,0,), mode='constant', value=0)
+
+        y = x.unfold(1,self.y_size,1)
+        y = self.ff_y(y)
+        y = self.attention_y(y)
+        y = y.sum(-1)
+        y = F.pad(input=y, pad=( 0,0, 0,0, (self.z_size-1)//2, (self.z_size-1)//2, ), mode='constant', value=0)
+
+        z = y.unfold(0,self.z_size,1)
+        z = self.ff_z(z)
+        z = torch.permute(self.attention_z(z), (0,3,1,2))
+        z = self.conv(z)
+        return self.act(self.final(z))
