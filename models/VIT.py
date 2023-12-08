@@ -57,10 +57,27 @@ def gaussian_initializer(shape=(10,10,40,40)):
 
     return res
 
+class DoubleConv(nn.Module):
+    def __init__(self, in_channels, out_channels, mid_channels=None):
+        super().__init__()
+        if not mid_channels:
+            mid_channels = out_channels
+        self.double_conv = nn.Sequential(
+            nn.Conv2d(in_channels, mid_channels, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(mid_channels),
+            nn.ReLU(inplace=True),
+            nn.Conv2d(mid_channels, out_channels, kernel_size=3, padding=1, bias=False),
+            nn.BatchNorm2d(out_channels),
+            nn.ReLU(inplace=True)
+        )
+
+    def forward(self, x):
+        return self.double_conv(x)
 class ImageEmbedding(torch.nn.Module):
     def __init__(self, chw=(100,60,60),patch_size=(10,10), hidden_d=128):
         super(ImageEmbedding, self).__init__()
         # Attributes
+        double_conv_width = 8
         self.chw = chw # (C, H, W)
         #assert chw[1] % n_patches == 0, "Input shape not entirely divisible by number of patches"
         #assert chw[2] % n_patches == 0, "Input shape not entirely divisible by number of patches"
@@ -68,15 +85,18 @@ class ImageEmbedding(torch.nn.Module):
         self.n_patches = (chw[1]//self.patch_size[0],chw[2]//self.patch_size[1])
         self.hidden_d = hidden_d
         # 1) Linear mapper
-        self.input_d = int(self.patch_size[0] * self.patch_size[1])
+        self.input_d = int(self.patch_size[0] * self.patch_size[1]*double_conv_width)
+        #todo: project on 8 channels with double conv
+        self.conv = DoubleConv(1,double_conv_width)
+        #todo: add some convolutional layers here?
         self.linear_mapper = nn.Linear(self.input_d, self.hidden_d)
         #todo: initial values for linea mapping?
 
 
 
-        self.linear_mapper.weight.data = torch.permute(gaussian_initializer(),(1,0))
-        #todo: is this working?
-        self.linear_mapper.bias.data.fill_(0.0)
+        #self.linear_mapper.weight.data = torch.permute(gaussian_initializer(),(1,0))
+        #todo: is this working? probably not so discard?
+        #self.linear_mapper.bias.data.fill_(0.0)
         #layer norm before embedding?
         #discard image normalization and rather increase pos embedding
 
@@ -91,7 +111,10 @@ class ImageEmbedding(torch.nn.Module):
         return patches
 
     def forward(self,images):
+        images = self.conv(images[:,None])
+        images = torch.permute(images, (0,2,3,1))
         patches = self.patchify(images)
+        #todo: apply skip connection?
         tokens = self.linear_mapper(patches)
         # Adding classification token to the tokens
         #tokens = torch.stack([torch.vstack((self.class_token, tokens[i])) for i in range(len(tokens))])
@@ -140,7 +163,6 @@ class Encoder(nn.Module):
         x = self.mlp(x)
         x = x +x2
         x = self.norm3(x)
-        x2 = self.mh_attention2(x)[0]
         #residual connection
         return x+x2
 

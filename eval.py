@@ -39,12 +39,12 @@ def myapp(cfg):
 
 
     images = imread("data/"+ dataset_name + "/images.tif")[dataset_offset:3000,0:60,0:60]*2
-    # images = imread(r"D:\Daten\Patrick\STORMHD\643\COS7_Phalloidin_ATTO643_1_200_2perHQ_4.tif")[10000:15000,60:120,60:120].astype(np.float32)/12
+    #images = imread(r"D:\Daten\Patrick\STORMHD\643\COS7_Phalloidin_ATTO643_1_200_2perHQ_4.tif")[0:15000,60:120,60:120].astype(np.float32)/24
     #images -= images.min()
     #reshape for temporal context
     images = torch.tensor(images, dtype=dtype, device=device)
     images = torch.nn.functional.pad(images, (0,0,0,1,0,1))
-    model_path = 'trainings/model_ViTV2'
+    model_path = 'trainings/model_ViTV3'
     print(model_path)
 
     net = ViT()
@@ -71,7 +71,7 @@ def myapp(cfg):
     #truth = Emitter.from_ground_truth(truth)
     jac= []
     # for i in range(8):
-    dat = Emitter.from_result_tensor(out_data[:, ], .5)
+    dat = Emitter.from_result_tensor(out_data[:, ], .8)
     #
     #dat = dat.filter(sig_y=0.3,sig_x=0.3)
     #     jac.append(validate(dat, truth))
