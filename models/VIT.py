@@ -30,8 +30,8 @@ class PositionalEncoding(nn.Module):
         position = torch.arange(max_len).unsqueeze(1)
         div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
         pe = torch.zeros(1, max_len, d_model)
-        pe[0, :, 0::2] = torch.sin(position * div_term)*100
-        pe[0, :, 1::2] = torch.cos(position * div_term)*100#todo: should be x and y?
+        pe[0, :, 0::2] = torch.sin(position * div_term)*10#todo: 1 fold performed worse
+        pe[0, :, 1::2] = torch.cos(position * div_term)*10#todo: should be x and y?
         self.register_buffer('pe', pe)
 
     def forward(self, x: Tensor) -> Tensor:
@@ -218,8 +218,9 @@ class Decoder(nn.Module):
 class ViT(nn.Module):
     def __init__(self):
         super(ViT, self).__init__()#todo: load a config for sizes
-        self.encoder = Encoder(hidden_d=1600)
-        self.decoder = Decoder(hidden_d=1600)
+        self.encoder = Encoder(hidden_d=1600//4)#todo: upscaling failed try downscaling; Discarded V4
+        self.decoder = Decoder(hidden_d=1600//4)#todo: downscaling works try further
+        #todo: V4 worked best hiddend 400
         self.activation = Activation()
 
     def forward(self, input):

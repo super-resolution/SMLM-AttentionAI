@@ -44,7 +44,7 @@ def myapp(cfg):
     #reshape for temporal context
     images = torch.tensor(images, dtype=dtype, device=device)
     images = torch.nn.functional.pad(images, (0,0,0,1,0,1))
-    model_path = 'trainings/model_ViTV3'
+    model_path = 'trainings/model_ViTV4'
     print(model_path)
 
     net = ViT()
