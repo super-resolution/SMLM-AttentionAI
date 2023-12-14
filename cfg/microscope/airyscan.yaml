@@ -1,0 +1,8 @@
+name: Airyscan
+px_size: 100
+expected_number_of_photons: 1000.
+exposure_time: 40e-3,
+dark_noise: 100.
+quantum_efficiency: 0.80
+gain: 10.
+redout_noise: 0.3

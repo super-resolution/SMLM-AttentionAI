@@ -3,11 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from tifffile.tifffile import imread
-from compare_metrics import validate
 
-from emitters import Emitter
-from network import Network2,AttentionIsAllYouNeed,RecursiveUNet, FFTAttentionUNet,Network3
-from visualization import plot_emitter_set
+from utility.emitters import Emitter
+from utility.visualization import plot_emitter_set
 from models.VIT import ViT
 
 def reshape_data(images):
@@ -38,16 +36,17 @@ def myapp(cfg):
         truth.append(val)
 
 
-    images = imread("data/"+ dataset_name + "/images.tif")[dataset_offset:3000,0:60,0:60]*2
-    #images = imread(r"D:\Daten\Patrick\STORMHD\643\COS7_Phalloidin_ATTO643_1_200_2perHQ_4.tif")[0:15000,60:120,60:120].astype(np.float32)/24
+    images = imread("data/"+ dataset_name + "/images.tif")[0:1000,0:60,0:60]*2
+    #
+    #images = imread(r"D:\Daten\Patrick\STORMHD\643\COS7_Phalloidin_ATTO643_1_200_2perHQ_4.tif")[13000:14000,60:130,60:130].astype(np.float32)/24
     #images -= images.min()
     #reshape for temporal context
     images = torch.tensor(images, dtype=dtype, device=device)
     images = torch.nn.functional.pad(images, (0,0,0,1,0,1))
-    model_path = 'trainings/model_ViTV4'
+    model_path = 'trainings/model_ViTV2'
     print(model_path)
 
-    net = ViT()
+    net = ViT(cfg.network.components)
     #opt_cls = getattr(torch.optim, cfg.optimizer.name)
     #opt = opt_cls(net.parameters(), **cfg.optimizer.params)
 
@@ -71,7 +70,7 @@ def myapp(cfg):
     #truth = Emitter.from_ground_truth(truth)
     jac= []
     # for i in range(8):
-    dat = Emitter.from_result_tensor(out_data[:, ], .8)
+    dat = Emitter.from_result_tensor(out_data[:, ], .7)
     #
     #dat = dat.filter(sig_y=0.3,sig_x=0.3)
     #     jac.append(validate(dat, truth))

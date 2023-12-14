@@ -1,0 +1,12 @@
+
+training:
+  iterations: 150
+dataset:
+  train: random_highpower
+  size: 5000
+  offset: 100
+  validation: random_highpower_test
+defaults:
+  - network: ViTV2
+  - dataset:
+  - optimizer: adam

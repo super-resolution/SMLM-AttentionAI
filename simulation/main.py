@@ -20,9 +20,11 @@ def create_box():
     y_max = box.max()
     return {"x_min":x_min,"x_max":x_max,"y_min":y_min,"y_max":y_max}
 
-@hydra.main(config_name="base.yaml", config_path="cfg/")
+@hydra.main(config_name="base.yaml", config_path="../cfg/")
 def my_app(cfg):
-    path = "data/random_highpower"
+    #todo: create more datasets under different conditions
+    #keep microscope static
+    path = "../data/random_highpower_test"
     bg_images = imread(path + "/bg_images.tif")
     o_arr = np.load(path + "/coords.npy", allow_pickle=True)
     #initialize standard parameters
@@ -39,7 +41,7 @@ def my_app(cfg):
     # We can combine these distributions into a hidden Markov model with n= 30 frames:
 
 
-    chain = HiddenMarkovModel(initial_distribution, transition_distribution, observation_distribution, n_frames=100000, device=cfg.device).to(cfg.device)
+    chain = HiddenMarkovModel(initial_distribution, transition_distribution, observation_distribution, n_frames=4000, device=cfg.device).to(cfg.device)
     sim = Simulation(device=cfg.device).to(cfg.device)
 
     ch = chain()

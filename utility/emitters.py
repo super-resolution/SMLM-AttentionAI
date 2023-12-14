@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
 from copy import deepcopy
-from utility import get_reconstruct_coords, read_thunderstorm_drift_json
+from utility.utility import get_reconstruct_coords, read_thunderstorm_drift_json
 import os
 import json
 

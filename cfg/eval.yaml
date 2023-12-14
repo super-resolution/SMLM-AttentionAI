@@ -11,3 +11,5 @@ optimizer:
   name: Lion
   params:
     amsgrad: True
+defaults:
+  - network: ViTV1

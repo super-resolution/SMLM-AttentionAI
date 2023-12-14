@@ -1,0 +1,33 @@
+name: ViTV2
+device: cuda
+#used datatype todo: use float 16?
+dtype: float32
+components:
+  #todo added residual connection in encoder
+  #patch size of ViT has to be quadratic
+  patch_size: 10
+  #hidden dimension worked best out of 400,800,1600,3200
+  hidden_d: 400
+  #define sequence length for positional encoding
+  sequence_lenght: 250
+  #define feature-extractor unet in different file
+  mapping:
+    DoubleConv
+    UNet
+  embedding:
+    linear
+  #define encoder architecture
+  encoder:
+    MHA
+    norm
+    MLP
+    norm
+  #define decoder architecture
+  decoder:
+    linear
+    norm
+  #currently linear and conv
+  #define activation
+  activation:
+    GMMActivation
+  #currently GMM activation
