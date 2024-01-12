@@ -2,11 +2,13 @@
 training:
   iterations: 150
 dataset:
-  train: random_highpower
+  train: [random_highpower, random_highpower2]
+  batch_size: 250
+  height: 60
+  width: 60
   size: 5000
   offset: 100
   validation: random_highpower_test
 defaults:
-  - network: ViTV2
-  - dataset:
-  - optimizer: adam
+  #uses log of dataset
+  - defaults

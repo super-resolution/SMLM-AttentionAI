@@ -9,7 +9,7 @@ from tifffile.tifffile import imwrite
 # read input image
 n_images = 10000
 # define random seed to change the pattern
-seedval = 78
+seedval = 73
 rng = default_rng(seedval)
 h,w = 60,60
 images = np.zeros((n_images,h,w))
@@ -29,7 +29,7 @@ for i in range(n_images):
     blur *= m
 
     images[i] = blur
-path = "../data/random_highpower_test"
+path = "../data/lab_logo2"
 imwrite(path + "/bg_images.tif", images)
 
 

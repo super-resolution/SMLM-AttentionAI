@@ -4,28 +4,15 @@ import numpy as np
 from torchvision.io import read_image
 from torch.utils.data import Dataset
 from tifffile.tifffile import imread
+
 import matplotlib.pyplot as plt
 class CustomImageDataset(Dataset):
-    def __init__(self, dataset_cfg, transform=None, target_transform=None, train=True):
-        if train:
-            dataset = dataset_cfg.train
+    def __init__(self, dataset, transform=None, target_transform=None, offset=0):
 
-        else:
-            dataset = dataset_cfg.validation
-            # arr = np.load("data/" + dataset_cfg.validation + "/coords.npy", allow_pickle=True)[:,::-1]
-            # indices = np.load("data/" + dataset_cfg.validation + "/indices.npy", allow_pickle=True)[dataset_cfg.offset:]
-            # images = imread("data/" + dataset_cfg.validation + "/images.tif")[dataset_cfg.offset:].astype(np.float32)
-
-            # max_length = max(np.sum(indices[:, :, 0], axis=1))
-            # truth = np.zeros((indices.shape[0], max_length, 2), dtype=np.float32)
-            # mask = np.zeros((indices.shape[0], max_length), dtype=np.float32)
-            # for i, ind in enumerate(indices):
-            #     val = arr[np.where(ind[:, 0] != 0)]
-            #     truth[i, :val.shape[0]] = val
-            #     mask[i, :val.shape[0]] = 1
+        bg = imread("data/" + dataset + "/bg_images.tif")
         gt = np.load("data/" + dataset + "/ground_truth.npy", allow_pickle=True)
-        idx = np.load("data/" + dataset + "/offsets.npy", allow_pickle=True)[dataset_cfg.offset:]
-        images = imread("data/" + dataset + "/images.tif")[dataset_cfg.offset:].astype(np.float32)
+        idx = np.load("data/" + dataset + "/offsets.npy", allow_pickle=True)[offset:]
+        images = imread("data/" + dataset + "/images.tif")[offset:].astype(np.float32)
         max_length = max(idx[1:]-idx[:-1])
         truth = np.zeros((gt.shape[0], max_length, 4), dtype=np.float32)
         mask = np.zeros((gt.shape[0], max_length), dtype=np.float32)
@@ -47,6 +34,7 @@ class CustomImageDataset(Dataset):
         self.images = self.reshape_data(images)
         self.transform = transform
         self.target_transform = target_transform
+        self.bg = bg
 
     @staticmethod
     def reshape_data(images):
@@ -64,4 +52,5 @@ class CustomImageDataset(Dataset):
         image = self.images[idx]
         truth = self.truth[idx]
         mask = self.mask[idx]
-        return image, truth, mask
+        bg = self.bg[truth[0,3].astype(np.int32)]
+        return image, truth, mask, bg

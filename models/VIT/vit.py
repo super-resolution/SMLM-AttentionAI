@@ -28,7 +28,7 @@ class PositionalEncoding(nn.Module):
             x: Tensor, shape ``[seq_len, batch_size, embedding_dim]``
         """
         x = x + self.pe[:x.size(0),:]
-        return self.dropout(x)
+        return x#self.dropout(x)
 
 
 def gaussian_initializer(shape=(10,10,40,40)):
@@ -47,7 +47,7 @@ def gaussian_initializer(shape=(10,10,40,40)):
 
 
 class ImageEmbedding(torch.nn.Module):
-    def __init__(self, chw=(100,60,60),patch_size=10, hidden_d=128):
+    def __init__(self, chw=(100,60,60),patch_size=10, hidden_d=100):
         super(ImageEmbedding, self).__init__()
         # Attributes
         double_conv_width = 8
@@ -66,8 +66,7 @@ class ImageEmbedding(torch.nn.Module):
         self.linear_mapper = nn.Linear(self.input_d, self.hidden_d)
         #no initial values for linea mapping?
 
-
-
+        self.grou_norm = nn.GroupNorm(6,36)
         #self.linear_mapper.weight.data = torch.permute(gaussian_initializer(),(1,0))
         #self.linear_mapper.bias.data.fill_(0.0)
         #layer norm before embedding?
@@ -77,19 +76,22 @@ class ImageEmbedding(torch.nn.Module):
         #self.class_token = nn.Parameter(torch.rand(1, self.hidden_d))
         # 3) Positional embedding
         self.pos_embed = PositionalEncoding(self.hidden_d)
+        self.group_norm2 = nn.GroupNorm(8,8)
 
-    def patchify(self, images):
-        patches = images.unfold(1, self.patch_size, self.patch_size).unfold(2, self.patch_size, self.patch_size)
-        patches = torch.reshape(patches, (patches.shape[0], patches.shape[1] * patches.shape[2], -1))
-        return patches
+
 
     def forward(self,images):
+        images = torch.log(nn.ReLU()(images + images.min()) + 0.1)
+        images /= images.max()
+
         images = self.conv(images[:,None])
+
         images = self.unet(images)
+
         #todo: apply residual connection?
 
-        images = torch.permute(images, (0,2,3,1))
-        patches = self.patchify(images)
+        patches = torch.permute(images, (0,2,3,1))
+        patches = patchify(patches, self.patch_size)
         tokens = self.linear_mapper(patches)
         # Adding classification token to the tokens
         #tokens = torch.stack([torch.vstack((self.class_token, tokens[i])) for i in range(len(tokens))])
@@ -97,13 +99,13 @@ class ImageEmbedding(torch.nn.Module):
         # Adding positional embedding
         # apply positional encoding over batch size
         out = self.pos_embed(tokens)
-        return out
-
-
+        out = self.grou_norm(out)
+        return out,self.group_norm2(images)
 
 
 class Encoder(nn.Module):
     def __init__(self, cfg, hidden_d=128, mlp_ratio=2, patch_size=10):
+        #todo: restructure
         super(Encoder, self).__init__()
         #min U-Net
         #embedding + MHA
@@ -111,21 +113,51 @@ class Encoder(nn.Module):
         #todo: this could be sequential
         #todo: define in VIT
         self.embedding = ImageEmbedding(hidden_d=hidden_d, patch_size=patch_size)
-        self.mha = MHA(embed_dim=hidden_d)
-        self.norm2 = nn.LayerNorm(hidden_d)
-        self.mlp = MLP(embed_dim=hidden_d, mlp_ratio=mlp_ratio)
+        self.mha = MHA(embed_dim=hidden_d)#is normed
+        #self.norm2 = nn.LayerNorm(hidden_d)#todo: deactivates norms in encoder
+        self.mlp = MLP2(embed_dim=hidden_d, mlp_ratio=mlp_ratio)#is normed
         #self.mh_attention2 = MHA(embed_dim=hidden_d)
-        self.norm3 = nn.LayerNorm(hidden_d)
+        #self.norm3 = nn.LayerNorm(hidden_d)
 
     def forward(self, input):
-        x1 = self.embedding(input)
-        x = self.mha(x1)
-        x = self.norm2(x)
-        x = self.mlp(x)
-        x = self.norm3(x + x1)
+        x1,images = self.embedding(input)
+        #x = self.mha(x1)
+        #x = self.mlp(x)
         #residual connection
-        #todo: dont use residual conenctions afert norm!
-        return x
+        return x1,images
+class CADecoder(nn.Module):
+    def __init__(self, cfg, hidden_d=128, feature_map_d=8, mlp_ratio=2, patch_size=10):
+        super().__init__()
+
+        self.patch_size = patch_size
+        #todo: bottleneck becuse hidden_d to small?
+        self.groupnorm = nn.GroupNorm(4, 8)
+        self.linear = nn.Linear(hidden_d, patch_size**2*feature_map_d)
+        self.norm3 = nn.LayerNorm(patch_size**2 * feature_map_d)
+        self.cross_attention = CrossAttentionBlock()
+        self.activation = activations.GMMActivation()
+        #todo: this is in test
+        self.final = nn.Conv2d(8,8,1,padding="same")
+
+    def forward(self, x, h):
+        #fig,axs = plt.subplots(2)
+#        axs[0].imshow(x[0].cpu().detach().numpy())
+        x = self.linear(x) #400-> 800 might cause bottleneck
+        # axs[1].imshow(x[0].cpu().detach().numpy())
+        # plt.show()
+
+        x1 = self.norm3(x)
+        #x = x.unfold(2, self.patch_size ** 2, self.patch_size ** 2)
+        #n,c1,c2,w = x.shape
+        #x = x.reshape((n,c1*c2,self.patch_size,self.patch_size))
+        #todo: find out why cad decoder leads to artefacts
+        x = decoder_unpatch(x1, self.patch_size)
+        #x1 = decoder_unpatch(x1, self.patch_size)
+        x = self.cross_attention(x, self.activation(x))
+        x = decoder_patchify(x, 36)
+        x = unpatchify(x+x1, self.patch_size, n_channels=8)
+        x = self.groupnorm(x)
+        return self.final(x)
 
 class Decoder(nn.Module):
     def __init__(self, cfg, hidden_d=128, feature_map_d=8, mlp_ratio=2, patch_size=10):
@@ -139,6 +171,8 @@ class Decoder(nn.Module):
         #     nn.GELU(),
         #     nn.Linear(mlp_ratio * hidden_d,hidden_d))
         # self.norm2 = nn.LayerNorm(hidden_d)
+        self.mha = MHA(embed_dim=8,head_dim=4)
+        self.mlp = MLP2(embed_dim=8, mlp_ratio=12)#added in V1
 
         self.patch_size = patch_size
         self.linear = nn.Linear(hidden_d, patch_size**2*feature_map_d)
@@ -155,28 +189,26 @@ class Decoder(nn.Module):
         # self.linear.weight.data = torch.eye(patch_size[0]*patch_size[1]*feature_map_d, hidden_d)
         # self.linear.bias.data.fill_(0.0)
         self.norm3 = nn.LayerNorm(patch_size**2 * feature_map_d)
-
-    def forward(self, input, h):
+        self.final = nn.Conv2d(8,8,1,padding="same")
+    def forward(self, input, images):
         #todo: map larger hidden dimension on 8 feature maps
-        # x = self.mh_attention(input)
-        # x = self.norm(x[0]+input)
-        # x = self.dec(x)
-        # x = self.norm2(input)
-        x = self.linear(input)
-        x = self.norm3(x)
+        #x = self.linear(input)
+        #x = self.norm3(x)
         #do some reshaping
         # patch size to extract feature maps at the right position
-        x = x[:, :, :].unfold(2,self.patch_size**2,self.patch_size**2)
-        x = torch.permute(x, dims=(0,2,1,3))
+        b,c,h,w = images.shape
 
-        #todo: patch size per image size
-        x = x.unfold(2,h,h).unfold(3,self.patch_size,self.patch_size)#n patches, patch size
+        x = torch.permute(images,(0,2,3,1))
+        x = x.reshape(b,h*w,c)
+        x = self.mha(x)
+        x = self.mlp(x)
+        x = x.reshape(b,h,w,c)
+        x = torch.permute(x,(0,3,1,2))
 
-        #8 feauture maps
-        x = x.reshape((x.shape[0],8, x.shape[2]*x.shape[3], x.shape[4]*x.shape[5]))
+        #x = unpatchify(x, self.patch_size, n_channels=8)
         #concate 10->6
         #need 6 feature maps
-        return x
+        return self.final(x+images)
 
 class ViT(nn.Module):
     def __init__(self, cfg):
@@ -190,8 +222,26 @@ class ViT(nn.Module):
 
     def forward(self, input):
         b,h,w = input.shape
+        latent,images = self.encoder(input)
+        image_space = self.decoder(latent,images)
+
+        out = self.activation(image_space)
+        return out
+
+class ViT2(nn.Module):
+    def __init__(self, cfg):
+        super(ViT2, self).__init__()#load a config for sizes
+        self.patch_size = cfg.patch_size
+        self.encoder = Encoder(cfg.encoder, hidden_d=cfg.hidden_d, patch_size=self.patch_size)#upscaling failed try downscaling; Discarded V4
+        self.cadecoder = CADecoder(cfg.decoder, hidden_d=cfg.hidden_d, patch_size=self.patch_size)#downscaling works try further
+        #V4 worked best hiddend 400
+        #get and initialize defined activation
+        self.activation = getattr(activations, cfg.activation)()
+
+    def forward(self, input):
+        b,h,w = input.shape
         latent = self.encoder(input)
-        image_space = self.decoder(latent, h//self.patch_size)
+        image_space = self.cadecoder(latent, h//self.patch_size)
 
         out = self.activation(image_space)
         return out

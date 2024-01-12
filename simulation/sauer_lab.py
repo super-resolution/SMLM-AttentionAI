@@ -18,7 +18,7 @@ class SauerLab():
 
         return bin
 
-    def generate_sauerlab_pointcloud_all(self):
+    def generate_sauerlab_pointcloud_all(self, n_approx=50000):
         """
         requires 32x59 grid
         :return:
@@ -26,14 +26,17 @@ class SauerLab():
         px_size = 100
 
         # large logo 5900x3200 px
-        im_logo = Image.open(r"resources/Logo_weiß.png")
+        im_logo = Image.open(r"../resources/Logo_weiß.png")
         im_logo = np.array(im_logo)
 
         bin_logo = self.create_binary_image(im_logo)
         # get indices from binary image
         indices = np.array(np.where(bin_logo == 1))
         # image is big enough to only use 10% of points
-        subset = indices.T[np.where(np.random.binomial(1, 0.1, indices[0].shape[0]))]
+        #todo: define n localisations
+        #prob
+        coeff = n_approx/len(indices[0])
+        subset = indices.T[np.where(np.random.binomial(1, coeff, indices[0].shape[0]))]
         loc = subset.astype(np.float32) / px_size
         return np.array(loc)
 
@@ -41,4 +44,4 @@ class SauerLab():
 if __name__ == '__main__':
     s = SauerLab()
     position_data = s.generate_sauerlab_pointcloud_all()
-    np.save("data/lab_logo.npy", position_data)
+    np.save("../data/lab_logo2.npy", position_data)

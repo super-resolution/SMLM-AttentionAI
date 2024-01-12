@@ -1,4 +1,0 @@
-train: fluct
-size: 1000
-offset: 100
-validation: lab_logo

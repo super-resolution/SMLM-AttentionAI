@@ -285,8 +285,8 @@ class Emitter():
         frames = []
         for i in range(result_tensor.shape[0]):
             classifier =result_tensor[i,0, :, :]
-            if i==32:
-                x=0
+            #if i==32:
+            #    x=0
             x= np.sum(classifier)
             # plt.imshow(classifier)
             # plt.show()
@@ -296,7 +296,7 @@ class Emitter():
                 x = result_tensor[i,1, indices[0], indices[1]]
                 y = result_tensor[i,2, indices[0], indices[1]]
                 p = result_tensor[i,0, indices[0], indices[1]]
-                dx = result_tensor[i,3, indices[0], indices[1]]#todo: if present
+                dx = result_tensor[i,3, indices[0], indices[1]]
                 dy = result_tensor[i,4, indices[0], indices[1]]
                 N = result_tensor[i,6, indices[0], indices[1]]
                 dN = result_tensor[i,7, indices[0], indices[1]]

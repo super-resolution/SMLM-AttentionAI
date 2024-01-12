@@ -4,6 +4,8 @@ import numpy as np
 import pdb
 from tqdm import tqdm
 
+import torch.distributions as distributions
+
 class HiddenMarkovModel(torch.nn.Module):
     def __init__(self, initial, transition, observation,n_frames=500, device="cpu"):
         super().__init__()
@@ -15,8 +17,25 @@ class HiddenMarkovModel(torch.nn.Module):
         self.initial = torch.tensor(initial, dtype=dtype, device=device)
         # transition probabilities
         self.initial_trans = torch.tensor(transition[1][1], device=device)
-        self.transition = torch.distributions.Categorical(torch.tensor(transition, device=device))
+        self.transition = distributions.Categorical(torch.tensor(transition, device=device))
         #not transition matrix and transition matrix
+        #todo: create real transition matrix with transition rates
+        #
+        r_isc = 3*10**6#per second
+        r_f = 3*10**8
+        r_exc = 10**6
+        r_ic = 7*10**8
+        r_isc_s0 = 10**4
+        r_s1_off = 10**7
+        r_off_s0 = 2*10**-2
+        rate_matrix = [[0,r_exc,0,0], #S0
+                       [0,r_f,r_isc,r_s1_off],   #S1#todo: add ic later
+                       [0,r_isc_s0,0],   #Trp
+                       [0,r_off_s0,0,0],   #Off
+                       ]
+
+        self.transition_matrix_new = distributions.Exponential(rate=-1/rate_matrix)
+
         self.transition_matrix = torch.tensor([[[1,0],[0,1]],[[0,1],[1,0]]], dtype=dtype, device=device)
         self.observation = torch.tensor(observation, dtype=dtype, device=device)
 
@@ -24,9 +43,20 @@ class HiddenMarkovModel(torch.nn.Module):
         state = self.initial
         chain = []
         for i in tqdm(range(self.n_frames)):
+            #todo: sample rate matrix
+            # reduce min
+            # update state and cummulative time
+
+            #todo: apply sampling by binning states into time frames
+            #todo: here we can take an intensity value
+
+
+
             if i %100 == 0:
+                #change transition probability
+                #dont do this if 250er batches are simulated
                 p = self.initial_trans*torch.randint(low=1,high=10,size=(1,),device="cuda").type(torch.float32)
-                self.transition = torch.distributions.Categorical(torch.tensor([[0.5,0.5],[1.-p, p]], device="cuda"))
+                self.transition = distributions.Categorical(torch.tensor([[0.5,0.5],[1.-p, p]], device="cuda"))
 
             A = self.transition.sample([state.shape[0]])
             t= torch.sum(state*A, dim=-1).int()

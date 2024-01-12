@@ -1,6 +1,7 @@
 name: ViTV1
 device: cuda
 #used datatype todo: use float 16?
+#batch size is 100
 dtype: float32
 components:
   #patch size of ViT has to be quadratic

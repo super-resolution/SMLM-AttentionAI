@@ -13,7 +13,7 @@ class GMMActivation(nn.Module):
         # 1. Gaussian Mixture Model probabilty p
         input[:, 0] = self.sig(input[:, 0])
         # 2. Gaussian Mixture Model mean mu
-        input[:, 1:3] = self.tanh(input[:, 1:3])
+        input[:, 1:3] = self.tanh(input[:, 1:3]) #+1.0to -1.0 #half did not work
         # 3. Gaussian Mixture Model sigma
         input[:, 3:5] = self.sig(input[:, 3:5])*2
         # 4. Gaussian Mixture Model intensity

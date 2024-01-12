@@ -5,15 +5,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import torch
 from lion_pytorch import Lion
-from tifffile import imread
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
 
 from utility.dataset import CustomImageDataset
 from utility.emitters import Emitter
 from models.loss import GMMLoss
-from models.VIT import ViT
-
+#from models.VIT.vitv4 import ViT#todo: get this from config
+import importlib
 
 def validate(output, truth):
     #todo: test validation
@@ -39,20 +38,16 @@ def myapp(cfg):
     device = cfg.network.device
     iterations = cfg.training.iterations
 
-    #todo: hack background images for now
-    path = "data/random_highpower"
-    bg_images = imread(path + "/bg_images.tif")
-    bg_images = torch.tensor(bg_images, device=device, dtype=torch.float32)
-    #todo: hack end
-    dataset = CustomImageDataset(cfg.dataset)
-    train_dataloader = DataLoader(dataset, batch_size=250,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=True)
-    validation_dataset = CustomImageDataset(cfg.dataset, train=False)
+    datasets = [CustomImageDataset(cf,  offset=cfg.dataset.offset) for cf in cfg.dataset.train]
+    train_dataloaders = [DataLoader(data, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=True) for data in datasets]
+    validation_dataset = CustomImageDataset(cfg.dataset.validation, offset=cfg.dataset.offset)
     #todo: loss depends on batch size
-    validation_dataloader = DataLoader(validation_dataset, batch_size=250,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=True)
+    validation_dataloader = DataLoader(validation_dataset, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=True)
 
     model_path = 'trainings/model_{}'.format(cfg.network.name)
+    vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
 
-    net = ViT(cfg.network.components)
+    net = vit.ViT(cfg.network.components)
     loss = None
     if cfg.optimizer.name == "Lion":#todo:try with adam?
         opt = Lion(net.parameters(), **cfg.optimizer.params)
@@ -99,37 +94,37 @@ def myapp(cfg):
                 assert("something did not work out here")
 
 
-    lossf = GMMLoss((bg_images.shape[1],bg_images.shape[2]))
+    lossf = GMMLoss((cfg.dataset.height,cfg.dataset.width))
     lossf.to(device)
     loss_list = [] + loss if loss else []
     #track training time
     t1 = time.time()
     for i in range(iterations):
-        for images,truth,mask in train_dataloader:
-            # plt.imshow(images[100,:,:].cpu().detach())
-            # plt.scatter(truth[100,:,1].cpu().detach(), truth[100,:,0].cpu().detach(),c="r")
-            # plt.show()
+        for train_dataloader in train_dataloaders:
+            for images,truth,mask,bg in train_dataloader:
+                # plt.imshow(images[100,:,:].cpu().detach())
+                # plt.scatter(truth[100,:,1].cpu().detach(), truth[100,:,0].cpu().detach(),c="r")
+                # plt.show()
 
+                #set to none speeds up training because gradients are not deleted from memory
+                opt.zero_grad(set_to_none=True)
+                out = net(images)
 
-            #set to none speeds up training because gradients are not deleted from memory
-            opt.zero_grad(set_to_none=True)
-            out = net(images)
-
-            loss = lossf(out, truth[:,:,0:3],mask, bg_images[truth[:,0,3].type(torch.int32)])
-            loss.backward()
-            opt.step()
-            epoch+=1
+                loss = lossf(out, truth[:,:,0:3],mask, bg)
+                loss.backward()
+                opt.step()
+                epoch+=1
         if i%10 ==0:
             with torch.no_grad():
                 #only validate first batch
                 i=0
-                v_loss = 0
-                for im,t,m in validation_dataloader:
+                v_loss = torch.zeros((3))
+                for im,t,m,bg in validation_dataloader:
                     i+=1
                     v_out = net(im)
-                    v_loss += lossf(v_out, t[:,:,0:3], m, torch.zeros_like(im, device=device))
+                    v_loss += lossf(v_out, t[:,:,0:3], m, bg, seperate=True)
                     #print(validate(v_out, t))
-                    print(f"loss: {loss} validation_loss: {v_loss}", i)
+                    print(f"loss: {loss} validation_loss: loc_loss = {v_loss[0]}, c_loss = {v_loss[1]} bg_loss = {v_loss[2]}", i)
                 loss_list.append([loss.cpu().numpy(), v_loss.cpu().numpy()/i])
 
             torch.save({

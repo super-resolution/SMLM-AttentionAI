@@ -1,8 +1,12 @@
 dataset:
-  name: Random
-  path: data/random2.npy
+  name: lab_logo2
+  path: data
+  n_pix: 60
 emitter:
-  switching_probability: [[0.5,0.5],[0.99999, 0.00001]]
+  #localisations per square µm²
+  emitter_density: .1
+  #we dont need this
+  switching_probability: [[0.5,0.5],[0.99997, 0.00003]]
   wavelength: 660
 device: cuda
 defaults:

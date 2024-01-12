@@ -1,11 +1,10 @@
-from unittest import TestCase
-
 import matplotlib.pyplot as plt
 import torch
 from tifffile.tifffile import imread
-import torch.nn as nn
 import numpy as np
-from models.VIT import ImageEmbedding,ViT,Encoder
+from models.VIT.vit import ImageEmbedding,ViT,Encoder,CADecoder
+from models.layers import CrossAttentionBlock, patchify, decoder_unpatch
+from hydra import initialize, compose
 
 def get_positional_embeddings(sequence_length, d):
     result = torch.ones(sequence_length, d)
@@ -15,13 +14,42 @@ def get_positional_embeddings(sequence_length, d):
     return result
 
 
-
-
+class TestVisionDecoder():
+    def __init__(self) -> None:
+        self.images = torch.Tensor(imread("data/" + "lab_logo" + "/images.tif")[500:600, 0:60, 0:60])
+    def test_cross_attention(self):
+        patches = patchify(self.images, 10).repeat(1, 1, 8)
+        images = decoder_unpatch(patches, 10)
+        c = CrossAttentionBlock()
+        r = c.forward(images, images)
+        #r = unpatchify(r, 10, n_channels=1)
+        plt.imshow(r.detach().numpy()[0,0])
+        plt.show()
+        #todo: unpatchify
+        #todo: show
+    def test_patchify(self):
+        patches = patchify(self.images, 10).repeat(1,1,8)
+        images = decoder_unpatch(patches,10)
+        #patches = decoder_patchify(images,36)
+        #images = decoder_unpatch(patches, 10)
+        print(patches.size())
+        #works
+        plt.imshow(images.detach().numpy()[0,9])
+        plt.show()
+    def test_unpatchify(self):
+        pass
+    def test_decoder(self):
+        with initialize(version_base=None, config_path="../cfg/network"):
+            cfg = compose(config_name="ViTCA", )
+            patches = patchify(self.images, 10).repeat(1,1,8)
+            decoder = CADecoder(cfg.components)
+            images = decoder.forward(patches, 6)
+            plt.imshow(images.detach().numpy()[0,0])
+            plt.show()
 
 class TestVisionTransformer():
     def __init__(self) -> None:
         self.images = torch.Tensor(imread("data/" + "lab_logo" + "/images.tif")[500:600, 0:60, 0:60])
-
     def test_patchify(self):
         fig, axs = plt.subplots(4)
         axs[0].imshow(self.images[0])
@@ -53,14 +81,16 @@ class TestVisionTransformer():
         print(result.shape)
 
     def test_vit(self):
-        T = ViT()
-        #encoder working as expected
-        result = T.forward(self.images)
-        print(result.shape)
-        fig,axs = plt.subplots(3)
-        for i in range(3):
-            axs[i].imshow(result[0,i].detach().numpy())
-        plt.show()
+        with initialize(version_base=None, config_path="../cfg/network"):
+            cfg = compose(config_name="ViTV4", )
+            T = ViT(cfg.components)
+            #encoder working as expected
+            result = T.forward(self.images)
+            print(result.shape)
+            fig,axs = plt.subplots(3)
+            for i in range(3):
+                axs[i].imshow(result[0,i].detach().numpy())
+            plt.show()
 
     def test_fold_unfold(self):
         plt.imshow(self.images[0])
@@ -79,3 +109,6 @@ class TestVisionTransformer():
 if __name__ == '__main__':
     T = TestVisionTransformer()
     T.test_vit()
+    #todo: make another test loading the model and displaying the temporal connections of localisations
+    #todo: create a lot of new test data including structures etc.
+

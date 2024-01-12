@@ -1,6 +1,7 @@
 name: ViTV2
 device: cuda
 #used datatype todo: use float 16?
+#batch size is 250
 dtype: float32
 components:
   #todo added residual connection in encoder
