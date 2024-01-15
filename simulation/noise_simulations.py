@@ -8,7 +8,7 @@ print(torch.cuda.current_device())
 
 class Simulation(nn.Module):
     ALLOWED_KWARGS = ["expected_number_of_photons","exposure_time","dark_noise",
-                      "quantum_efficiency","quantum_efficiency","gain", "redout_noise"]
+                      "quantum_efficiency","gain", "redout_noise"]
     def __init__(self, device="cpu"):
         super().__init__()
         device = "cuda"

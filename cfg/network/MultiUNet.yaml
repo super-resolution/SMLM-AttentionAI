@@ -1,3 +1,0 @@
-name: MultiUNet
-device: cuda
-dtype: float32

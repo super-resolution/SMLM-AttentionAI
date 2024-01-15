@@ -1,3 +1,0 @@
-name: RecursiveUNetMultiAttention
-device: cuda
-dtype: float32

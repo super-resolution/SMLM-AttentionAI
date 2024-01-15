@@ -1,4 +1,0 @@
-name: RecursiveUNet
-device: cuda
-dtype: float32
-layer:

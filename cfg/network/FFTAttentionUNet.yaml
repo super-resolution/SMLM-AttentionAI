@@ -1,3 +1,0 @@
-name: FFTAttentionUNet
-device: cuda
-dtype: float32

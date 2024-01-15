@@ -1,4 +1,0 @@
-name: AttentionUNetV2
-device: cuda
-dtype: float32
-layer:
