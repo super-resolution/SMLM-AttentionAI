@@ -44,7 +44,8 @@ def myapp(cfg):
     #todo: loss depends on batch size
     validation_dataloader = DataLoader(validation_dataset, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=True)
 
-    model_path = 'trainings/model_{}'.format(cfg.network.name)
+    model_path = 'trainings/model_{}'.format(cfg.training.base)
+    save_path = 'trainings/model_{}'.format(cfg.training.name)
     vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
 
     net = vit.ViT(cfg.network.components)
@@ -134,7 +135,7 @@ def myapp(cfg):
                 'loss': loss_list,
                 'optimizer_params': cfg.optimizer.params,
                 'training_time': time.time()-t1
-            }, model_path)
+            }, save_path)
     loss_list = np.array(loss_list)
     plt.plot(loss_list[:,0],label="loss")
     plt.plot(loss_list[:,1],label="validation_loss")

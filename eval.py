@@ -4,14 +4,67 @@ import hydra
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
-from tifffile.tifffile import imread
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
 
 from utility.dataset import CustomImageDataset
 from utility.emitters import Emitter
-from utility.visualization import plot_emitter_set
+from visualization.visualization import plot_emitter_set
 
+
+def search_attention(net,dataloader):
+    sample_batch,truth,mask,bg = next(iter(dataloader))
+    x = truth.cpu().numpy()
+    d = {}
+    for i in range(x[0].shape[0]):
+        x1 = (x[0, i, 0:2] * 100).astype(np.int32)
+        if x1[0] == 0:
+            break
+        x2 = (x[:, :, 0:2] * 100).astype(np.int32)
+        frames = np.where(np.logical_and(x2[:,:,0] == x1[0],x2[:,:,1] == x1[1]))
+        d[tuple(x1)] = frames[0]
+    #todo: get close
+    tup = (1246, 971)
+    def MHA_injection(self, inp):
+        # Layer norm
+        x = self.norm(inp)
+        # Compute Query Key and Value
+        q = self.q(x)
+        k = self.k(x)
+        v = self.v(x)
+        z, y = self.mha(q, k, v, need_weights=True)
+        y = y.cpu().detach().numpy()
+        # todo: also plot close loc
+        # this is attention weight of 1
+        res = []
+        #todo: do this for whole dataset and for 100 frames off time
+        #todo: show different trainings of AI
+        #todo: compare reconstruction to srrf and cs
+        #todo: implement rendering with nn uncertainty
+        for tup,framset in d.items():
+            for f in framset:
+                ons = [.01 if i in d[tup] else 0 for i in range(250)]
+                # plt.bar(list(range(250)), ons, label="ON state")
+                res.append(np.corrcoef(ons,y[tup[0]//100 * 60 + tup[1]//100, f])[0][1])
+                # plt.bar(list(range(250)), y[tup[0]//100 * 60 + tup[1]//100, f], label="attention")
+                # plt.legend()
+                # plt.savefig("figures/correlation.svg")
+                # plt.show()
+        plt.hist(res,bins=20)
+        plt.ylabel("n samples")
+        plt.xlabel("Pearson correlation")
+        plt.savefig("figures/corrv.svg")
+
+        plt.show()
+        # residual connection + multihead attention
+        return z + inp
+
+    net.decoder.mha.forward = MHA_injection.__get__(net.decoder.mha)
+    #todo: write inject for testing MHA?
+
+    net(sample_batch)
+    #todo: get attention weights for pixel
+    z=0
 
 def reshape_data(images):
     #add temporal context to additional dimnesion
@@ -31,8 +84,8 @@ def myapp(cfg):
     dataset_name = cfg.dataset.name
     dataset_offset = cfg.dataset.offset
 
-    datasets = [CustomImageDataset(cf,  offset=cfg.dataset.offset) for cf in cfg.dataset.name]
-    test_dataloaders = [DataLoader(data, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=True) for data in datasets]
+    datasets = CustomImageDataset(cfg.dataset.name,  offset=cfg.dataset.offset)
+    dataloader = DataLoader(datasets, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False)
 
     dtype = getattr(torch, cfg.network.dtype)
     #todo: use dataloader
@@ -45,14 +98,12 @@ def myapp(cfg):
     #     truth.append(val)
 
 
-    images = imread("data/"+ dataset_name + "/images.tif")[0:4000,0:60,0:60]
     #
     #images = imread(r"D:\Daten\Patrick\STORMHD\643\COS7_Phalloidin_ATTO643_1_200_2perHQ_4.tif")[13000:14000,60:130,60:130].astype(np.float32)/24
     #images -= images.min()
     #reshape for temporal context
-    images = torch.tensor(images, dtype=dtype, device=device)
     #images = torch.nn.functional.pad(images, (0,0,0,1,0,1))
-    model_path = 'trainings/model_'+cfg.network.name#change also in eval
+    model_path = 'trainings/model_'+cfg.training.name#change also in eval
     print(model_path)
     vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
 
@@ -71,25 +122,36 @@ def myapp(cfg):
     out_data = []
     #evaluation mode
     net.eval()
-    for i in range(0,images.shape[0],250):
+    #search_attention(net,dataloader)
+    truth_list = []
+    for images, truth, mask, bg in dataloader:
+        truth_list.append(truth.cpu().numpy())
         with torch.no_grad():
-             out_data.append(net(images[i:i+250]).cpu())
+             out_data.append(net(images).cpu())
     out_data = torch.concat(out_data,dim=0)
-
+    truth = np.concatenate(truth_list,axis=0)
+    t = Emitter.from_ground_truth(truth)
     out_data = out_data.numpy()
-    plt.imshow(np.min(out_data[:,1],axis=0))#todo: plot mean and std
+    # plt.imshow(np.mean(out_data[:,0],axis=0),cmap="hot")#todo: plot mean and std
+    # plt.colorbar()
+    #
+    # plt.savefig("figures/avg_p.svg")
+
     #plt.scatter(truth[0][:,1],truth[0][:,0])
-    plt.show()
+    #plt.show()
     #truth = Emitter.from_ground_truth(truth)
     jac= []
     # for i in range(8):
-    dat = Emitter.from_result_tensor(out_data[:, ], .6)
+    dat = Emitter.from_result_tensor(out_data[:, ], 0.5)
     #
-    #dat = dat.filter(sig_y=0.1,sig_x=0.1)
-    #     jac.append(validate(dat, truth))
+    #dat = dat.filter(sig_y=0.9,sig_x=0.9)
+    dat.compute_jaccard(t, out_data[:,0])
+
+    #print(validate(dat,t))
     #plt.plot(jac)
     #plt.savefig("eval_jaccard.svg")
     #plt.show()
+    #plot_emitter_gmm(dat)
     plot_emitter_set(dat)
 
 if __name__ == '__main__':

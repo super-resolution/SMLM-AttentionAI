@@ -1,13 +1,18 @@
 dataset:
-  name: lab_logo2
+  name: airyscan_ld
   path: data
   n_pix: 60
+  n_batches: 6
+  batch_size: 100
+  seed: 60
 emitter:
   #localisations per square µm²
-  emitter_density: .1
+  emitter_density: .9
+  #off time in frames
+  off_time: 100
   #we dont need this
-  switching_probability: [[0.5,0.5],[0.99997, 0.00003]]
+  #switching_probability: [[0.5,0.5],[0.99997, 0.00003]]
   wavelength: 660
 device: cuda
 defaults:
-  - microscope: highpower
+  - microscope: airyscan

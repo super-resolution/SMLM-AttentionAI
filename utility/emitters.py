@@ -1,15 +1,14 @@
+import json
+import os
 import warnings
+from copy import deepcopy
 
-import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-from copy import deepcopy
+import torch
+from third_party.dme import dme
 from utility.utility import get_reconstruct_coords, read_thunderstorm_drift_json
-import os
-import json
-
-
-
+from sklearn.neighbors import KDTree
 
 class Emitter():
     """
@@ -55,9 +54,37 @@ class Emitter():
         self.sigxsigy = np.append(self.sigxsigy, sigxsigy, axis=0)
         self.frames = np.append(self.frames, frames, axis=0)
         self.ids = np.append(self.ids, np.arange(self.ids[-1], xyz.shape[0], 1), axis=0)
-
         self.check_data_integrety()
 
+    def compute_jaccard(self, other, images=None):
+        import matplotlib.pyplot as plt
+        tp = 0
+        fp = 0
+        fn = 0
+        dis = 0
+        for i in range(self.frames.max()):
+            points = self.xyz[np.where(self.frames==i)]
+            othe = other.xyz[np.where(other.frames==i)]
+            if i>100:
+                if np.any(images):
+                    plt.imshow(images[i])
+                plt.scatter(points[:,0]/100,points[:,1]/100)
+                plt.scatter(othe[:,0]/100,othe[:,1]/100)
+                plt.show()
+            if othe.shape[0]>0:
+                tree = KDTree(othe, leaf_size=2)
+                if points.shape[0]>0:
+                    x = tree.query(points)
+                    indices = np.unique(x[1][np.where(x[0]<100)])
+                dis += np.sum(x[0][np.where(x[0]<100)])
+                tp += indices.shape[0]
+                fn += othe.shape[0]-indices.shape[0]
+                fp += points.shape[0]-indices.shape[0]
+            else:
+                fp += points.shape[0]
+        print(tp,fn,fp)
+        print(dis/tp)
+        print(tp/(fn+tp+fp))
 
 
     def __add__(self, other):
@@ -67,11 +94,14 @@ class Emitter():
         """
         self.xyz = np.append(self.xyz, other.xyz, axis=0)
         self.sigxsigy = np.append(self.sigxsigy, other.sigxsigy, axis=0)
-        self.frames = np.append(self.frames, other.frames, axis=0)
-        self.ids = np.append(self.ids, np.arange(self.ids[-1], other.xyz.shape[0], 1), axis=0)
+        self.frames = np.append(self.frames, self.frames.max()+other.frames+1, axis=0)
+        self.ids = np.append(self.ids, self.ids.max()+other.ids+1, axis=0)
         self.photons = np.append(self.photons, other.photons, axis=0)
+        self.p = np.append(self.p, other.p, axis=0)
+
 
     def __mod__(self, other):
+        #todo: implement set comparison
         found_emitters = []
         distances = []
         t= []
@@ -183,33 +213,6 @@ class Emitter():
         s.metadata += metadata
         return s
 
-    def save(self, path, format="npy"):
-        """
-        Save emitter set in the given format
-        :param path: save path
-        :param format: save format
-        :return:
-        """
-        names = {}
-        data = []
-        for col,att in enumerate(self.ATTRIBUTES):
-            val = getattr(self, att)
-            if val:
-                names[att] = col
-                data.append(val)
-        names["metadata"] = self.metadata
-        data = np.concatenate(data, axis=-1)
-        if format =="npy":
-            #make if exists test for non mandatory columns
-            path_m = os.path.splitext(path)
-            with open(path_m + '_metadata.json', 'w') as fp:
-                json.dump(names, fp)
-            np.save(path, data)
-        elif format == "csv":
-            pass
-        elif format == "txt":
-            pass
-
     def apply_drift(self, path):
         """
         Apply thunderstorm c-spline drift or raw drif in csv format
@@ -237,7 +240,7 @@ class Emitter():
         localizations = np.zeros((loc.shape[0], 3))
         localizations[:, 0:2] = loc / 100
         crlb = np.ones(localizations.shape) * np.array(loc_error)[None]
-        estimated_drift, _ = dme_estimate(localizations, self.frames,
+        estimated_drift, _ = dme.dme_estimate(localizations, self.frames,
                                           crlb,
                                           framesperbin=200,  # note that small frames per bin use many more iterations
                                           imgshape=[fov_width, fov_width],
@@ -247,26 +250,67 @@ class Emitter():
                                           useDebugLibrary=False)
         self.apply_drift(estimated_drift[:,0:2])
 
+
+    def save(self, path, format="npy"):
+        """
+        Save emitter set in the given format
+        :param path: save path
+        :param format: save format
+        :return:
+        """
+        names = {}
+        data = []
+        col = 0
+        for att in self.ATTRIBUTES:
+            val = getattr(self, att)
+            if np.any(val):
+                if len(val.shape)==1:
+                    names[att] = [col, 1]
+
+                    data.append(val[:,None])
+                    col += 1
+                else:
+                    names[att] = [col, val.shape[1]]
+                    data.append(val)
+                    col+= val.shape[1]
+        names["metadata"] = self.metadata
+        data = np.concatenate(data, axis=-1)
+        if format =="npy":
+            #make if exists test for non mandatory columns
+            path_m = os.path.splitext(path)
+            with open(path_m[0] + '_metadata.json', 'w') as fp:
+                json.dump(names, fp, sort_keys=True, indent=4)
+            np.save(path, data)
+        elif format == "csv":
+            pass
+        elif format == "txt":
+            pass
+
+
     @classmethod
-    def simulate(cls):
-        #todo: define some limits for point set
-
-        pass
-
-
-    @classmethod
-    def load(cls, path, raw=False):
+    def load(cls, path, raw=True, format="npy"):
         """
         Load emitter set from given path
         :param path:
         :param raw:
         :return:
         """
-        #todo: if raw load put throught image_to_tensor
-        pass
+        # make if exists test for non mandatory columns
+        path_m = os.path.splitext(path)
+        #todo: get collumn names
+        with open(path_m[0] + '_metadata.json') as fp:
+            name = json.load(fp)
+        data = np.load(path)
+        d= {}
+        for att in cls.ATTRIBUTES:
+            if att in name:
+                d[att] = np.squeeze(data[:,name[att][0]:name[att][0]+name[att][1]])
+        return cls(**d)
+
+
 
     @classmethod
-    def from_result_tensor(cls, result_tensor, p_threshold, coord_list=None):
+    def from_result_tensor(cls, result_tensor, p_threshold, coord_list=None, gpu=False):
         """
         Build an emitter set from the neural network output
         :param result_tensor: Feature map output of the AI
@@ -274,46 +318,49 @@ class Emitter():
         :param p_threshold: Threshold value for a classifier pixel to contain a localisation
         :return:
         """
-        if not np.any(coord_list):
-            print("warning no coordinate list loaded -> no offsets are added")
+        if gpu:
+            pass
+        else:
+            if not np.any(coord_list):
+                print("warning no coordinate list loaded -> no offsets are added")
 
-        xyz = []
-        N_list = []
-        sigx_sigy = []
-        sN_list = []
-        p_list = []
-        frames = []
-        for i in range(result_tensor.shape[0]):
-            classifier =result_tensor[i,0, :, :]
-            #if i==32:
-            #    x=0
-            x= np.sum(classifier)
-            # plt.imshow(classifier)
-            # plt.show()
-            if x > p_threshold:
-                indices = get_reconstruct_coords(classifier, p_threshold)#todo: import and use function
+            xyz = []
+            N_list = []
+            sigx_sigy = []
+            sN_list = []
+            p_list = []
+            frames = []
+            for i in range(result_tensor.shape[0]):
+                classifier =result_tensor[i,0, :, :]
+                #if i==32:
+                #    x=0
+                x= np.sum(classifier)
+                # plt.imshow(classifier)
+                # plt.show()
+                if x > p_threshold:
+                    indices = get_reconstruct_coords(classifier, p_threshold)#todo: import and use function
 
-                x = result_tensor[i,1, indices[0], indices[1]]
-                y = result_tensor[i,2, indices[0], indices[1]]
-                p = result_tensor[i,0, indices[0], indices[1]]
-                dx = result_tensor[i,3, indices[0], indices[1]]
-                dy = result_tensor[i,4, indices[0], indices[1]]
-                N = result_tensor[i,6, indices[0], indices[1]]
-                dN = result_tensor[i,7, indices[0], indices[1]]
+                    x = result_tensor[i,1, indices[0], indices[1]]
+                    y = result_tensor[i,2, indices[0], indices[1]]
+                    p = result_tensor[i,0, indices[0], indices[1]]
+                    dx = result_tensor[i,3, indices[0], indices[1]]
+                    dy = result_tensor[i,4, indices[0], indices[1]]
+                    N = result_tensor[i,6, indices[0], indices[1]]
+                    dN = result_tensor[i,7, indices[0], indices[1]]
 
-                for j in range(indices[0].shape[0]):
-                    if np.any(coord_list):
-                        xyz.append(np.array([coord_list[i][0] + 0.5 + float(indices[0][j]) + (x[j]),#x
-                                             coord_list[i][1] + 0.5 +float(indices[1][j]) + y[j]])*100)#y
-                        frames.append(coord_list[i][2])
-                    else:
-                        xyz.append(np.array([float(indices[0][j])+ 0.5 + (x[j]),#x
-                                             float(indices[1][j])+ 0.5 + y[j]])*100)#y
-                        frames.append(i)
-                    p_list.append(p[j])
-                    sigx_sigy.append(np.array([dx[j],dy[j]]))
-                    N_list.append(N[j])
-                    sN_list.append(dN[j])
+                    for j in range(indices[0].shape[0]):
+                        if np.any(coord_list):
+                            xyz.append(np.array([coord_list[i][0] + 0.5 + float(indices[0][j]) + (x[j]),#x
+                                                 coord_list[i][1] + 0.5 +float(indices[1][j]) + y[j]])*100)#y
+                            frames.append(coord_list[i][2])
+                        else:
+                            xyz.append(np.array([float(indices[0][j])+ 0.5 + (x[j]),#x
+                                                 float(indices[1][j])+ 0.5 + y[j]])*100)#y
+                            frames.append(i)
+                        p_list.append(p[j])
+                        sigx_sigy.append(np.array([dx[j],dy[j]]))
+                        N_list.append(N[j])
+                        sN_list.append(dN[j])
         return cls(xyz, N_list, frames, sigx_sigy, p_list)#+50 for center pix offset
 
     @classmethod
@@ -323,7 +370,8 @@ class Emitter():
             for coord in crop:
                 #if coord[2] != 0:
                     #todo add photons
-                coords.append(np.array([coord[0], coord[1], i,0]))#no intensity yet
+                if coord[0] != 0:
+                    coords.append(np.array([coord[0], coord[1], i,0]))#no intensity yet
         coords = np.array(coords)
         coords[:, 0:2] *= 100
         return cls(coords[:,0:2], coords[:,3], coords[:,2])

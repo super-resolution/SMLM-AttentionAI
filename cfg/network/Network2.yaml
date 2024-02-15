@@ -1,3 +1,0 @@
-name: Network2
-device: cuda
-dtype: float32

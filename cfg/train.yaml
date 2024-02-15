@@ -3,6 +3,7 @@ network:
   device: cuda
   dtype: float32
 training:
+  training: ViTV5flim
   iterations: 150
 defaults:
   - network:

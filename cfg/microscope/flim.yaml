@@ -1,8 +1,9 @@
 name: Flim
 px_size: 206
 expected_number_of_photons: 300.
-exposure_time: 20e-3,
+exposure_time: 20e-3
 dark_noise: 100.
 quantum_efficiency: 0.99
 gain: 10.
 redout_noise: 0.3
+psf_sigma: 186

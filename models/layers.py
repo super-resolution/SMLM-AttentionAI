@@ -5,6 +5,7 @@ import torch.nn.functional as F
 from torch import Tensor
 from torch import nn
 from models.util import decoder_patchify,decoder_unpatch
+import matplotlib.pyplot as plt
 
 class PositionalEncoding(nn.Module):
 
@@ -107,8 +108,16 @@ class MHA(nn.Module):
         q = self.q(x)
         k = self.k(x)
         v = self.v(x)
+        z = self.mha(q,k,v,need_weights=False)[0]
+        #y = y.cpu().detach().numpy()
+        #todo: also plot close loc
+        #this is attention weight of 1
+        # plt.bar(list(range(250)),y[12*60+9,0], label="attention")
+        # plt.legend()
+        # plt.savefig("figures/correlation.svg")
+        # plt.show()
         #residual connection + multihead attention
-        return self.mha(q,k,v,need_weights=False)[0] + inp
+        return  z+ inp
 
 class CA(nn.Module):
     """

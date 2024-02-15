@@ -1,0 +1,4 @@
+defaults:
+  - network: ViTV5
+  - dataset:
+  - optimizer: adam

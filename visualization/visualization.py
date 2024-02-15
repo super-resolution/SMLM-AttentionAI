@@ -2,6 +2,21 @@ import cv2
 import matplotlib.pyplot as plt
 import numpy as np
 from tifffile.tifffile import TiffWriter
+import torch
+import torch.distributions as td
+def plot_emitter_gmm(emitters):
+    #todo: render on div
+    mesh = torch.meshgrid([torch.arange(0, 600) + .5, torch.arange(0, 600) + .5])
+    grid = torch.stack(mesh, 0)
+    cat = td.Categorical(torch.tensor(emitters.p[0:5000]))
+    comp = td.Independent(td.Normal(torch.tensor(emitters.xyz[:5000]/10), torch.tensor(emitters.sigxsigy[:5000]*10)), 1)
+    gmm = td.mixture_same_family.MixtureSameFamily(cat, comp)
+    v = torch.exp(gmm.log_prob(torch.transpose(grid,0,2)))
+    x = 0
+
+    plt.imshow(v,cmap="hot")
+    plt.show()
+    #sample grid
 
 
 def plot_emitter_set(emitters, frc=False):
@@ -17,16 +32,18 @@ def plot_emitter_set(emitters, frc=False):
     localizations = emitters.xyz  # +np.random.random((data_in.shape[0],2))
     array = np.zeros(
         (int(localizations[:, 0].max()) + 1, int(localizations[:, 1].max()) + 1))  # create better rendering...
+    #sort by sigma
+    #sum up images
     for i in range(localizations.shape[0]):
             array[int(localizations[i, 0]), int(localizations[i, 1])] += 300# * emitters.photons[i]
 
-
-    array = cv2.GaussianBlur(array, (21, 21), 0)
+    #array = cv2.GaussianBlur(array, (21, 21), 0)
     # array -= 10
     array = np.clip(array, 0, 255)
-    downsampled = cv2.resize(array, (int(array.shape[1] / 10), int(array.shape[0] / 10)), interpolation=cv2.INTER_AREA)
+    downsampled = cv2.resize(array, (int(array.shape[1] / 5), int(array.shape[0] / 5)), interpolation=cv2.INTER_AREA)
+
     # todo: make 10 px scalebar
-    with TiffWriter('../temp.tif', bigtiff=True) as tif:
+    with TiffWriter('temp.tif', bigtiff=True) as tif:
         tif.save(downsampled)
     cm = plt.get_cmap('hot')
     v = cm(downsampled / 255)
@@ -34,5 +51,5 @@ def plot_emitter_set(emitters, frc=False):
     v[-25:-20, 10:110, 0:3] = 1
 
     # array = np.log(array+1)
-    plt.imshow(array, cmap='hot')
+    plt.imshow(downsampled, cmap='hot')
     plt.show()

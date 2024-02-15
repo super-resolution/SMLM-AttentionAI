@@ -1,13 +1,15 @@
 
 training:
-  iterations: 150
+  base: ViTVtest
+  name: ViTVtest
+  iterations: 450
 dataset:
-  train: [random_highpower, random_highpower2]
+  train: [airyscan_ld]
   batch_size: 250
   height: 60
   width: 60
-  size: 5000
-  offset: 100
+  #size: 5000
+  offset: 0
   validation: random_highpower_test
 defaults:
   #uses log of dataset

@@ -1,0 +1,35 @@
+name: ViTV5nlog
+device: cuda
+#used datatype todo: use float 16?
+#batch size is 250
+#using larger training dataset
+#doubles hidden_d
+dtype: float32
+components:
+  #patch size of ViT has to be quadratic
+  patch_size: 10
+  #hidden dimension worked best out of 400,800,1600,3200
+  hidden_d: 800
+  #define sequence length for positional encoding
+  sequence_lenght: 2000
+  #define feature-extractor unet in different file
+  mapping:
+    DoubleConv
+    UNet
+  embedding:
+    linear
+  #define encoder architecture
+  encoder:
+    MHA
+    norm
+    MLP
+    norm
+  #define decoder architecture
+  decoder:
+    linear
+    norm
+  #currently linear and conv
+  #define activation
+  activation:
+    GMMActivation
+  #currently GMM activation

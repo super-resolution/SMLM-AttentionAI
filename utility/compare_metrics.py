@@ -1,5 +1,4 @@
 
-from emitters import Emitter
 
 
 def validate(pred_set, truth_set):
@@ -9,4 +8,5 @@ def validate(pred_set, truth_set):
     fp = pred_set - truth_set
     tp = pred_set % truth_set
     jac = tp.length / (tp.length + fp.length + fn.length)
+    print(fp.length,fn.length)
     return jac
