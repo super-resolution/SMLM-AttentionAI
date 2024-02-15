@@ -1,4 +1,4 @@
-##Python Package for Direct Stochastic Optical Reconstruction Microscopy (dSTORM)
+## Python Package for Direct Stochastic Optical Reconstruction Microscopy (dSTORM)
 
 This Python package provides a comprehensive toolkit for performing direct Stochastic Optical Reconstruction Microscopy (dSTORM) analysis using Attention AI algorithms. dSTORM is a super-resolution microscopy technique that achieves high-resolution imaging beyond the diffraction limit by localizing fluorescent molecules.
 Features
