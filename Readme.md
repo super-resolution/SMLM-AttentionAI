@@ -1,4 +1,4 @@
-## Python Package for Direct Stochastic Optical Reconstruction Microscopy (dSTORM)
+# Python Package for Direct Stochastic Optical Reconstruction Microscopy (dSTORM)
 
 This Python package provides a comprehensive toolkit for performing direct Stochastic Optical Reconstruction Microscopy (dSTORM) analysis using Attention AI algorithms. dSTORM is a super-resolution microscopy technique that achieves high-resolution imaging beyond the diffraction limit by localizing fluorescent molecules.
 Features
@@ -24,10 +24,10 @@ python
 
 from dstorm_attention_ai import localize
 
-# Load dSTORM data
+## Load dSTORM data
 data = load_dstorm_data('path/to/data')
 
-# Perform localization using Attention AI
+## Perform localization using Attention AI
 localizations = localize(data)
 
 EMCCD Camera Simulator
@@ -36,10 +36,10 @@ python
 
 from dstorm_attention_ai.simulator import EMCCDCameraSimulator
 
-# Initialize EMCCD camera simulator
+## Initialize EMCCD camera simulator
 simulator = EMCCDCameraSimulator()
 
-# Simulate EMCCD camera imaging
+## Simulate EMCCD camera imaging
 simulated_image = simulator.simulate(data)
 
 Visualization
@@ -48,7 +48,7 @@ python
 
 from dstorm_attention_ai.visualization import visualize_dstorm_data
 
-# Visualize dSTORM data
+## Visualize dSTORM data
 visualize_dstorm_data(data)
 
 Training Script
@@ -59,20 +59,19 @@ python train.py --dataset path/to/training_data --epochs 50 --batch_size 32
 
 Evaluation Script
 
-bash
-
+``
 python evaluate.py --model path/to/model --dataset path/to/evaluation_data
-
+``
 Contributors
 
-    John Doe (@johndoe)
-    Jane Smith (@janesmith)
+    Sebastian Reinhard (sebastian.uj.reinhard@gmail.com)
+    Jann Schrama (@)
+    Markus Sauer
 
 License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 Acknowledgments
 
-    This package was developed as part of research conducted at XYZ University.
-    Special thanks to ABC Lab for their valuable contributions.
+    This package was developed as part of research conducted at Julius Maximillians University.
     Hat tip to the open-source community for their support and contributions.
