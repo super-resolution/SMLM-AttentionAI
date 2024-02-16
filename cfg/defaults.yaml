@@ -1,3 +1,4 @@
+#Defaultfile for training and evaluation
 defaults:
   - network: ViTV5
   - dataset:

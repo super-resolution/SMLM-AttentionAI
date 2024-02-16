@@ -1,3 +1,4 @@
+#Microscope parameter file
 name: Flim
 px_size: 206
 expected_number_of_photons: 300.

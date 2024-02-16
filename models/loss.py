@@ -1,34 +1,47 @@
 import torch
+from torch import Tensor
+from collections.abc import Iterable
 import numpy as np
 
 import time
 
-
 td = torch.distributions
-# todo: gaussian mixture
-
-
 
 
 class GMMLoss(torch.nn.Module):
-    def __init__(self, size):
+    """
+    Gaussian Mixture Model loss
+    Adapted from Decode
+    """
+    def __init__(self, size:Iterable[Tensor,np.ndarray]) -> Tensor:
+        """
+        Initialize a grid for loss
+        :param size: Size of output featuremaps/input image
+        """
         super().__init__()
         mesh = torch.meshgrid([torch.arange(0, size[0])+.5, torch.arange(0, size[1])+.5])
         self.grid = torch.stack(mesh, 0)[None, :].to("cuda")
 
 
-    def grid_coords_xy(self,pos_xy):
+    def grid_coords_xy(self,pos_xy:Tensor) -> Tensor:
         """
         Takes N x 2 X H X W Tensor and adds grid coordinates
-        :param input:
-        :return:
+        :param input: Relative input position to the center of a pixel
+        :return: The absolute position in the feature map
         """
-
         return pos_xy + self.grid
 
 
-    def forward(self, output, pos, mask, bg_truth, seperate=False):
-
+    def forward(self, output:Tensor, pos:Tensor, mask:Tensor, bg_truth:Tensor, seperate=False) -> Iterable[Tensor,list[Tensor]]:
+        """
+        Forward pass
+        :param output: Output of neural network with 8 feature maps
+        :param pos: Positions of the ground truth
+        :param mask: mask for positions
+        :param bg_truth: Background image from simulations
+        :param seperate: Give back partial or total loss
+        :return: Scalar loss if seperate=False else list of partial tensors
+        """
         torch.cuda.synchronize()
 
         prob = output[:, 0]
@@ -75,32 +88,3 @@ class GMMLoss(torch.nn.Module):
         loss = gmm_loss+c_loss + bg_loss
 
         return loss
-
-
-def my_loss(output, targ, indices):
-    #todo: add gridget to output
-    mesh = torch.meshgrid([torch.arange(0,output.shape[2]),torch.arange(0,output.shape[3])])
-    grid = torch.stack(mesh,-1)
-
-    loss = torch.tensor(0.)
-    pre = torch.tensor(1. / torch.sqrt(torch.tensor(2.) * torch.pi ** 2.))
-    for out,ind in zip(output,indices):
-        target = targ[np.where(ind[:,0]==1)]
-        cov_x = torch.concat((out[3:4]**2+0.9, torch.zeros_like(out[3:4])), 0)
-        cov_y = torch.concat((torch.zeros_like(out[4:5]), out[4:5]**2+0.9),0)
-        cov = torch.inverse(torch.permute(torch.concat([cov_x[None,:],cov_y[None,:]],0),(2,3,0,1)))
-
-
-        out = torch.permute(out,(1,2,0))[None,:]
-
-        a = (out[:,:,:,1:3] + grid - target)
-
-        b=  cov[None,:,:]
-        det = torch.det(cov).squeeze()[None,:]
-        gaussian = pre*det*(torch.exp(-0.5 *a[:,:,:,None,:] @ b @ a[:,:,:,:,None])).squeeze()
-        prob = out[:,:,:,0]/torch.sum(out[:,:,:,0])[None,]
-        log_int = torch.sum(prob*gaussian, dim=[-1,-2])
-        l =  -torch.log(log_int+0.001)
-        loss += torch.sum(1/target.shape[0]*l)
-
-    return loss

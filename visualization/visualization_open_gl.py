@@ -1,51 +1,60 @@
+import math
 import os
+
 import numpy as np
 from OpenGL.GL import *
 from OpenGL.arrays import vbo
-from pyqtgraph.opengl.GLGraphicsItem import GLGraphicsItem
-from visualization.shader import Shader
-from PyQt5 import QtCore,QtGui
-import math
-from visualization.buffers import Renderbuffer,Texturebuffer,Framebuffer
-from visualization.objects import Texture,Surface
-from visualization.textures import Create1DTexture,Create2DTexture
 from PIL import Image
+from PyQt5 import QtGui
+from pyqtgraph.opengl.GLGraphicsItem import GLGraphicsItem
+
+from visualization.buffers import Renderbuffer, Texturebuffer, Framebuffer
+from visualization.objects import Texture, Surface
+from visualization.shader import Shader
+from visualization.textures import Create1DTexture, Create2DTexture
 
 MAX_VBO_SIZE = 50000
 class Points(GLGraphicsItem):
-    def __init__(self, positions, sig, frames, probability, cmap):
+    """
+    Implements GLGraphics Item
+    renders points to texture and paints texture to widget
+    """
+    def __init__(self, positions:np.ndarray, sig:np.ndarray, frames:np.ndarray, probability:np.ndarray, cmap:np.ndarray):
+        """
+        :param positions: nx2 array of positions
+        :param sig: nx2 array of precisions
+        :param frames: nx1 array of frame numbers
+        :param probability: nx1 array of probabilities
+        :param cmap: mx4 entries of colormap
+        """
         super().__init__()
         basepath = os.path.dirname(os.path.realpath(__file__)) +r"\shader_files"
         self.filename = basepath + r"\STORM2"
+        #modelview and projection matrix are empty
         self.modelview = []
         self.projection = []
+        #set default for enumeratores
         self.point_filters = {"precision_filter":np.array([.0,200.], dtype=np.float),
                               "frame_filter": np.array([0,10**9], dtype=np.int32),
                               "probability_filter":np.array([0.,2.], dtype=np.float)}
-
+        #create shader program for points
         self._shader = Shader(self.filename)
+        #create shader program for texture
         self.image_shader = Shader(basepath + r"\Image")
+        #enums for point rendering
         self.enums = [GL_POINT_SPRITE, GL_PROGRAM_POINT_SIZE, GL_BLEND]
+        #need position on self to compute image size
         self.position = positions
         #get precision in nm
         sig *= 100
         #self.cluster = np.array((0.0,0.0))
-        #todo: this should be buffered
-        self.size = 20.0#
-        #self.ratio = 1
-        #self.fg_color = [0.0,0.0,0.0,0.0]
-        self.color = [1.0,1.0,1.0,1.0]
-        self.maxEmission = 0
         self.updateData = True
-        #todo: enums for filtering
         self.args = ["position", "size", "color", "maxEmission", "cluster"]
-        #todo: add cmap array as enum?
-        #todo: add sigx and sigy
         #uniform texture
         self.cmapTexture = Create1DTexture()
         self.cmapTexture.set_texture(cmap, GL_NEAREST)
-        #todo: chunk stuff into buffers with ~80 000 points
-        #todo: multiple draw calls
+        # chunk stuff into buffers with ~50 000 entries (Hardwarelimited)
+        # needs n_buffers draw calls
         self.sizes = [MAX_VBO_SIZE]*(self.position.shape[0]//MAX_VBO_SIZE)+[self.position.shape[0]%MAX_VBO_SIZE]
         self.n_buffers = (self.position.shape[0]//MAX_VBO_SIZE)+1
         self.sig_buffer = [vbo.VBO(sig[MAX_VBO_SIZE*i:MAX_VBO_SIZE*(i+1)].astype("f"), usage='GL_STATIC_DRAW', target='GL_ARRAY_BUFFER') for i in range(self.n_buffers)]
@@ -53,6 +62,7 @@ class Points(GLGraphicsItem):
         self.frames_buffer = [vbo.VBO(frames[MAX_VBO_SIZE*i:MAX_VBO_SIZE*(i+1)].astype("f"), usage='GL_STATIC_DRAW', target='GL_ARRAY_BUFFER') for i in range(self.n_buffers)]
         self.prob_buffer = [vbo.VBO(probability[MAX_VBO_SIZE*i:MAX_VBO_SIZE*(i+1)].astype("f"), usage='GL_STATIC_DRAW', target='GL_ARRAY_BUFFER') for i in range(self.n_buffers)]
 
+        # create stuff for background rendering
         self.imageTexture = Create2DTexture()
         self.Quad = Texture()
         self.Surface = Surface()
@@ -65,9 +75,12 @@ class Points(GLGraphicsItem):
         self.update()
 
     def background_render(self, precision=999.):
+        #image size/10 px size
+        #todo: should be ~10 nm
         self.width = int(self.position[:,0].max()//10)#int(896/322*1449)
         self.height = int(self.position[:,1].max()//10)
         #self.roi = rect
+        #compute model view matrices
         X = self.position[:,1].max()
         Y = self.position[:,0].max()
         #compute X center
@@ -90,6 +103,7 @@ class Points(GLGraphicsItem):
         projection = QtGui.QMatrix4x4()
         projection.perspective(60.0, aspect, dist*0.0001, dist*10000.0)
 
+        #create render, frame and texturebuffer to draw in background
         renderbuffer = Renderbuffer()
         renderbuffer.build(self.width, self.height)
         self.texturebuffer = Texturebuffer()
@@ -97,11 +111,13 @@ class Points(GLGraphicsItem):
         self.framebuffer = Framebuffer()
         self.framebuffer.build(renderbuffer.handle, self.texturebuffer.handle)
         try:
+            #draw and keep texture alive to display on screen
             glBindFramebuffer(GL_FRAMEBUFFER, self.framebuffer.handle)
             glViewport(0, 0, self.width, self.height)
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
             self._shader.__setitem__("u_modelview", modelview)
             self._shader.__setitem__("u_projection", projection)
+            #apply filterset set enums for filtering on gpu
             for k,v in self.point_filters.items():
                 #v is already a np array in the right datatype
                 self._shader.__setitem__(k, v)
@@ -124,12 +140,15 @@ class Points(GLGraphicsItem):
             self.framebuffer.delete()
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    def set_texture(self):
-        self.imageTexture.set_texture(np.array(self.image)[:,:,1], GL_LINEAR)
+
 
     def draw_points(self):
+        """
+        Draw points in background
+        :return:
+        """
         with self._shader:
-            #todo: draw all buffers
+            # Draw all buffers
             # Bind buffer objects
             for i in range(self.n_buffers):
                 glEnableVertexAttribArray(1)
@@ -168,7 +187,10 @@ class Points(GLGraphicsItem):
 
 
     def paint(self):
-        #self.background_render()
+        """
+        Draw to screen
+        :return:
+        """
         self.modelview = self.view().viewMatrix()*self.viewTransform()
         self.projection = self.view().projectionMatrix()
         self.image_shader.__setitem__("u_modelview", self.modelview)

@@ -1,4 +1,7 @@
 class PointSpreadFunction():
+    """
+    In dev has no function yet
+    """
     def __init__(self, sigma=None, covariance=None):
         """
         provide either sigma or covariance matrix to generate PSF

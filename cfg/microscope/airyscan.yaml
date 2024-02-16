@@ -1,3 +1,4 @@
+#Microscope parameter file
 name: Airyscan
 px_size: 100
 expected_number_of_photons: 1000.

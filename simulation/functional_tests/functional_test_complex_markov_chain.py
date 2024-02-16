@@ -6,6 +6,10 @@ from tqdm import tqdm
 
 
 class Simulation(nn.Module):
+    """
+    More complex markov chain model taking rates into account
+    Could be used to create emission traces for emitters that can be augmented
+    """
     def __init__(self):
         super().__init__()
         r_isc = 3*10**6#per second

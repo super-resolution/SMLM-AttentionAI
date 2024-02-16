@@ -4,12 +4,21 @@ import torch
 import torch.nn.functional as F
 from torch import Tensor
 from torch import nn
-from models.util import decoder_patchify,decoder_unpatch
-import matplotlib.pyplot as plt
+
+from models.util import decoder_patchify, decoder_unpatch
+
 
 class PositionalEncoding(nn.Module):
-
+    """
+    Applies positional encoding to an image
+    """
     def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 2000):
+        """
+        Initialization
+        :param d_model: embedded dimension of model
+        :param dropout: apply dropout to out vector
+        :param max_len: Maximal sequence length
+        """
         super().__init__()
         self.dropout = nn.Dropout(p=dropout)#
         position = torch.arange(max_len).unsqueeze(1)
@@ -21,17 +30,27 @@ class PositionalEncoding(nn.Module):
 
     def forward(self, x: Tensor) -> Tensor:
         """
-        Arguments:
-            x: Tensor, shape ``[seq_len, batch_size, embedding_dim]``
+        Forward function of positional encoding
+        :param x: Input tensor to apply positional encoding to
+        :return: Output tensor with applied dropout and position encoding
         """
         x = x + self.pe[:x.size(0),:]
-        return x#self.dropout(x)
+        return self.dropout(x)
 
 
 
 
 class DoubleConv(nn.Module):
-    def __init__(self, in_channels, out_channels, mid_channels=None):
+    """
+    Double Convolution as applied in UNet
+    """
+    def __init__(self, in_channels:int, out_channels:int, mid_channels=None):
+        """
+        Initialization
+        :param in_channels: Number of input channels
+        :param out_channels: Number of desired ouput channels
+        :param mid_channels: Number of channels between the convolutions
+        """
         super().__init__()
         if not mid_channels:
             mid_channels = out_channels
@@ -44,28 +63,57 @@ class DoubleConv(nn.Module):
             nn.ReLU(inplace=True)
         )
 
-    def forward(self, x):
+    def forward(self, x:Tensor) -> Tensor:
+        """
+        Apply double convolution on input tensor
+        :param x: Input tensor (image)
+        :return: Ouput tensor (convolved image)
+        """
         return self.double_conv(x)
 
 
 
 class Down(nn.Module):
-    def __init__(self, in_channels, out_channels, pool_size):
+    """
+    Downward convolution as describe in UNet
+    """
+    def __init__(self, in_channels:int, out_channels:int, pool_size:int):
+        """
+        Initialization
+        :param in_channels: Number of input channels
+        :param out_channels: Number of output channels
+        :param pool_size: Pooling size. Defines how "fast" the size of the image is reduced
+        pool_size = 2 halfes the image dimensions
+        """
         super().__init__()
         self.maxpool_conv = nn.Sequential(
             nn.MaxPool2d(pool_size),
             DoubleConv(in_channels, out_channels)
         )
 
-    def forward(self, x):
+    def forward(self, x:Tensor) -> Tensor:
+        """
+        Forward pass
+        :param x: Input image as tensor
+        :return: Output image
+        """
         return self.maxpool_conv(x)
 
 
 
 class Up(nn.Module):
-    def __init__(self, in_channels, out_channels, bilinear=True, scale=2):
+    """
+    Upward Convolution as described in UNet
+    """
+    def __init__(self, in_channels:int, out_channels:int, bilinear:bool=True, scale:int=2):
+        """
+        Initialization
+        :param in_channels: Number of input channels
+        :param out_channels: Number of output channels
+        :param bilinear: Use bilinear interpolation to smooth upward convolution
+        :param scale: Scaling i.e. magnification for upward convolution
+        """
         super().__init__()
-
         # if bilinear, use the normal convolutions to reduce the number of channels
         if bilinear:
             self.up = nn.Upsample(scale_factor=scale, mode='bilinear', align_corners=True)
@@ -74,17 +122,22 @@ class Up(nn.Module):
             self.up = nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=2, stride=2)
             self.conv = DoubleConv(in_channels, out_channels)
 
-    def forward(self, x1, x2):
+    def forward(self, x1:Tensor, x2:Tensor) -> Tensor:
+        """
+        Forward pass of upward convolution
+        :param x1: Input tensor to be upscaled
+        :param x2: Concatenation tensor from downward pass
+        :return: output tensor
+        """
         x1 = self.up(x1)
         # input is CHW
         diffY = x2.size()[2] - x1.size()[2]
         diffX = x2.size()[3] - x1.size()[3]
 
+        #pad stuff if nescesarry
         x1 = F.pad(x1, [diffX // 2, diffX - diffX // 2,
                         diffY // 2, diffY - diffY // 2])
-        # if you have padding issues, see
-        # https://github.com/HaiyongJiang/U-Net-Pytorch-Unstructured-Buggy/commit/0e854509c2cea854e247a9c615f175f76fbb2e3a
-        # https://github.com/xiaopeng-liao/Pytorch-UNet/commit/8ebac70e633bac59fc22bb5195e513d5832fb3bd
+
         x = torch.cat([x2, x1], dim=1)
         return self.conv(x)
 
@@ -93,15 +146,21 @@ class MHA(nn.Module):
     """
     Implements Multihead Attention
     """
-    def __init__(self, embed_dim=128, head_dim=8, batch_first=False):
+    def __init__(self, embed_dim:int=128, head_dim:int=8, batch_first:bool=False):
         super().__init__()
+        #Linear mapping Query q, Key k, and Value v
         self.q = nn.Linear(embed_dim, embed_dim)
         self.k = nn.Linear(embed_dim, embed_dim)
         self.v = nn.Linear(embed_dim, embed_dim)
         self.norm = nn.LayerNorm(embed_dim)
         #MHA on first dimension
         self.mha = nn.MultiheadAttention(embed_dim=embed_dim,num_heads=head_dim,dropout=0.1, batch_first =batch_first)
-    def forward(self, inp):
+    def forward(self, inp:Tensor) -> Tensor:
+        """
+        Forward pass of multihead attention. Applies residual connection
+        :param inp: Input tensor
+        :return: Output tensor
+        """
         #Layer norm
         x = self.norm(inp)
         #Compute Query Key and Value
@@ -109,14 +168,13 @@ class MHA(nn.Module):
         k = self.k(x)
         v = self.v(x)
         z = self.mha(q,k,v,need_weights=False)[0]
-        #y = y.cpu().detach().numpy()
-        #todo: also plot close loc
-        #this is attention weight of 1
+        # y = y.cpu().detach().numpy()
+        # to plot stuff activate need_weights and selecet z[1]
         # plt.bar(list(range(250)),y[12*60+9,0], label="attention")
         # plt.legend()
         # plt.savefig("figures/correlation.svg")
         # plt.show()
-        #residual connection + multihead attention
+        # residual connection + multihead attention
         return  z+ inp
 
 class CA(nn.Module):
@@ -145,7 +203,16 @@ class CA(nn.Module):
 
 
 class MLP(nn.Module):
-    def __init__(self, embed_dim=128, mlp_ratio=2):
+    """
+    Simple Multilayer perceptron
+    Designed in original attention paper
+    """
+    def __init__(self, embed_dim:int=128, mlp_ratio:int=2):
+        """
+        Initialization
+        :param embed_dim: Used embedded dimension
+        :param mlp_ratio: Increase embedded dimension by factor mlp_ratio
+        """
         super().__init__()
         self.mlp = nn.Sequential(
         nn.Linear(embed_dim, mlp_ratio * embed_dim),
@@ -153,14 +220,29 @@ class MLP(nn.Module):
         nn.Linear(mlp_ratio * embed_dim, embed_dim)
         )
 
-    def forward(self, inp):
+    def forward(self, inp:Tensor) -> Tensor:
+        """
+        Forward pass
+        :param inp: Input Tensor
+        :return: Ouput Tensor
+        """
         #Layer norm
         x = self.mlp(inp)
         #residual connection + multihead attention
         return x + inp
 
 class MLP2(nn.Module):
-    def __init__(self, embed_dim=128, mlp_ratio=2):
+    """
+    Multilayer perceptron
+    Used in open source diffusion networks. But does not significantly increase the network loss
+    Applies residual connection
+    """
+    def __init__(self, embed_dim:int=128, mlp_ratio:int=2):
+        """
+        Initialization
+        :param embed_dim: Used embedded dimension
+        :param mlp_ratio: Increase embedded dimension by factor mlp_ratio
+        """
         super().__init__()
         self.layernorm = nn.LayerNorm(embed_dim)#nchannels
         self.lin1 = nn.Linear(embed_dim, mlp_ratio * embed_dim)
@@ -168,7 +250,12 @@ class MLP2(nn.Module):
         self.act = nn.GELU()
         self.lin3 = nn.Linear(mlp_ratio * embed_dim, embed_dim)
 
-    def forward(self, inp):
+    def forward(self, inp:Tensor) -> Tensor:
+        """
+        Forward pass
+        :param inp: Input Tensor
+        :return: Ouput Tensor
+        """
         residual_short = inp
         x = self.layernorm(inp)
         x = self.lin1(x)
@@ -177,6 +264,8 @@ class MLP2(nn.Module):
         x = self.lin3(x)
         return x+residual_short
 
+
+#Experimental
 class CrossAttentionBlock(nn.Module):
     def __init__(self, embed_dim=128,context_dim=128, mlp_ratio=2, channels=36):
         #n_channels -> patch size
@@ -268,5 +357,4 @@ class DiffusionDecoder(nn.Module):
 
 
 
-#todo: combine attention with u net
 

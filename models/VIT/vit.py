@@ -1,34 +1,6 @@
-import matplotlib.pyplot as plt
-import torch
-from torch import nn
-from torch import Tensor
-import math
-import torch.nn.functional as F
-from einops import rearrange, reduce, repeat
-from einops.layers.torch import Rearrange
-import numpy as np
-from models.unet import UNet
-from models.layers import *
 from models import activations
-class PositionalEncoding(nn.Module):
-
-    def __init__(self, d_model: int, dropout: float = 0.1, max_len: int = 2000):
-        super().__init__()
-        self.dropout = nn.Dropout(p=dropout)#
-        position = torch.arange(max_len).unsqueeze(1)
-        div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
-        pe = torch.zeros(max_len, 1, d_model)#positional enconding on sequence i.e. 1
-        pe[:, 0, 0::2] = torch.sin(position * div_term)*10#1 fold performed worse
-        pe[:, 0, 1::2] = torch.cos(position * div_term)*10
-        self.register_buffer('pe', pe)
-
-    def forward(self, x: Tensor) -> Tensor:
-        """
-        Arguments:
-            x: Tensor, shape ``[seq_len, batch_size, embedding_dim]``
-        """
-        x = x + self.pe[:x.size(0),:]
-        return x#self.dropout(x)
+from models.layers import *
+from models.unet import UNet
 
 
 def gaussian_initializer(shape=(10,10,40,40)):

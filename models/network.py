@@ -1,3 +1,4 @@
+#Previous tries not in use right now
 from torch import nn
 import torch
 import torch.nn.functional as F

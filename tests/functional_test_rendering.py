@@ -1,16 +1,15 @@
-import numpy as np
-import pyqtgraph as pg
-import pyqtgraph.opengl as gl
-from PyQt5 import QtGui
-from PyQt5.QtWidgets import QApplication, QMainWindow, QSizePolicy
-from matplotlib import cm
-import matplotlib.pyplot as plt
 import sys
 
+import numpy as np
+import pyqtgraph as pg
+from PyQt5.QtWidgets import QApplication, QMainWindow, QSizePolicy
+from matplotlib import cm
+
 from utility.emitters import Emitter
+from visualization.gui.user_interface import Ui_MainWindow
 from visualization.visualization_open_gl import Points
 from visualization.widget import CustomnWidget
-from visualization.gui.user_interface import Ui_MainWindow
+
 
 class FunctionalTestRendering():
     def __init__(self):
@@ -28,7 +27,6 @@ class FunctionalTestRendering():
         #widget.opts["center"] = QtGui.QVector3D(self.emitters.xyz[1].max() / 2, self.emitters.xyz[0].max() / 2, 0)
         p = Points(self.emitters.xyz, self.emitters.sigxsigy, self.emitters.frames, cmap)
         p.background_render()
-        p.set_texture()
         widget.addItem(p)
         #
         # data = np.array(p.image)[:,:,0].astype(np.uint8)

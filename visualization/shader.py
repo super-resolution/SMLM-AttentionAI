@@ -14,8 +14,10 @@ class Shader():
     :param filepath: path to vertex fragment and (optional) geometry shaders. should all have the same name
     :var m_program: reference number to program
     """
-
-    def __init__(self, filename):
+    def __init__(self, filename:str):
+        """
+        :param filename: Filename of vertex and fragment shader without extension
+        """
         self.filename = os.path.basename(filename)
         self.m_shaders = []
         self.m_program = glCreateProgram()
@@ -30,6 +32,7 @@ class Shader():
             self.set_uniform("image",0)
             self.set_uniform("cmap",1)
         self.link_program()
+        #todo: validate before rendering to not get invalid samplers
         #self.validate_program()
 
     def link_program(self):
@@ -52,10 +55,10 @@ class Shader():
         if validatestatus != GL_TRUE:
             raise RuntimeError(glGetProgramInfoLog(self.m_program).decode('ASCII'))
 
-    def create_shader(self, shader, type):
+    def create_shader(self, shader:str, type:int):
         """
         Compile OpenGL shaders string and check for shaders errors
-        :param shader: String of shaders
+        :param shader: Source code of shaders as str
         :param type: Type of shaders can be: GL_VERTEX_SHADER, GL_FRAGMENT_SHADER, GL_GEOMETRY_SHADER
         :return: Shader ID
         """
@@ -65,7 +68,7 @@ class Shader():
             print('Example of shaders compile error', err)
         return shader
 
-    def load_shader(self, filename):
+    def load_shader(self, filename:str) -> str:
         """
         Load shaders string from file
         :param filename: Full path to shaders
@@ -75,16 +78,16 @@ class Shader():
             shader = shaderString.read()
         return shader
 
-    def set_uniform(self, name, data):
+    def set_uniform(self, name:str, data):
         if np.all(data) == None:
             del self.m_uniform[name]
         else:
             self.m_uniform[name] = data
 
-    def uniform_loc(self, name):
+    def uniform_loc(self, name:str):
         return glGetUniformLocation(self.m_program, name.encode('utf_8'))
 
-    def attribute_loc(self, name):
+    def attribute_loc(self, name:str):
         return glGetAttribLocation(self.m_program, name.encode('utf_8'))
 
     def __enter__(self):

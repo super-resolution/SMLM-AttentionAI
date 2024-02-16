@@ -1,4 +1,6 @@
-from models.layers import *
+from torch import nn,Tensor
+
+from models.layers import DoubleConv, Up, Down
 
 
 class UNet(nn.Module):
@@ -6,6 +8,9 @@ class UNet(nn.Module):
     Implementing a Modular U-Net with flexible layer depth and sizes will be enhaced to take a config parameter
     """
     def __init__(self):
+        """
+        Fixed Unet
+        """
         super().__init__()
         size = 1
         # 1. Define layer sizes in down/up path
@@ -19,8 +24,12 @@ class UNet(nn.Module):
         # 5. finish with a 2d convolution
         self.final = nn.Conv2d(8 * size, 8, 3, padding="same")
 
-    def forward(self, x):
-        "Forward path of unet"
+    def forward(self, x:Tensor) -> Tensor:
+        """
+        Forward pass of network
+        :param x: Input Tensor
+        :return: Ouput Tensor
+        """
         stack = []
         for down in self.d_path:
             stack.append(x)

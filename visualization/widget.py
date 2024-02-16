@@ -3,6 +3,9 @@ import pyqtgraph.opengl as gl
 from PyQt5 import QtCore,QtGui,QtOpenGL
 
 class CustomnWidget(gl.GLViewWidget):
+    """
+    Extend pygraph GLViewWidget by some customn events
+    """
     def __init__(self, *args):
         super().__init__(*args)
         self.opts["elevation"] = 90

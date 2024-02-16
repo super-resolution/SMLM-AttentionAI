@@ -1,15 +1,22 @@
 
 training:
+  #base training file (can also be used for tranfer learning)
   base: ViTVtest
+  #target training file
   name: ViTVtest
+  #number of training iterations
   iterations: 450
 dataset:
+  #list of training datasets
   train: [airyscan_ld]
+  #batch size to train on hardwarelimited
   batch_size: 250
   height: 60
   width: 60
   #size: 5000
+  #offset for frames to train on
   offset: 0
+  #validation dataset
   validation: random_highpower_test
 defaults:
   #uses log of dataset

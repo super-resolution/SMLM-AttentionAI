@@ -1,3 +1,5 @@
+#Utility functions not in use right now
+
 def gaussian_initializer(shape=(10,10,40,40)):
     im = torch.zeros((100,40,40))
     for i in range(10):

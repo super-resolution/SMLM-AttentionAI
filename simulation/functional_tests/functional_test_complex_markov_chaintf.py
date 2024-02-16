@@ -5,6 +5,10 @@ from tqdm import tqdm
 tfd = tfp.distributions
 
 class Simulation():
+    """
+    Test if tf provides a faster markov chain model
+    Does not seem to be faster
+    """
     def run(self, n_points=5000, frames=100):
 
         initial_distribution = tfd.Categorical(probs=[[1., .0,.0,.0]] )

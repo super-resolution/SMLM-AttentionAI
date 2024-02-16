@@ -12,6 +12,7 @@ dist/
 eval/
 *.tif
 *.npy
+*.json
 setup.py
 *.ini
 *.csv

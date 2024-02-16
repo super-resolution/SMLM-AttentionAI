@@ -1,3 +1,6 @@
+#Load optimizer by name
 name: Adam
+#set optimizer parameters
 params:
+  #set adaptive gradient
   amsgrad: True

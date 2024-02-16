@@ -1,3 +1,4 @@
+# todo: short text describing the network
 name: ViTV1
 device: cuda
 #used datatype todo: use float 16?
