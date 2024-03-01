@@ -14,7 +14,7 @@ from visualization.widget import CustomnWidget
 class FunctionalTestRendering():
     def __init__(self):
         #todo: use emitter_set
-        self.emitters = Emitter.load("NPC.npy")
+        self.emitters = Emitter.load("tmp.npy")
 
     def plot_emitters(self):
         app = pg.mkQApp()

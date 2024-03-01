@@ -25,4 +25,4 @@ emitter:
 device: cuda
 #set defaul parameters like microscope
 defaults:
-  - microscope: airyscan
+  - microscope: highpower

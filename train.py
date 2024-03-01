@@ -11,7 +11,6 @@ from torch.utils.data.dataloader import default_collate
 from utility.dataset import CustomImageDataset
 from utility.emitters import Emitter
 from models.loss import GMMLoss
-#from models.VIT.vitv4 import ViT#todo: get this from config
 import importlib
 
 def validate(output, truth):
@@ -47,7 +46,7 @@ def myapp(cfg):
     model_path = 'trainings/model_{}'.format(cfg.training.base)
     save_path = 'trainings/model_{}'.format(cfg.training.name)
     vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
-
+    print("loading network {}".format(cfg.network.name))
     net = vit.ViT(cfg.network.components)
     loss = None
     if cfg.optimizer.name == "Lion":#todo:try with adam?
@@ -109,13 +108,18 @@ def myapp(cfg):
 
                 #set to none speeds up training because gradients are not deleted from memory
                 opt.zero_grad(set_to_none=True)
+                #use lower precision float for speedup
+                #does not work at all nan at various steps
+                #with torch.autocast(device_type="cuda"):
                 out = net(images)
 
                 loss = lossf(out, truth[:,:,0:3],mask, bg)
                 loss.backward()
                 opt.step()
-                epoch+=1
+        epoch+=1
+        #each save point is 10 epochs
         if i%10 ==0:
+            #todo: set to every 2 reps for testing
             with torch.no_grad():
                 #only validate first batch
                 i=0

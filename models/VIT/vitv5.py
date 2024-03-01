@@ -1,3 +1,4 @@
+import torch
 
 from models import activations
 from models.layers import *
@@ -18,6 +19,8 @@ class ImageEmbedding(torch.nn.Module):
 
 
     def forward(self,images):
+        #todo: initialize with gourp norms?
+
         images = torch.log(nn.ReLU()(images + images.min()) + 0.1)
         images /= images.max()
 
@@ -43,6 +46,7 @@ class Encoder(nn.Module):
 
     def forward(self, input):
         images = self.embedding(input)
+
         #x = self.mha(x1)
         #x = self.mlp(x)
         #residual connection
@@ -58,6 +62,7 @@ class Decoder(nn.Module):
         self.unet = UNet()
 
     def forward(self, images):
+
         b,c,h,w = images.shape
 
         x = torch.permute(images,(0,2,3,1))
@@ -82,6 +87,5 @@ class ViT(nn.Module):
     def forward(self, input):
         images = self.encoder(input)
         image_space = self.decoder(images)
-
         out = self.activation(image_space)
         return out

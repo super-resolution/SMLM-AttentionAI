@@ -10,7 +10,7 @@ from torch.utils.data.dataloader import default_collate
 from utility.dataset import CustomImageDataset
 from utility.emitters import Emitter
 from visualization.visualization import plot_emitter_set
-
+from third_party.decode.models import SigmaMUNet
 
 def search_attention(net,dataloader):
     sample_batch,truth,mask,bg = next(iter(dataloader))
@@ -84,7 +84,7 @@ def myapp(cfg):
     dataset_name = cfg.dataset.name
     dataset_offset = cfg.dataset.offset
 
-    datasets = CustomImageDataset(cfg.dataset.name,  offset=cfg.dataset.offset)
+    datasets = CustomImageDataset(cfg.dataset.name, three_ch=True, offset=cfg.dataset.offset)
     dataloader = DataLoader(datasets, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False)
 
     dtype = getattr(torch, cfg.network.dtype)
@@ -107,7 +107,7 @@ def myapp(cfg):
     print(model_path)
     vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
 
-    net = vit.ViT(cfg.network.components)
+    net = SigmaMUNet(3)
     #opt_cls = getattr(torch.optim, cfg.optimizer.name)
     #opt = opt_cls(net.parameters(), **cfg.optimizer.params)
 
@@ -142,10 +142,10 @@ def myapp(cfg):
     #truth = Emitter.from_ground_truth(truth)
     jac= []
     # for i in range(8):
-    dat = Emitter.from_result_tensor(out_data[:, ], 0.5)
+    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], 0.5)
     #
     #dat = dat.filter(sig_y=0.9,sig_x=0.9)
-    dat.compute_jaccard(t, out_data[:,0])
+    #dat.compute_jaccard(t, out_data[:,0])
 
     #print(validate(dat,t))
     #plt.plot(jac)

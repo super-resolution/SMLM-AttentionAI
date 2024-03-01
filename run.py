@@ -18,11 +18,13 @@ def myapp(cfg):
     images = []
     files = ["COS7_Phalloidin_ATTO647_1_200_2perHQ_1.tif","COS7_Phalloidin_ATTO647_1_200_2perHQ_1_X2.tif","COS7_Phalloidin_ATTO647_1_200_2perHQ_1_X3.tif"]
     path = r"D:\Daten\Patrick\STORMHD\647" + "\\"
-    #path = r"D:\Daten\Danush\STORMHD" + "\\"
+    path = r"D:\Daten\Danush\STORMHD\Neuer Ordner" + "\\"
+    files = ["NUP107_nb_Biotin_Strep_ATTO514_Biot_Biot_Strep_ATTO514_Reemb_pH_8_0.tif",]
+             #"NUP107_nb_Biotin_Strep_ATTO514_Reemb_pH_7_4_sebastian_X2.tif"]
     # files = ["NUP107_nb_biotin_StrepAtto513_Biot_Biot_StrepAtto513_60000fr_15msek_200mW_Gain1_MEA100mM_pH_7_0_1proz_3.tif","NUP107_nb_biotin_StrepAtto513_Biot_Biot_StrepAtto513_60000fr_15msek_200mW_Gain1_MEA100mM_pH_7_0_1proz_3_X2.tif","NUP107_nb_biotin_StrepAtto513_Biot_Biot_StrepAtto513_60000fr_15msek_200mW_Gain1_MEA100mM_pH_7_0_1proz_3_X3.tif","NUP107_nb_biotin_StrepAtto513_Biot_Biot_StrepAtto513_60000fr_15msek_200mW_Gain1_MEA100mM_pH_7_0_1proz_3_X4.tif"]
     #path = r"D:\Daten\Rick" + "\\"
-    path = r"D:\Daten\Janna\SRRF"+"\\"
-    files = ["Munc13-CF568_15ms_17.79real_2000frames_LaserWF_10%LP.tif"]
+    # path = r"D:\Daten\Janna\SRRF"+"\\"
+    # files = ["Munc13-CF568_15ms_17.79real_2000frames_LaserWF_10%LP.tif"]
     #files = ["Gatta94R_20ms_15000fr_Epi_EMCCD_f7,5_256x256px_gain200_quad_line-PFS.tif"]
     for f in files:
         im = imread(path+f)[0:].astype(np.int32)
@@ -50,25 +52,25 @@ def myapp(cfg):
     loss = checkpoint['loss']
     print(loss)
     net.eval()
-    out_data = []
 
     for i in tqdm(range(images.shape[0]//250)):
-        for k in range(1):
-            for l in range(1):
+        out_data = []
+        for k in range(2):
+            for l in range(2):
                 im = images[i*250:(i+1)*250,120*k:120*(k+1),120*l:120*(l+1)]
                 with torch.no_grad():
                     out_data.append(net(im).cpu().numpy())
-        # out_data = np.concatenate([np.concatenate(out_data[0:2],axis=3),np.concatenate(out_data[2:],axis=3)],axis=2)
-        # if i==0:
-        #     dat = Emitter.from_result_tensor(out_data, .8)
-        # else:
-        #     dat + Emitter.from_result_tensor(out_data, .8)
-    out_data = np.concatenate(out_data, axis=0)
+        out_data = np.concatenate([np.concatenate(out_data[0:2],axis=3),np.concatenate(out_data[2:],axis=3)],axis=2)
+        if i==0:
+            dat = Emitter.from_result_tensor(out_data, .8)
+        else:
+            dat + Emitter.from_result_tensor(out_data, .8)
+    #out_data = np.concatenate(out_data, axis=0)
     #out_data = np.concatenate([np.concatenate([np.concatenate(out_data[::4],axis=0),np.concatenate(out_data[1::4],axis=0)],axis=3),np.concatenate([np.concatenate(out_data[2::4],axis=0),np.concatenate(out_data[3::4],axis=0)],axis=3)],axis=2)#todo: concatenate stuff
     #plt.imshow(np.mean(out_data[:,0],axis=0))
     #plt.show()
     #todo: save and load stuff
-    dat = Emitter.from_result_tensor(out_data[:, ], .8)
+    #dat = Emitter.from_result_tensor(out_data[:, ], .8)
     dat.save("tmp.npy")
     #todo: needs opengl rendering
     dat = dat.filter(sig_y=0.5,sig_x=0.5)

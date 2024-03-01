@@ -23,6 +23,8 @@ class GMMActivation(nn.Module):
         inp[:, 1:3] = self.tanh(inp[:, 1:3]) #+1.0to -1.0 #half did not work
         # 3. Gaussian Mixture Model sigma
         inp[:, 3:5] = self.sig(inp[:, 3:5])*2
+        #todo: missed 5 background
+
         # 4. Gaussian Mixture Model intensity
         inp[:, 6] = self.sig(inp[:, 6])*2
         # 5. Background

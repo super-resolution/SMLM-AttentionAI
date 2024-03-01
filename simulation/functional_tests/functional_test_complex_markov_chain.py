@@ -20,7 +20,7 @@ class Simulation(nn.Module):
         r_s1_off = 10**7
         r_off_s0 = 2*10**-2
         rate_matrix = [[0,r_exc,0,0], #S0
-                       [r_f,0,r_isc,r_s1_off],   #S1#todo: add ic later
+                       [r_f,0,r_isc,r_s1_off],#S1#todo: add ic later
                        [r_isc_s0,0,0,0],   #Trp
                        [r_off_s0,0,0,0],   #Off
                        ]

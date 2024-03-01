@@ -7,7 +7,7 @@ from tifffile.tifffile import imread
 
 import matplotlib.pyplot as plt
 class CustomImageDataset(Dataset):
-    def __init__(self, dataset, transform=None, target_transform=None, offset=0):
+    def __init__(self, dataset, transform=None, target_transform=None, three_ch=False, offset=0):
 
         bg = imread("data/" + dataset + "/bg_images.tif")
         gt = np.load("data/" + dataset + "/ground_truth.npy", allow_pickle=True)
@@ -31,7 +31,11 @@ class CustomImageDataset(Dataset):
 
         self.truth = truth
         self.mask = mask
-        self.images = self.reshape_data(images)
+        if three_ch:
+
+            self.images = self.reshape_data(images)
+        else:
+            self.images = images
         self.transform = transform
         self.target_transform = target_transform
         self.bg = bg
@@ -39,11 +43,11 @@ class CustomImageDataset(Dataset):
     @staticmethod
     def reshape_data(images):
         #add temporal context to additional dimnesion
-        dataset = np.zeros((images.shape[0],3,images.shape[1],images.shape[2]))
+        dataset = np.zeros((images.shape[0],3,images.shape[1],images.shape[2]),dtype=np.int16)
         dataset[1:,0,:,:] = images[:-1]
         dataset[:,1,:,:] = images
         dataset[:-1,2,:,:] = images[1:]
-        return images
+        return dataset
 
     def __len__(self):
         return len(self.images)

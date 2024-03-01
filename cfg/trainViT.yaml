@@ -2,15 +2,16 @@
 training:
   #base training file (can also be used for tranfer learning)
   base: ViTVtest
+  #todo runs with batch size 50
   #target training file
   name: ViTVtest
   #number of training iterations
-  iterations: 450
+  iterations: 150
 dataset:
   #list of training datasets
-  train: [airyscan_ld]
+  train: [random_airyscan,random_airyscan2]
   #batch size to train on hardwarelimited
-  batch_size: 250
+  batch_size: 50
   height: 60
   width: 60
   #size: 5000

@@ -2,19 +2,17 @@ from torch import nn,Tensor
 
 from models.layers import DoubleConv, Up, Down
 
-
 class UNet(nn.Module):
     """
     Implementing a Modular U-Net with flexible layer depth and sizes will be enhaced to take a config parameter
     """
-    def __init__(self):
+    def __init__(self, d_size:tuple=(8,16,32)):
         """
         Fixed Unet
         """
         super().__init__()
         size = 1
-        # 1. Define layer sizes in down/up path
-        d_size = (8,16,32)
+        # 1. Define layer sizes in down/up path (is argument now)
         # 2. Get amount of layers
         n_layers = len(d_size)
         # 3. Create DoubleConv+Maxpool from d_size[i]->d_size[i] feature maps thats down path halving image size n_layer times

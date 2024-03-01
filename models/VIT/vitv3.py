@@ -1,3 +1,4 @@
+import torch
 
 from models import activations
 from models.layers import *
@@ -19,9 +20,11 @@ class ImageEmbedding(torch.nn.Module):
 
 
     def forward(self,images):
-        images = torch.log(nn.ReLU()(images + images.min()) + 0.1)
+        images = torch.log(nn.ReLU()(images + images.min()) + 1.1)
+        #todo test for equal zero or use batchnorm
         images /= images.max()
-
+        if torch.any(torch.isnan(images)):
+            print("nan in images")
         images = self.conv(images[:,None])
 
         images = self.unet(images)
@@ -71,7 +74,9 @@ class ViT(nn.Module):
 
     def forward(self, input):
         images = self.encoder(input)
-        image_space = self.decoder(images)
 
+        image_space = self.decoder(images)
+        if torch.any(torch.isnan(image_space)):
+            print("nan in decoder")
         out = self.activation(image_space)
         return out
