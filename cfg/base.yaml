@@ -1,13 +1,15 @@
 #Simulation parameter file
 dataset:
   #name to save to
-  name: airyscan_ld
+  name: airyscan_complex2
+
+  mode: training
   #base path
   path: data
   #number of pixels in width and height
   n_pix: 60
   #number of batches to simulate. Remains one file
-  n_batches: 6
+  n_batches: 1000
   #size per batch
   batch_size: 100
   #random seed for generation
@@ -25,4 +27,4 @@ emitter:
 device: cuda
 #set defaul parameters like microscope
 defaults:
-  - microscope: highpower
+  - microscope: airyscan

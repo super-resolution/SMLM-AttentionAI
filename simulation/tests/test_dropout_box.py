@@ -2,25 +2,40 @@ import numpy as np
 import unittest
 from ..data_augmentation import DropoutBox
 from copy import deepcopy
-
+import torch
 class TestDropoutBox(unittest.TestCase):
     def setUp(self) -> None:
         # Instantiate the DropoutBox
-        self.dropout_box = DropoutBox()
+        self.dropout_box = DropoutBox(1, device="cpu")
         
     def test_forward(self):
         # Generate random points
         num_points = 1000
-        points = np.random.rand(num_points, 2)
+        points = torch.rand(num_points, 2)
 
         # Perform forward pass
-        filtered_points = self.dropout_box.forward(points)
+        indices = self.dropout_box.forward(points)
+        filtered_points = points[indices]
 
         # Check if the filtered points are within the box
         assert all((filtered_points[:, 0] < self.dropout_box.box["x_min"]) |
                    (filtered_points[:, 0] > self.dropout_box.box["x_max"]) |
                    (filtered_points[:, 1] > self.dropout_box.box["y_max"]) |
                    (filtered_points[:, 1] < self.dropout_box.box["y_min"])), "Some points are inside the box"
+
+    def test_no_points_back(self):
+        num_points = 1
+        points = torch.rand(num_points, 2)
+
+        # Perform forward pass
+        self.dropout_box.box["x_min"] =0
+        self.dropout_box.box["x_max"] =1
+        self.dropout_box.box["y_min"] =0
+        self.dropout_box.box["y_max"] =1
+
+        indices = self.dropout_box.forward(points)
+        assert len(indices[0])==0, f"indices has len{len(indices)} should be 0"
+        filtered_points = points[indices]
 
     def test_box(self):
         assert 0 <= self.dropout_box.box["x_min"] <= 1, "x_min is not within [0, 1]"
@@ -32,7 +47,6 @@ class TestDropoutBox(unittest.TestCase):
 
     def test_update_box(self):
         # Instantiate the DropoutBox
-        self.dropout_box = DropoutBox()
         prev = deepcopy(self.dropout_box.box)
         # Update the box
         self.dropout_box.update_box()

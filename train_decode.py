@@ -7,6 +7,7 @@ import torch
 from lion_pytorch import Lion
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
+from third_party.decode.models import SigmaMUNet
 
 from utility.dataset import CustomImageDataset
 from utility.emitters import Emitter
@@ -32,22 +33,21 @@ def validate(output, truth):
 #     return dataset
 
 #todo: network to yaml config
-@hydra.main(config_name="trainViT.yaml", config_path="cfg")
+@hydra.main(config_name="trainDecode.yaml", config_path="cfg")
 def myapp(cfg):
-    device = cfg.network.device
+    device = "cuda"
     iterations = cfg.training.iterations
 
-    datasets = [CustomImageDataset(cf,  offset=cfg.dataset.offset, ) for cf in cfg.dataset.train]
+    datasets = [CustomImageDataset(cf,  offset=cfg.dataset.offset, three_ch=True) for cf in cfg.dataset.train]
     train_dataloaders = [DataLoader(data, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False) for data in datasets]
-    validation_dataset = CustomImageDataset(cfg.dataset.validation, offset=cfg.dataset.offset, )
+    validation_dataset = CustomImageDataset(cfg.dataset.validation, offset=cfg.dataset.offset, three_ch=True)
     #todo: loss depends on batch size
     validation_dataloader = DataLoader(validation_dataset, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False)
 
     model_path = 'trainings/model_{}'.format(cfg.training.base)
     save_path = 'trainings/model_{}'.format(cfg.training.name)
-    vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
-    print("loading network {}".format(cfg.network.name))
-    net = vit.ViT(cfg.network.components)
+    #vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
+    net = SigmaMUNet(3)
     loss = None
     if cfg.optimizer.name == "Lion":#todo:try with adam?
         opt = Lion(net.parameters(), **cfg.optimizer.params)
@@ -112,27 +112,28 @@ def myapp(cfg):
                 #does not work at all nan at various steps
                 #with torch.autocast(device_type="cuda"):
                 out = net(images)
-
+                #todo: no activation for bg
+                #perm = torch.tensor([0,2,3,5,6,10,7,8,9],device="cuda")
+                #out = out[:,perm,:,:]
+                #todo: works get feature maps and run
                 loss = lossf(out, truth[:,:,0:3],mask, bg)
                 loss.backward()
                 opt.step()
         epoch+=1
         #each save point is 10 epochs
         if i%2 ==0:
-            #todo: set to every 2 reps for testing
-            net.eval()
             with torch.no_grad():
                 #only validate first batch
                 i=0
                 v_loss = torch.zeros((3))
                 for im,t,m,bg in validation_dataloader:
                     i+=1
-                    v_out = net(im)#todo: implement eval everywhere to disable dropout
+                    v_out = net(im)
                     v_loss += lossf(v_out, t[:,:,0:3], m, bg, seperate=True)
                     #print(validate(v_out, t))
                     print(f"loss: {loss} validation_loss: loc_loss = {v_loss[0]}, c_loss = {v_loss[1]} bg_loss = {v_loss[2]}", i)
                 loss_list.append([loss.cpu().numpy(), v_loss.cpu().numpy()/i])
-            net.train()
+
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': net.state_dict(),

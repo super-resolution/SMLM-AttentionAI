@@ -23,12 +23,14 @@ class DropoutBox():
         self.box["y_min"] = torch.tensor([box.min()], device=self.device)
         self.box["y_max"] = torch.tensor([box.max()], device=self.device)
 
-    def forward(self, arr):
+    def forward(self, arr, indices):
         if arr.shape[0]==0:
-            return arr
-        indices = torch.where((arr[:,0] < self.box["x_min"]* self.max)|
-                              (arr[:,0] > self.box["x_max"]* self.max)|
-                              (arr[:,1] > self.box["y_max"]* self.max)|
-                              (arr[:,1] < self.box["y_min"]* self.max))
+            return []
+        dropout_indices_relative = torch.where((arr[indices,0] < self.box["x_min"]* self.max)|
+                              (arr[indices,0] > self.box["x_max"]* self.max)|
+                              (arr[indices,1] > self.box["y_max"]* self.max)|
+                              (arr[indices,1] < self.box["y_min"]* self.max))
+        #todo: test this
+        indices = indices[dropout_indices_relative]
         # data augmentation discard data within box
-        return arr[indices]
+        return indices, dropout_indices_relative

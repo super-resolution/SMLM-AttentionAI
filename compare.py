@@ -21,8 +21,10 @@ if __name__ == '__main__':
               #"ViTV6":"UNet+Attention+MLP+UNet",
               "ViTV7miniV2":"UNetdeep+Attention+UNetdeep",
               "ViTV8mini": "UNetdeep+PosEncoding+Attention+UNetdeep",
-              "DecodeV2":"Decode"
-    }
+              "DecodeV4":"Decode",
+              "DecodeV3": "Decode1ch"
+
+              }
     start = 0
     stop = 9999
     # plot losses

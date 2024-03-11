@@ -25,7 +25,7 @@ class Simulation(nn.Module):
         d= torch.tensor(2., device=device)
         self.sig = torch.tensor(1.5, device=device)
         cov = torch.tensor([[self.sig**2,0.],[0,self.sig**2.]], device=device)
-        self.psf = lambda mu,I: torch.sum((I / torch.sqrt(2. * torch.pi**d) * torch.det(cov)).squeeze() * \
+        self.psf = lambda mu,I: torch.sum((I / torch.sqrt(2. * torch.pi**d * torch.det(cov))).squeeze() * \
                   torch.exp(-0.5 * torch.sum((self.coord.unsqueeze(2) - mu) @ torch.inverse(cov) * (self.coord.unsqueeze(2) - mu),dim=-1)  ),dim=-1)
 
 
@@ -56,7 +56,7 @@ class Simulation(nn.Module):
         sig = torch.tensor(camera_dict.psf_sigma/camera_dict.px_size, device=device)
         #covariance matrix is diagonal till now
         cov = torch.tensor([[sig**2,0.],[0.,sig**2.]], device=device)
-        instance.psf = lambda mu,I: torch.sum((I / torch.sqrt(2. * torch.pi**d) * torch.det(cov)).squeeze() * \
+        instance.psf = lambda mu,I: torch.sum((I / torch.sqrt(2. * torch.pi**d * torch.det(cov))).squeeze() * \
                   torch.exp(-0.5 * torch.sum((instance.coord.unsqueeze(2) - mu) @ torch.inverse(cov) * (instance.coord.unsqueeze(2) - mu),dim=-1)  ),dim=-1)
         return instance
 
@@ -71,12 +71,14 @@ class Simulation(nn.Module):
         #Create probability density function
         pdf = self.psf(positions[:,0:2],positions[:,2])
         #do not devide by zero
-        m = torch.max(pdf)
-        if m>.0001:
-            pdf = pdf/torch.max(pdf)
+        # m = torch.max(pdf)
+        # if m>.0001:
+        #     pdf = pdf/torch.max(pdf)
         #Multiply number of photons and quantum efficiency
-        discretepdf = pdf * self.expected_number_of_photons * self.quantum_efficiency
-        discretepdf += self.dark_noise * self.exposure_time +bg_t
+        #todo: discard expected number of photons
+        discretepdf = pdf * self.quantum_efficiency
+        x = discretepdf.cpu().numpy()
+        discretepdf += self.dark_noise * self.exposure_time +bg_t//2
         #Sample poisson of discrete pdf (Photon shot noise)
         x = td.Poisson(discretepdf+0.00001)
         #Add multiplication noise

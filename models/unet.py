@@ -20,7 +20,7 @@ class UNet(nn.Module):
         # 4. Create UpPath concatenating the facing feature maps of the down path with residual conenctions
         self.u_path = nn.ModuleList([Up(d_size[i] + d_size[i-1], d_size[i-1]) for i in range(n_layers-1,0,-1)])
         # 5. finish with a 2d convolution
-        self.final = nn.Conv2d(8 * size, 8, 3, padding="same")
+        self.final = nn.Conv2d(d_size[0], d_size[0], 1, padding="same")
 
     def forward(self, x:Tensor) -> Tensor:
         """

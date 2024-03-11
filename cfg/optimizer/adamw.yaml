@@ -1,0 +1,7 @@
+#Load optimizer by name
+name: AdamW
+#set optimizer parameters
+params:
+  #set adaptive gradient
+  #amsgrad: True
+  lr: 0.0005

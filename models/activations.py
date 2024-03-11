@@ -18,11 +18,12 @@ class GMMActivation(nn.Module):
         :return: Activated output tensor
         """
         # 1. Gaussian Mixture Model probabilty p
+        inp[:, [0]] = torch.clamp(inp[:, [0]], min=-8., max=8.)
         inp[:, 0] = self.sig(inp[:, 0])
         # 2. Gaussian Mixture Model mean mu
         inp[:, 1:3] = self.tanh(inp[:, 1:3]) #+1.0to -1.0 #half did not work
         # 3. Gaussian Mixture Model sigma
-        inp[:, 3:5] = self.sig(inp[:, 3:5])*2
+        inp[:, 3:5] = self.sig(inp[:, 3:5])*3+0.001
         #todo: missed 5 background
 
         # 4. Gaussian Mixture Model intensity

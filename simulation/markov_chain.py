@@ -8,7 +8,7 @@ class SimpleMarkovModel(torch.nn.Module):
     """
     Implements the forward pass of a simple two state markov chain
     """
-    def __init__(self, initial, transition, observation, n_frames=500, device="cpu"):
+    def __init__(self, off_state_prob,n_points, n_frames=500, device="cpu"):
         """
 
         :param initial: Initial distribution of states
@@ -18,17 +18,23 @@ class SimpleMarkovModel(torch.nn.Module):
         :param device: Device to run code on default: cpu runs faster on cuda
         """
         super().__init__()
+        transition_distribution = [[0.5, 0.5], [1 - off_state_prob, off_state_prob]]
+
+        # final obeservation as joint distribution
+        observation_distribution = [[[0.0, 1.0], [1.0, 0.0]]]
+        initial_distribution = [[0, 1]] * n_points
+
         dtype = torch.float32
         self.n_frames = n_frames
         # Number of possible states
-        self.initial = torch.tensor(initial, dtype=dtype, device=device)
+        self.initial = torch.tensor(initial_distribution, dtype=dtype, device=device)
         # transition probabilities
-        self.initial_trans = torch.tensor(transition[1][1], device=device)
+        self.initial_trans = torch.tensor(transition_distribution[1][1], device=device)
         #sample transition probabilities to see if a state change happens within a frame
-        self.transition = distributions.Categorical(torch.tensor(transition, device=device))
+        self.transition = distributions.Categorical(torch.tensor(transition_distribution, device=device))
         #transition matrix computes state from transition
         self.transition_matrix = torch.tensor([[[1, 0], [0, 1]], [[0, 1], [1, 0]]], dtype=dtype, device=device)
-        self.observation = torch.tensor(observation, dtype=dtype, device=device)
+        self.observation = torch.tensor(observation_distribution, dtype=dtype, device=device)
 
     def forward(self, change_probabilities=False):
         """

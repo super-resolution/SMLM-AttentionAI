@@ -1,10 +1,10 @@
 
 training:
   #base training file (can also be used for tranfer learning)
-  base: ViTVtest
+  base: DecodeV4
   #todo runs with batch size 50
   #target training file
-  name: ViTVtest
+  name: DecodeV4
   #number of training iterations
   iterations: 150
 dataset:
@@ -19,6 +19,7 @@ dataset:
   offset: 0
   #validation dataset
   validation: airyscan_complex_test
-defaults:
   #uses log of dataset
-  - defaults
+defaults:
+  - dataset:
+  - optimizer: adamw

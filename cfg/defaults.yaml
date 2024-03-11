@@ -2,4 +2,4 @@
 defaults:
   - network: ViTVTest
   - dataset:
-  - optimizer: adam
+  - optimizer: adamw

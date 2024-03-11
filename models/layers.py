@@ -25,7 +25,7 @@ class PositionalEncoding(nn.Module):
         div_term = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
         pe = torch.zeros(max_len, d_model)#positional enconding on sequence i.e. 1
         pe[:, 0::2] = torch.sin(position * div_term[None,:])#1 fold performed worse
-        pe[:, 1::2] = torch.cos(position * div_term[None,:])
+        pe[:, 1::2] = torch.cos(position * div_term[None,:-1]) if d_model%2==1 else torch.cos(position * div_term[None,:])
         self.register_buffer('pe', pe)
 
     def forward(self, x: Tensor) -> Tensor:
@@ -34,7 +34,7 @@ class PositionalEncoding(nn.Module):
         :param x: Input tensor to apply positional encoding to
         :return: Output tensor with applied dropout and position encoding
         """
-        x = x + self.pe[:x.size(0),:,None,None]
+        x = x + self.pe[:x.size(0),:,None]
         return self.dropout(x)
 
 
@@ -146,36 +146,43 @@ class MHA(nn.Module):
     """
     Implements Multihead Attention
     """
-    def __init__(self, embed_dim:int=128, head_dim:int=8, batch_first:bool=False):
+    def __init__(self, embed_dim:int=128, head_dim:int=8, batch_first:bool=False, dropout_rate:float=.1):
         super().__init__()
         #Linear mapping Query q, Key k, and Value v
         self.q = nn.Linear(embed_dim, embed_dim)
+        #torch.nn.init.eye_(self.q.weight)
         self.k = nn.Linear(embed_dim, embed_dim)
+        #torch.nn.init.eye_(self.k.weight)
         self.v = nn.Linear(embed_dim, embed_dim)
         self.norm = nn.LayerNorm(embed_dim)
         #MHA on first dimension
-        self.mha = nn.MultiheadAttention(embed_dim=embed_dim,num_heads=head_dim,dropout=0.1, batch_first =batch_first)
+        self.dropout = nn.Dropout(dropout_rate)
+        self.mha = nn.MultiheadAttention(embed_dim=embed_dim,num_heads=head_dim, batch_first =batch_first)
     def forward(self, inp:Tensor) -> Tensor:
         """
         Forward pass of multihead attention. Applies residual connection
         :param inp: Input tensor
         :return: Output tensor
         """
-        #Layer norm
-        x = self.norm(inp)
+        x = inp
+        x = self.norm(x)
         #Compute Query Key and Value
         q = self.q(x)
         k = self.k(x)
         v = self.v(x)
-        z = self.mha(q,k,v,need_weights=False)[0]
-        # y = y.cpu().detach().numpy()
+        z,w = self.mha(q,k,v,need_weights=True)
+        #w = self.k.weight.cpu().detach().numpy()
         # to plot stuff activate need_weights and selecet z[1]
-        # plt.bar(list(range(250)),y[12*60+9,0], label="attention")
+        # import matplotlib.pyplot as plt
+        # plt.bar(list(range(50)),w[12*60+9,0], label="attention")
         # plt.legend()
+        z = self.dropout(z)
+
         # plt.savefig("figures/correlation.svg")
-        # plt.show()
+        #plt.show()
         # residual connection + multihead attention
-        return  z+ inp
+        #Layer norm
+        return z + inp
 
 class CA(nn.Module):
     """

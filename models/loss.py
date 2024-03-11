@@ -83,6 +83,7 @@ class GMMLoss(torch.nn.Module):
 
         gmm_loss = -gmm.log_prob(truth.transpose(0, 1)).transpose(0, 1)
         gmm_loss = torch.sum(gmm_loss * mask)
+        #print(bg.min(),bg.max())
         bg_loss = torch.nn.MSELoss()(bg,bg_truth)*10
         if seperate:
             return torch.tensor([gmm_loss,c_loss, bg_loss])
