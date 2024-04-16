@@ -29,6 +29,7 @@ void main()
     else{
         gl_Position = u_projection * u_modelview * vec4(vPosition.xy, 0.0, 1.0);
         Emission = 1.0;
+        //todo: should be enum?
         u_maxEmission = 100.0;
         gl_PointSize = vSize.x*vSize.y * u_projection[1][1] * radius / gl_Position.w;
         }

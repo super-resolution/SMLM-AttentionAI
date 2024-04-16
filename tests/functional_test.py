@@ -2,7 +2,7 @@
 import matplotlib.pyplot as plt
 import torch
 from tqdm import tqdm
-from simulation.noise_simulations import Simulation
+from simulation.src.noise_simulations import Simulation
 
 
 MOCK_FLIM = {

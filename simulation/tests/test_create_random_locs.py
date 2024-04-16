@@ -2,7 +2,7 @@ import numpy as np
 
 import unittest
 
-from ..random_locs import create_locs
+from simulation.src.random_locs import create_locs
 
 # Define test case for create_locs function
 class TestCreateImages(unittest.TestCase):

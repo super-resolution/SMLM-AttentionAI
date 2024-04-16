@@ -1,5 +1,5 @@
 #Defaultfile for training and evaluation
 defaults:
-  - network: ViTVTest
+  - network: ViTV8
   - dataset:
   - optimizer: adamw

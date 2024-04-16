@@ -9,7 +9,7 @@ from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
 from third_party.decode.models import SigmaMUNet
 
-from utility.dataset import CustomImageDataset
+from utility.dataset import CustomTrianingDataset
 from utility.emitters import Emitter
 from models.loss import GMMLossDecode
 import importlib
@@ -32,15 +32,14 @@ def validate(output, truth):
 #     dataset[:-1,2,:,:] = images[1:]
 #     return dataset
 
-#todo: network to yaml config
 @hydra.main(config_name="trainDecode.yaml", config_path="cfg")
 def myapp(cfg):
     device = "cuda"
     iterations = cfg.training.iterations
 
-    datasets = [CustomImageDataset(cf,  offset=cfg.dataset.offset, three_ch=True) for cf in cfg.dataset.train]
+    datasets = [CustomTrianingDataset(cf, offset=cfg.dataset.offset, three_ch=True) for cf in cfg.dataset.train]
     train_dataloaders = [DataLoader(data, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False) for data in datasets]
-    validation_dataset = CustomImageDataset(cfg.dataset.validation, offset=cfg.dataset.offset, three_ch=True)
+    validation_dataset = CustomTrianingDataset(cfg.dataset.validation, offset=cfg.dataset.offset, three_ch=True)
     #todo: loss depends on batch size
     validation_dataloader = DataLoader(validation_dataset, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False)
 
@@ -122,6 +121,7 @@ def myapp(cfg):
         epoch+=1
         #each save point is 10 epochs
         if i%2 ==0:
+            net.eval()
             with torch.no_grad():
                 #only validate first batch
                 i=0
@@ -133,7 +133,7 @@ def myapp(cfg):
                     #print(validate(v_out, t))
                     print(f"loss: {loss} validation_loss: loc_loss = {v_loss[0]}, c_loss = {v_loss[1]} bg_loss = {v_loss[2]}", i)
                 loss_list.append([loss.cpu().numpy(), v_loss.cpu().numpy()/i])
-
+            net.train()
             torch.save({
                 'epoch': epoch,
                 'model_state_dict': net.state_dict(),

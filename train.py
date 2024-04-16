@@ -7,53 +7,28 @@ import torch
 from lion_pytorch import Lion
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
+from third_party.decode.models import SigmaMUNet
 
-from utility.dataset import CustomImageDataset
+from utility.dataset import CustomTrianingDataset
 from utility.emitters import Emitter
 from models.loss import GMMLossDecode
 import importlib
 
-def validate(output, truth):
-    #todo: test validation
-    pred_set = Emitter.from_result_tensor(output.cpu().detach().numpy(), 0.3)
-    truth_set = Emitter.from_ground_truth(truth[1].numpy())
-    fn = truth_set - pred_set
-    fp = pred_set - truth_set
-    tp = pred_set % truth_set
-    jac = tp.length / (tp.length + fp.length + fn.length)
-    return jac
-
-# def reshape_data(images):
-#     #add temporal context to additional dimnesion
-#     dataset = np.zeros((images.shape[0],3,images.shape[1],images.shape[2]))
-#     dataset[1:,0,:,:] = images[:-1]
-#     dataset[:,1,:,:] = images
-#     dataset[:-1,2,:,:] = images[1:]
-#     return dataset
-
-#todo: network to yaml config
-@hydra.main(config_name="trainViT.yaml", config_path="cfg")
-def myapp(cfg):
-    device = cfg.network.device
-    iterations = cfg.training.iterations
-
-    datasets = [CustomImageDataset(cf,  offset=cfg.dataset.offset, ) for cf in cfg.dataset.train]
-    train_dataloaders = [DataLoader(data, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False) for data in datasets]
-    validation_dataset = CustomImageDataset(cfg.dataset.validation, offset=cfg.dataset.offset, )
-    #todo: loss depends on batch size
-    validation_dataloader = DataLoader(validation_dataset, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False)
-
-    model_path = 'trainings/model_{}'.format(cfg.training.base)
-    save_path = 'trainings/model_{}'.format(cfg.training.name)
-    vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
-    print("loading network {}".format(cfg.network.name))
-    net = vit.ViT(cfg.network.components)
-    loss = None
-    if cfg.optimizer.name == "Lion":#todo:try with adam?
-        opt = Lion(net.parameters(), **cfg.optimizer.params)
+def try_to_load_model(model_path, optimizer_cfg, network_cfg, device, decode=False):
+    vit = importlib.import_module("models.VIT."+network_cfg.name.lower())#test if this works
+    print("loading network {}".format(network_cfg.name))
+    net = vit.ViT(network_cfg.components)
+    if decode:
+        net = SigmaMUNet(3)
     else:
-        opt_cls = getattr(torch.optim, cfg.optimizer.name)
-        opt = opt_cls(net.parameters(), **cfg.optimizer.params)
+        net = vit.ViT(network_cfg.components)
+    loss = None
+    epoch=0
+    if optimizer_cfg.name == "Lion":
+        opt = Lion(net.parameters(), **optimizer_cfg.params)
+    else:
+        opt_cls = getattr(torch.optim, optimizer_cfg.name)
+        opt = opt_cls(net.parameters(), **optimizer_cfg.params)
     from_scratch = False
     try:
         checkpoint = torch.load(model_path)
@@ -61,20 +36,19 @@ def myapp(cfg):
         opt_dict  = checkpoint['optimizer_state_dict']
         epoch = checkpoint['epoch']
         loss = checkpoint['loss']
-        print("loading defined model is successful")
+        print("Loading defined model is successful")
     except:
         from_scratch = True
         net.to(device)
-        print("did not find checkpoint")
+        print("Did not find checkpoint. Training from scratch")
         epoch=0
     if not from_scratch:
         try:
             net.load_state_dict(state_dict)
             net.to(device)
-
             opt.load_state_dict(opt_dict)
-        except:
-            print("model does not fit try tranfer learning instead")
+        except KeyError as e:
+            print("model does not fit try tranfer learning instead",e)
             try:
                 # 1. load net model dict
                 new_model_dict = net.state_dict()
@@ -90,9 +64,26 @@ def myapp(cfg):
                 net.to(device)
                 opt.load_state_dict(new_op_state)
 
-            except:
-                assert("something did not work out here")
+            except KeyError as err:
+                raise(KeyError("Transfer learning failed", err))
+    return net,opt,loss,epoch
 
+
+@hydra.main(config_name="trainViT.yaml", config_path="cfg")
+def myapp(cfg):
+    device = cfg.network.device
+    iterations = cfg.training.iterations
+
+    three_ch = "decode" in cfg.training.name.lower()
+    datasets = [CustomTrianingDataset(cf, offset=cfg.dataset.offset, three_ch=three_ch) for cf in cfg.dataset.train]
+    train_dataloaders = [DataLoader(data, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False) for data in datasets]
+    validation_dataset = CustomTrianingDataset(cfg.dataset.validation, offset=cfg.dataset.offset, three_ch=three_ch)
+    #todo: loss depends on batch size
+    validation_dataloader = DataLoader(validation_dataset, batch_size=cfg.dataset.batch_size, collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False)
+
+    model_path = 'trainings/model_{}'.format(cfg.training.base)
+    save_path = 'trainings/model_{}'.format(cfg.training.name)
+    net,opt,loss,epoch = try_to_load_model(model_path, cfg.optimizer, cfg.network, device, decode=three_ch)
 
     lossf = GMMLossDecode((cfg.dataset.height,cfg.dataset.width))
     lossf.to(device)
@@ -108,18 +99,18 @@ def myapp(cfg):
 
                 #set to none speeds up training because gradients are not deleted from memory
                 opt.zero_grad(set_to_none=True)
-                #use lower precision float for speedup
-                #does not work at all nan at various steps
+                #can we use lower precision float for speedup?
                 #with torch.autocast(device_type="cuda"):
+                #does not work at all nan at various steps
                 out = net(images)
 
                 loss = lossf(out, truth[:,:,0:3],mask, bg)
                 loss.backward()
                 opt.step()
         epoch+=1
-        #each save point is 10 epochs
+        #each save point is 2 epochs
         if i%2 ==0:
-            #todo: set to every 2 reps for testing
+            #cast eval to disable dropout
             net.eval()
             with torch.no_grad():
                 #only validate first batch
@@ -127,11 +118,13 @@ def myapp(cfg):
                 v_loss = torch.zeros((3))
                 for im,t,m,bg in validation_dataloader:
                     i+=1
-                    v_out = net(im)#todo: implement eval everywhere to disable dropout
+                    v_out = net(im)
                     v_loss += lossf(v_out, t[:,:,0:3], m, bg, seperate=True)
-                    #print(validate(v_out, t))
                     print(f"loss: {loss} validation_loss: loc_loss = {v_loss[0]}, c_loss = {v_loss[1]} bg_loss = {v_loss[2]}", i)
+                #normalize loss by number of batches in validation
+                #todo: normalize over batch_size?
                 loss_list.append([loss.cpu().numpy(), v_loss.cpu().numpy()/i])
+            #set network back to training mode
             net.train()
             torch.save({
                 'epoch': epoch,
@@ -141,13 +134,14 @@ def myapp(cfg):
                 'optimizer_params': cfg.optimizer.params,
                 'training_time': time.time()-t1
             }, save_path)
-    loss_list = np.array(loss_list)
-    plt.plot(loss_list[:,0],label="loss")
-    plt.plot(loss_list[:,1],label="validation_loss")
-    plt.legend()
-    plt.show()
-    plt.imshow(out[0,0].cpu().detach())
-    plt.show()
+    #this part is deprecated use compare to plot metrics
+    # loss_list = np.array(loss_list)
+    # plt.plot(loss_list[:,0],label="loss")
+    # plt.plot(loss_list[:,1],label="validation_loss")
+    # plt.legend()
+    # plt.show()
+    # plt.imshow(out[0,0].cpu().detach())
+    # plt.show()
 
 
 if __name__ == '__main__':

@@ -1,15 +1,14 @@
 
 training:
   #base training file (can also be used for tranfer learning)
-  base: ViTVtest
-  #todo runs with batch size 50
+  base: ViTV8
   #target training file
-  name: ViTVtest
+  name: ViTV8finetune
   #number of training iterations
-  iterations: 150
+  iterations: 80
 dataset:
   #list of training datasets
-  train: [airyscan_complex]
+  train: [airyscan_finetune_switching]
   #batch size to train on hardwarelimited
   batch_size: 50
   height: 60
@@ -18,7 +17,7 @@ dataset:
   #offset for frames to train on
   offset: 0
   #validation dataset
-  validation: airyscan_complex_test
+  validation: airyscan_complex_test2
 defaults:
   #uses log of dataset
   - defaults

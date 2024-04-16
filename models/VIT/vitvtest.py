@@ -104,15 +104,9 @@ class Decoder(nn.Module):
         return torch.cat(heads,dim=1)
 
 class ViT(nn.Module):
-    sigmoid_ch_ix = [0, 1, 5, 6, 7, 8]  # channel indices with respective activation function
-    tanh_ch_ix = [2, 3, 4]
 
-    p_ch_ix = [0]  # channel indices of the respective parameters
-    pxyz_mu_ch_ix = slice(1, 5)
-    pxyz_sig_ch_ix = slice(5, 9)
-    bg_ch_ix = [10]
-    sigma_eps = 0.001
     def __init__(self, cfg):
+        #todo: keep base alive for all tests
         super(ViT, self).__init__()#load a config for sizes
         self.patch_size = cfg.patch_size
         self.encoder = Encoder(cfg.encoder, hidden_d=48, patch_size=self.patch_size)#upscaling failed try downscaling; Discarded V4
@@ -120,20 +114,13 @@ class ViT(nn.Module):
         #V4 worked best hiddend 400
         #get and initialize defined activation
         self.apply(self.weight_init)
-        #self.activation = getattr(activations, cfg.activation)()
+        self.activation = getattr(activations, cfg.activation)()
 
     def forward(self, input):
         #images = self.encoder(input)
         #images = self.activation(images)
         x = self.decoder(input)
-        x[:, [0]] = torch.clamp(x[:, [0]], min=-8., max=8.)
-
-        """Apply non linearities"""
-        x[:, self.sigmoid_ch_ix] = torch.sigmoid(x[:, self.sigmoid_ch_ix])
-        x[:, self.tanh_ch_ix] = torch.tanh(x[:, self.tanh_ch_ix])
-
-        """Add epsilon to sigmas and rescale"""
-        x[:, self.pxyz_sig_ch_ix] = x[:, self.pxyz_sig_ch_ix] * 3 + self.sigma_eps
+        x = self.activation(x)
         return x
 
     @staticmethod

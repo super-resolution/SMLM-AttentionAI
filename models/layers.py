@@ -202,11 +202,13 @@ class CA(nn.Module):
         #Layer norm
         x = self.norm(x)
         #Compute Query Key and Value
-        q = self.q(x)
+        q = self.q(y)
         k = self.k(y)
-        v = self.v(y)
+        v = self.v(x)
         #residual connection + multihead attention
         return self.out(self.mha(q,k,v,need_weights=False)[0]) + residual_short
+
+
 
 
 class MLP(nn.Module):
@@ -272,96 +274,62 @@ class MLP2(nn.Module):
         return x+residual_short
 
 
-#Experimental
-class CrossAttentionBlock(nn.Module):
-    def __init__(self, embed_dim=128,context_dim=128, mlp_ratio=2, channels=36):
-        #n_channels -> patch size
+class MHABlock(nn.Module):
+    def __init__(self, embed_dim: int, mlp_ratio: int = 2):
         super().__init__()
-        #todo: replace first number with number of in channels
-        self.groupnorm = nn.GroupNorm(channels//4, 288, eps=1e-6)
-        self.conv_input = nn.Conv2d(288, 288, kernel_size=1, padding=0)
-        self.lin_im_to_patch = nn.Linear(800, embed_dim)
-        self.lin_context_to_patch = nn.Linear(800, embed_dim)
-        self.norm = nn.LayerNorm(embed_dim)
-        self.mha = MHA(embed_dim=embed_dim, batch_first=False)
-        self.ca = CA(embed_dim=embed_dim, context_dim=context_dim)
-        self.mlp = MLP2(embed_dim=embed_dim, mlp_ratio=mlp_ratio)
-        self.lin_patch_to_im = nn.Linear(embed_dim, 800)
-        self.conv_output = nn.Conv2d(288, 288, kernel_size=1, padding=0)
-    def forward(self, x, context):
-        #x in -> b,c,h,w
-        residual_long = x
+        self.mha = MHA(embed_dim=embed_dim, head_dim=8, batch_first=False)
+        self.mlp = MLP2(embed_dim=embed_dim)
+        self.groupnorm = nn.GroupNorm(8, embed_dim, eps=1e-6)
+        self.conv_input = nn.Conv2d(embed_dim, embed_dim, kernel_size=1, padding=0)
+        self.conv_output = nn.Conv2d(embed_dim, embed_dim, kernel_size=1, padding=0)
+
+    def forward(self, x):
+        res_long = x
+        b, c, h, w = x.shape
         x = self.groupnorm(x)
         x = self.conv_input(x)
-        x = decoder_patchify(x, 36)
-        context = decoder_patchify(context, 36)
-        context = self.lin_context_to_patch(context)
-        context = self.norm(context)
-        x = self.lin_im_to_patch(x)
-        #reshape
-        #x = x.transpose(-1, -2)  #(n, hw, x)
-        #need this norm to not yield nan
-        x = self.norm(x)
+        x = x.view(b, c, h * w)
+
+        x = x.transpose(-1, -2)
+        # apply positional encoding on dim1
+        # apply mha over batch
         x = self.mha(x)
-        x = self.ca(x, context)#input context here#todo: activate and debug
         x = self.mlp(x)
-        x = self.norm(x)
-        x = self.lin_patch_to_im(x)
-        #unpatchify
-        #reshape back
-        x = decoder_unpatch(x, 10)
-        return self.conv_output(x) + residual_long
+        # apply mha over batch
+        x = x.transpose(-1, -2)
+        x = x.view(b, c, h, w)
+        x = self.conv_output(x) + res_long
+        return x
 
 
-class DiffusionDecoder(nn.Module):
-    def __init__(self, cfg):
+
+class CABlock(nn.Module):
+    def __init__(self, embed_dim: int, mlp_ratio: int = 2):
         super().__init__()
-        #todo: UNet 2 times down conv + cross attention
-        #skip connections
-        #todo: down along x,y
-        #context is image embedding
-        #todo: for unfold unpatchify and patchify again with n channels
-        self.patch_size = 10
-        self.down = nn.ModuleList([
-            Down(8,16),
-            CrossAttentionBlock(),
-            Down(16,32)])
-        self.mid = CrossAttentionBlock()
-        self.up = nn.ModuleList([
-            Up(32,16),
-            CrossAttentionBlock(),#48channels in
-            Up(48,8)]#todo: compute concatenat input
-        )
-        self.final = nn.ModuleList([
-            nn.GroupNorm(),
-            nn.SiLU(),
-            nn.Conv2d(in_ch, 8 ,3)]
-        )
-    def forward(self, x, context):
-        #todo: set context to image embedding
-        x = x
-        stack = []
-        for down in self.d_path:
-            if isinstance(down,CrossAttentionBlock):
-                #todo: change view
-                x = down(x,context)
-            elif isinstance(down,Down):
+        self.ca = CA(embed_dim=embed_dim, head_dim=8, context_dim=embed_dim)
+        self.mlp = MLP2(embed_dim=embed_dim)
+        self.groupnorm = nn.GroupNorm(8, embed_dim, eps=1e-6)
+        self.conv_input = nn.Conv2d(embed_dim, embed_dim, kernel_size=1, padding=0)
+        self.conv_output = nn.Conv2d(embed_dim, embed_dim, kernel_size=1, padding=0)
 
-                #todo: change view
-                # todo: only need to unfold 3 on patch size
-                x = down(x)
-            stack.append(x)
-        x = self.mid(x, context)
-        for up in self.u_path:
-            if isinstance(up, CrossAttentionBlock):
-                #todo: change view
-                x = up(torch.concat([x, stack.pop()], dim=-1),context)
-            elif isinstance(up, Up):
-                #todo: change view
-                x = up(x, stack.pop())
-        return self.final(x)
-
-
+    def forward(self, x, y):
+        res_long = x
+        b, c, h, w = x.shape
+        x = self.groupnorm(x)
+        x = self.conv_input(x)
+        x = x.view(b, c, h * w)
+        y = y.view(b, c, h * w)
+        x = x.transpose(-1, -2)
+        y = y.transpose(-1,-2)
+        # apply positional encoding on dim1
+        # apply mha over batch
+        x = self.ca(x, y)
+        x = self.mlp(x)
+        # apply mha over batch
+        x = x.transpose(-1, -2)
+        x = x.view(b, c, h, w)
+        x = self.conv_output(x) + res_long
+        return x
 
 
 

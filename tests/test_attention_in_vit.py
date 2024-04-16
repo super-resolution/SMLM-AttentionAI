@@ -6,7 +6,7 @@ from tifffile.tifffile import imread
 import numpy as np
 from models.VIT.vitv5 import ViT
 from hydra import initialize, compose
-from utility.dataset import CustomImageDataset
+from utility.dataset import CustomTrianingDataset
 from torch.utils.data import DataLoader
 
 
@@ -27,7 +27,7 @@ class TestVisionDecoder(unittest.TestCase):
             state_dict = checkpoint['model_state_dict']
             self.net.load_state_dict(state_dict)
             #todo: use dataloader and find corresponding localisations
-        datasets = CustomImageDataset(cfg.dataset.name, offset=cfg.dataset.offset)
+        datasets = CustomTrianingDataset(cfg.dataset.name, offset=cfg.dataset.offset)
         dataloader = DataLoader(datasets, batch_size=cfg.dataset.batch_size, collate_fn=lambda x: tuple(
             x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=True)
 

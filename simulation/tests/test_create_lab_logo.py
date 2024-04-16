@@ -4,7 +4,7 @@ from PIL import Image
 
 import unittest
 
-from ..sauer_lab import SauerLab
+from simulation.src.sauer_lab import SauerLab
 
 
 class TestCreateLabLogo(unittest.TestCase):

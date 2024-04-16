@@ -6,7 +6,37 @@ from torch.utils.data import Dataset
 from tifffile.tifffile import imread
 
 import matplotlib.pyplot as plt
+
 class CustomImageDataset(Dataset):
+    def __init__(self, dataset, transform=None, target_transform=None, three_ch=False, offset=0):
+
+        images = imread("data/" + dataset + "/images.tif")[offset:].astype(np.float32)
+
+        if three_ch:
+            self.images = self.reshape_data(images)
+        else:
+            self.images = images[:,None]
+        self.transform = transform
+        self.target_transform = target_transform
+
+    @staticmethod
+    def reshape_data(images):
+        #add temporal context to additional dimnesion
+        dataset = np.zeros((images.shape[0],3,images.shape[1],images.shape[2]),dtype=np.int16)
+        dataset[1:,0,:,:] = images[:-1]
+        dataset[:,1,:,:] = images
+        dataset[:-1,2,:,:] = images[1:]
+        return dataset
+
+    def __len__(self):
+        return len(self.images)
+
+    def __getitem__(self, idx):
+        image = self.images[idx]
+        return image
+
+
+class CustomTrianingDataset(Dataset):
     def __init__(self, dataset, transform=None, target_transform=None, three_ch=False, offset=0):
 
         bg = imread("data/" + dataset + "/bg_images.tif")
@@ -20,11 +50,12 @@ class CustomImageDataset(Dataset):
         self.batch_size = 100
         for batch in range(idx.shape[0]//self.batch_size):
             max_length = point_length[batch*self.batch_size:(batch+1)*self.batch_size].max()
-            cur_truth = np.zeros((self.batch_size, max_length, 4))
+            cur_truth = np.zeros((self.batch_size, max_length, gt.shape[1]))
             cur_mask = np.zeros((self.batch_size, max_length), dtype=np.float32)
             for i in range(self.batch_size):
                 k = i+batch*self.batch_size
-                val = gt[idx[k]:idx[k + 1]][:, (1, 0, 2, 3)] if gt.shape[1]==4 else gt[idx[k]:idx[k + 1]][:, (1, 0, 2)]
+                val = gt[idx[k]:idx[k + 1]][:, (1, 0, 2, 3, 4)] if gt.shape[1]==5 else gt[idx[k]:idx[k + 1]][:, (1, 0, 2, 3)]
+                #photons are normalized in loss
                 cur_truth[i, :val.shape[0]] = val
                 cur_mask[i, :val.shape[0]] = 1
             truth.append(cur_truth)

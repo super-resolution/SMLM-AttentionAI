@@ -220,7 +220,7 @@ def get_reconstruct_coords(tensor, th, neighbors=3):
             y.append(second_ind[1][0] + indices[1][i] - 1)
 
     indices = np.unique(np.array((np.array(x).astype(np.int32), np.array(y).astype(np.int32))),axis=1)
-    return indices
+    return indices, convolved[indices[0],indices[1]]
 
 def get_coords(reconstruct, neighbors=5):
     neighborhood = np.ones((neighbors,neighbors)).astype(np.bool)

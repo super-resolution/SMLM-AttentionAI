@@ -55,36 +55,142 @@ class Emitter():
         self.frames = np.append(self.frames, frames, axis=0)
         self.ids = np.append(self.ids, np.arange(self.ids[-1], xyz.shape[0], 1), axis=0)
         self.check_data_integrety()
-
-    def compute_jaccard(self, other, images=None):
+    def compute_jaccard2(self, other, images=None):
         import matplotlib.pyplot as plt
         tp = 0
         fp = 0
         fn = 0
         dis = 0
+        offsets = []
+        crlb = []
+        crlb_per_frame = []
+        distances = []
+        perc_crlb = 0
+        print(crlb)
+        other = other.filter(photons=.3)
         for i in range(self.frames.max()):
-            points = self.xyz[np.where(self.frames==i)]
-            othe = other.xyz[np.where(other.frames==i)]
-            if i>100:
-                if np.any(images):
-                    plt.imshow(images[i])
-                plt.scatter(points[:,0]/100,points[:,1]/100)
-                plt.scatter(othe[:,0]/100,othe[:,1]/100)
-                plt.show()
+            pred_query = (self.frames>=i*50) & (self.frames<(i+1)*50)& np.all((self.xyz<5900),axis=1) & np.all((self.xyz>100),axis=1)
+            points = self.xyz[np.where(pred_query)]
+            gt_query = (other.frames>=i*50) & (other.frames<(i+1)*50) & np.all((other.xyz<5900),axis=1) & np.all((other.xyz>100),axis=1)
+
+            othe,ind_ph = np.unique(other.xyz[np.where(gt_query)],axis=0, return_index=True)
+            #sum photon trace per emitter
+            ids = other.ids[np.where(gt_query)]
+            ph = np.zeros_like(ind_ph)
+            crlb_per_frame += list(np.sqrt(16/9*(186**2+100**2/12)/other.photons[np.where(gt_query)].astype(np.int32)))
+            for j in range(ind_ph.shape[0]):
+                ph[j] = np.sum(other.photons[np.where((other.ids==ids[ind_ph[j]])&gt_query)])
             if othe.shape[0]>0:
-                tree = KDTree(othe, leaf_size=2)
+                tree = KDTree(othe)
                 if points.shape[0]>0:
-                    x = tree.query(points)
-                    indices = np.unique(x[1][np.where(x[0]<100)])
-                dis += np.sum(x[0][np.where(x[0]<100)])
-                tp += indices.shape[0]
-                fn += othe.shape[0]-indices.shape[0]
-                fp += points.shape[0]-indices.shape[0]
+                    #only return closest nearest neighbor
+                    x = np.array(tree.query(points))[:,:,0].T
+                    #take closest points first
+                    y = np.array(sorted(x, key=lambda x: (x[1],x[0])))
+                    indices = np.unique(y[:,1].astype(np.int32),return_index=True)[1]
+                    #x = y[indices,:].T
+                    offsets += list(points-othe[x[:,1].astype(np.int)])
+                    distances += list(y[indices,0])
+                    #indices = x[1]
+                    crlb += list(np.sqrt(16/9*(186**2+100**2/12)/ph[x[indices,1].astype(np.int32)]))
+                    #perc_crlb += (1*crlb>x[indices,0]).sum()
+                    #todo: select closest
+                    x = x[np.where(x[:,0]<100)[0]]#todo: this throws an error
+
+                    dis += np.sum(y[indices,0])
+                    tp += indices.shape[0]
+                    fn += max(othe.shape[0]-indices.shape[0],0)
+                    fp += points.shape[0]-x.shape[0]
+                    # if max(othe.shape[0]-indices.shape[0],0)>0:
+                    #     if np.any(images):
+                    #         plt.imshow(np.sum(images[i*50:(i+1)*50],axis=0).T)
+                    #     plt.scatter(points[:,0]/100,points[:,1]/100, marker="X", label="fit")
+                    #     ind = set(range(othe.shape[0]))-set(y[indices,1].astype(np.int32))
+                    #     plt.scatter(othe[list(ind),0]/100,othe[list(ind),1]/100, marker="X")
+                    #     plt.legend()
+                    #     plt.show()
             else:
                 fp += points.shape[0]
-        print(tp,fn,fp)
-        print(dis/tp)
-        print(tp/(fn+tp+fp))
+        print(np.mean(offsets,axis=0))
+        plt.hist(crlb, bins=np.arange(0, 50, .5),density=True, label="crlb")
+        plt.hist(crlb_per_frame, bins=np.arange(0, 50, .5),density=True, label="crlb_per_frame")
+        plt.hist(distances, bins=np.arange(0, 50, .5), alpha=.5,density=True, label="distance")
+        plt.ylabel("a.u.")
+        plt.xlabel("distance [nm]")
+        plt.legend()
+        plt.savefig(r"figures/crlb_base_decode.svg")
+        plt.show()
+        #todo: crlb histogram plot
+        print(perc_crlb/tp)
+        print("check for offsets", np.mean(np.array(offsets),axis=0))
+        print(f"% under crlb {perc_crlb/tp:.2f}")
+        #print("check for offsets", np.mean(np.array(offsets),axis=0))
+        print(f"TP: {tp}, FN: {fn}, FP{fp}")
+        #root mean squared error
+        print(f"RMSE: {np.sqrt(np.sum(np.array(distances)**2)/tp):.2f} nm")
+        print(f"JI: {tp/(fn+tp+fp):.4f}")
+    def compute_jaccard(self, other, output="tmp", images=None):
+        import matplotlib.pyplot as plt
+        tp = 0
+        fp = 0
+        fn = 0
+        dis = 0
+        offsets = []
+        crlb = np.mean(150/np.sqrt(other.photons))
+        perc_crlb = 0
+        print(crlb)
+        for i in range(self.frames.max()):
+            #points = self.xyz[np.where((self.frames>=i*50) & (self.frames<(i+1)*50))]
+            #othe = other.xyz[np.where((other.frames>=i*50) & (other.frames<(i+1)*50))]
+            points = self.xyz[np.where(self.frames==i)]#-np.array([20,10])[None,:]
+            othe = other.xyz[np.where(other.frames==i)]
+            ph = other.photons[np.where(other.frames==i)]
+            #sigma / sqrt n
+            # if i>200:
+            #     if np.any(images):
+            #         plt.imshow(images[i].T)
+            #     plt.scatter(points[:,0]/100,points[:,1]/100, marker="X")
+            #     plt.scatter(othe[:,0]/100,othe[:,1]/100, marker="X")
+            #     plt.show()
+            if othe.shape[0]>0:
+                tree = KDTree(othe)
+                if points.shape[0]>0:
+                    #only return closest nearest neighbor
+                    x = np.array(tree.query(points))[:,:,0].T
+                    y = np.array(sorted(x, key=lambda x: (x[1],x[0])))
+                    indices = np.unique(y[:,1].astype(np.int32),return_index=True)[1]
+                    x = y[indices,:].T
+                    offsets.append(np.mean(points[indices]-othe[x[1].astype(np.int)],axis=0))
+                    x = x[:,np.where(x[0]<100)[0]]#todo: this throws an error
+                    indices = x[1]
+                    crlb = 180/np.sqrt(ph[x[1].astype(np.int32)])
+                    perc_crlb += (2*crlb>x[0]).sum()
+                    #todo: select closest
+                    dis += np.sum(x[0]**2)
+                    tp += indices.shape[0]
+                    fn += max(othe.shape[0]-indices.shape[0],0)
+                    fp += points.shape[0]-indices.shape[0]
+                    # if othe.shape[0]-indices.shape[0]>0:
+                    #     #if i>200:
+                    #     print(i)
+                    #     if np.any(images):
+                    #         plt.imshow(images[i].T)
+                    #     plt.scatter(points[:,0]/100,points[:,1]/100, marker="X", label="fit")
+                    #     plt.scatter(othe[:,0]/100,othe[:,1]/100, marker="X")
+                    #     plt.legend()
+                    #     plt.show()
+            else:
+                fp += points.shape[0]
+        print("offsets are ", np.mean(np.array(offsets),axis=0))
+        with open(f'{output}.txt', 'a') as the_file:
+            the_file.write('Hello\n')
+            the_file.write(f"% under crlb {perc_crlb/tp:.2f}\n")
+            #print("check for offsets", np.mean(np.array(offsets),axis=0))
+            the_file.write(f"TP: {tp}, FN: {fn}, FP{fp}\n")
+            #root mean squared error
+            the_file.write(f"RMSE: {np.sqrt(dis/tp):.2f} nm\n")
+            the_file.write(f"JI: {tp/(fn+tp+fp):.4f}\n")
+        return np.sqrt(dis/tp),tp/(fn+tp+fp)
 
 
     def __add__(self, other):
@@ -95,13 +201,13 @@ class Emitter():
         self.xyz = np.append(self.xyz, other.xyz, axis=0)
         self.sigxsigy = np.append(self.sigxsigy, other.sigxsigy, axis=0)
         self.frames = np.append(self.frames, self.frames.max()+other.frames+1, axis=0)
-        self.ids = np.append(self.ids, self.ids.max()+other.ids+1, axis=0)
+        self.ids = np.append(self.ids, other.ids, axis=0)
         self.photons = np.append(self.photons, other.photons, axis=0)
         self.p = np.append(self.p, other.p, axis=0)
 
 
     def __mod__(self, other):
-        #todo: implement set comparison
+        #todo: deprecated
         found_emitters = []
         distances = []
         t= []
@@ -142,14 +248,15 @@ class Emitter():
         :param other: Emitter set
         :return: Emitters that don`t overlap within a 100nm range
         """
-        #todo: should have same frame length
+        #todo: deprecated
         found_emitters = []
         distances = []
         for i in range(int(self.frames.max())):
             pred_f = self.xyz[np.where(self.frames==i)]
             truth_f = other.xyz[np.where(other.frames==i)]
             if np.any(self.ids[np.where(self.frames==i)]):
-                id_f = self.ids[np.where(self.frames==i)][0]
+                #todo: ids are not unique anymore
+                id_f = np.where(self.frames==i)[0][0]
                 t_truth = []
                 for k in range(pred_f.shape[0]):
                     emitter_id = id_f + k
@@ -186,7 +293,7 @@ class Emitter():
         """
         Returns a new emitter set from a list of given ids
         """
-        new = Emitter(deepcopy(self.xyz[ids]), deepcopy(self.photons[ids]), deepcopy(self.frames[ids]), deepcopy(self.sigxsigy[ids]))
+        new = Emitter(deepcopy(self.xyz[ids]), deepcopy(self.photons[ids]), deepcopy(self.frames[ids]), deepcopy(self.sigxsigy[ids]),p=deepcopy(self.p[ids]), ids=deepcopy(self.ids[ids]))
         return new
 
     def filter(self, sig_x=3, sig_y=3, photons=0, p=0, frames=None):
@@ -203,12 +310,13 @@ class Emitter():
         conditions=[]
         conditions.append(self.sigxsigy[:,0]<sig_x)
         conditions.append(self.sigxsigy[:,1]<sig_y)
-        #conditions.append(self.photons>photons)
+        conditions.append(self.photons>photons)
         conditions.append(self.p>p)
         if frames:
             conditions.append(self.frames>frames[0])
             conditions.append(self.frames<frames[1])
-        indices = self.ids[np.where(np.all(np.array(conditions),axis=0))]
+        indices = np.array(np.where(np.all(np.array(conditions),axis=0))[0])
+        #ids are not unique anymore
         s = self.subset(indices)
         s.metadata += metadata
         return s
@@ -310,7 +418,8 @@ class Emitter():
 
 
     @classmethod
-    def from_result_tensor(cls, result_tensor, p_threshold, coord_list=None, gpu=False):
+    def from_result_tensor(cls, result_tensor, p_threshold, coord_list=None, gpu=False,
+                           maps={"p":0, "x":1,"y":2,"dx":3,"dy":4,"N":5,"dN":6}):
         """
         Build an emitter set from the neural network output
         :param result_tensor: Feature map output of the AI
@@ -331,22 +440,22 @@ class Emitter():
             p_list = []
             frames = []
             for i in range(result_tensor.shape[0]):
-                classifier =result_tensor[i,0, :, :]
+                classifier =result_tensor[i,maps["p"], :, :]
                 #if i==32:
                 #    x=0
                 x= np.sum(classifier)
                 # plt.imshow(classifier)
                 # plt.show()
                 if x > p_threshold:
-                    indices = get_reconstruct_coords(classifier, p_threshold)#todo: import and use function
+                    #todo: get indices and p from function...
+                    indices,p = get_reconstruct_coords(classifier, p_threshold)#todo: import and use function
 
-                    x = result_tensor[i,1, indices[0], indices[1]]
-                    y = result_tensor[i,2, indices[0], indices[1]]
-                    p = result_tensor[i,0, indices[0], indices[1]]
-                    dx = result_tensor[i,3, indices[0], indices[1]]
-                    dy = result_tensor[i,4, indices[0], indices[1]]
-                    N = result_tensor[i,6, indices[0], indices[1]]
-                    dN = result_tensor[i,7, indices[0], indices[1]]
+                    x = result_tensor[i,maps["x"], indices[0], indices[1]]
+                    y = result_tensor[i,maps["y"], indices[0], indices[1]]
+                    dx = result_tensor[i,maps["dx"], indices[0], indices[1]]
+                    dy = result_tensor[i,maps["dx"], indices[0], indices[1]]
+                    N = result_tensor[i,maps["N"], indices[0], indices[1]]
+                    dN = result_tensor[i,maps["dN"], indices[0], indices[1]]
 
                     for j in range(indices[0].shape[0]):
                         if np.any(coord_list):
@@ -366,27 +475,34 @@ class Emitter():
     @classmethod
     def from_ground_truth(cls, coordinate_tensor):
         coords = []
+        frames = []
+        photons = []
+        ids = []
         for i, crop in enumerate(coordinate_tensor):
             for coord in crop:
                 #if coord[2] != 0:
                     #todo add photons
                 if coord[0] != 0:
-                    coords.append(np.array([coord[0], coord[1], i,0]))#no intensity yet
+                    coords.append(np.array([coord[0], coord[1], i, coord[2]]))#x,y,frame,intensity
+                    frames.append(i)
+                    photons.append(coord[2])
+                    ids.append(coord[4])
         coords = np.array(coords)
         coords[:, 0:2] *= 100
-        return cls(coords[:,0:2], coords[:,3], coords[:,2])
+        return cls(coords[:,0:2], np.array(photons), np.array(frames), ids=np.array(ids))
 
     @classmethod
-    def from_thunderstorm_csv(cls, path, slide):
-        results = pd.read_csv(path).as_matrix()
-        #todo: sort this stuff
-        i = slide
-        start = i*4000
-        stop = (i+1)*4000-3000
-        indices = np.where(np.logical_and(results[:,0]>start, results[:,0]<stop))
-        frame = results[indices[0],0]-start-1
-        xyz = results[indices[0],1:3]
-        I = results[indices[0],4]
+    def from_thunderstorm_csv(cls, path, contest=False):
+        results = pd.read_csv(path).to_numpy()
+        if contest:
+            frame = results[:,1]-1
+            xyz = results[:,2:4]-50
+            I = results[:,5]
+        else:
+            frame = results[:,0]
+            xyz = results[:,1:3]-50
+            I = results[:,4]
+
         return cls(xyz[:,::-1], I, frame)
 
 

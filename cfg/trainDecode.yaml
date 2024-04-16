@@ -9,7 +9,7 @@ training:
   iterations: 150
 dataset:
   #list of training datasets
-  train: [airyscan_complex]
+  train: [airyscan_complex2]
   #batch size to train on hardwarelimited
   batch_size: 50
   height: 60
@@ -18,7 +18,7 @@ dataset:
   #offset for frames to train on
   offset: 0
   #validation dataset
-  validation: airyscan_complex_test
+  validation: airyscan_complex_test2
   #uses log of dataset
 defaults:
   - dataset:

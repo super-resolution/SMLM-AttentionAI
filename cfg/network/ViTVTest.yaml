@@ -8,11 +8,11 @@ device: cuda
 dtype: float16
 components:
   #patch size of ViT has to be quadratic
-  patch_size: 10
+  patch_size: None
   #hidden dimension worked best out of 400,800,1600,3200
   hidden_d: 800
   #define sequence length for positional encoding
-  sequence_lenght: 2000
+  sequence_lenght: 50
   #define feature-extractor unet in different file
   mapping:
     DoubleConv
@@ -32,5 +32,5 @@ components:
   #currently linear and conv
   #define activation
   activation:
-    GMMActivation
+    GMMActivationV2
   #currently GMM activation

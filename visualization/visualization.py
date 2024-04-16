@@ -4,6 +4,8 @@ import numpy as np
 from tifffile.tifffile import TiffWriter
 import torch
 import torch.distributions as td
+from PIL import Image
+
 def plot_emitter_gmm(emitters):
     #todo: render on div
     mesh = torch.meshgrid([torch.arange(0, 600) + .5, torch.arange(0, 600) + .5])
@@ -19,7 +21,7 @@ def plot_emitter_gmm(emitters):
     #sample grid
 
 
-def plot_emitter_set(emitters, frc=False):
+def plot_emitter_set(emitters,save_name="temp", frc=False):
     """
     Image from emitter set class
     :param emitters:
@@ -30,26 +32,31 @@ def plot_emitter_set(emitters, frc=False):
     # data_in = data_in[1::2]
 
     localizations = emitters.xyz  # +np.random.random((data_in.shape[0],2))
-    array = np.zeros(
-        (int(localizations[:, 0].max()) + 1, int(localizations[:, 1].max()) + 1))  # create better rendering...
+    #array = np.zeros((5000,3000))
+    array = np.zeros((int(localizations[:, 0].max()) + 1, int(localizations[:, 1].max()) + 1))  # create better rendering...
     #sort by sigma
     #sum up images
+    #todo crop stuff
     for i in range(localizations.shape[0]):
+        if int(localizations[i, 0])<array.shape[0] and int(localizations[i, 1]) < array.shape[1]:
             array[int(localizations[i, 0]), int(localizations[i, 1])] += 300# * emitters.photons[i]
 
-    #array = cv2.GaussianBlur(array, (21, 21), 0)
+    array = cv2.GaussianBlur(array, (21, 21), 0)
     # array -= 10
     array = np.clip(array, 0, 255)
-    downsampled = cv2.resize(array, (int(array.shape[1] / 5), int(array.shape[0] / 5)), interpolation=cv2.INTER_AREA)
+    downsampled = cv2.resize(array, (int(array.shape[1] / 10), int(array.shape[0] / 10)), interpolation=cv2.INTER_AREA)
 
     # todo: make 10 px scalebar
-    with TiffWriter('temp.tif', bigtiff=True) as tif:
-        tif.save(downsampled)
+    # with TiffWriter(f'{save_name}.tif', bigtiff=True) as tif:
+    #     tif.save(downsampled)
     cm = plt.get_cmap('hot')
-    v = cm(downsampled / 255)
+    v = cm(downsampled / (downsampled.max()/4))
     v[:, :, 3] = 255
-    v[-25:-20, 10:110, 0:3] = 1
+    v[-25:-20, 10:110] = 1
 
-    # array = np.log(array+1)
+    im = Image.fromarray((v[:,:,0:3]*255).astype(np.uint8),"RGB")
+    im.save(f'{save_name}.jpg')
+
+    # #array = np.log(array+1)
     plt.imshow(downsampled, cmap='hot')
     plt.show()

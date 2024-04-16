@@ -3,7 +3,7 @@ import unittest
 import matplotlib.pyplot as plt
 import torch
 
-from simulation.noise_simulations import Simulation
+from simulation.src.noise_simulations import Simulation
 
 #todo: dict to hydra conf
 MOCK_FLIM = {

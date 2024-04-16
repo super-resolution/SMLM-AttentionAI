@@ -132,8 +132,8 @@ class GMMLossDecode(torch.nn.Module):
         p_xy = output[:, 2:4]
         p_sig = output[:, 5:7]
         bg = output[:, 9]
-        N = output[:, 7:8]
-        N_sig = output[:, 8:9]
+        N = output[:, 4:5]
+        N_sig = output[:, 7:8]
 
 
         batch_size = p_xy.shape[0]
@@ -157,13 +157,19 @@ class GMMLossDecode(torch.nn.Module):
         # var estimate of bernoulli
         p_gauss = td.Normal(p_mean, torch.sqrt(p_var))
 
-        c_loss = torch.sum(-p_gauss.log_prob(n)*n)/100
+        c_loss = torch.sum(-p_gauss.log_prob(n)*n)/10
 
         #do not validate args. This can lead to simplex error due to rounding
         cat = td.Categorical(prob_normed.reshape(batch_size, -1), validate_args = False)
-        comp = td.Independent(td.Normal(p_xy, p_sig), 1)
+        comp = td.Independent(td.Normal(torch.concat([p_xy,N],-1), torch.concat([p_sig,N_sig],-1)), 1)
         gmm = td.mixture_same_family.MixtureSameFamily(cat, comp)
-        truth = pos.reshape((batch_size, -1, 3))[:,:,0:2]
+        truth = pos.reshape((batch_size, -1, 3))[:,:,0:3]
+        #todo: normalize photons
+        truth[:,:,2] /= truth[:,:,2].max()
+        # comp = td.Independent(td.Normal(p_xy, p_sig), 1)
+        # gmm = td.mixture_same_family.MixtureSameFamily(cat, comp)
+        # truth = pos.reshape((batch_size, -1, 3))[:,:,0:2]
+
 
         gmm_loss = -gmm.log_prob(truth.transpose(0, 1)).transpose(0, 1)
         gmm_loss = torch.sum(gmm_loss * mask)

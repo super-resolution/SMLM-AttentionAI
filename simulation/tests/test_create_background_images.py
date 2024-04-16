@@ -2,7 +2,7 @@ import unittest
 
 import numpy as np
 
-from ..background_structure import create_images
+from simulation.src.background_structure import create_images
 
 
 class TestCreateImages(unittest.TestCase):

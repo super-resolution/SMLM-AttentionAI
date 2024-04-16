@@ -3,80 +3,99 @@ import torch
 from models import activations
 from models.layers import *
 from models.unet import UNet
-
-class ImageEmbedding(torch.nn.Module):
-    def __init__(self, chw=(100,60,60),patch_size=10, hidden_d=100):
-        super(ImageEmbedding, self).__init__()
-        # Attributes
-        double_conv_width = 8
-        # 1) Linear mapper
-        # project on 8 channels with double conv
-        self.conv = DoubleConv(1,double_conv_width)
-        #takes 8 feauture maps
-        self.unet = UNet()
-        #todo: positional encode axis 0
-        self.group_norm2 = nn.GroupNorm(8,8)
-
-
-
-    def forward(self,images):
-        images = torch.log(nn.ReLU()(images + images.min()) + 1.1)
-        #todo test for equal zero or use batchnorm
-        images /= images.max()
-        if torch.any(torch.isnan(images)):
-            print("nan in images")
-        images = self.conv(images[:,None])
-
-        images = self.unet(images)
-
-        return self.group_norm2(images)
-
-
-class Encoder(nn.Module):
-    def __init__(self, cfg, hidden_d=128, mlp_ratio=2, patch_size=10):
-        #todo: restructure
-        super(Encoder, self).__init__()
-        #min U-Net
-        #embedding + MHA
-        #decoding
-        #todo: this could be sequential
-        #todo: define in VIT
-        self.embedding = ImageEmbedding(hidden_d=hidden_d, patch_size=patch_size)
-        #self.norm2 = nn.LayerNorm(hidden_d)#todo: deactivates norms in encoder
-        #self.mh_attention2 = MHA(embed_dim=hidden_d)
-        #self.norm3 = nn.LayerNorm(hidden_d)
-
-    def forward(self, input):
-        images = self.embedding(input)
-        #x = self.mha(x1)
-        #x = self.mlp(x)
-        #residual connection
-        return images
+from third_party.decode.models.unet_param import UNet2d
 
 class Decoder(nn.Module):
+
     def __init__(self, cfg, hidden_d=128, feature_map_d=8, mlp_ratio=2, patch_size=10):
         super(Decoder, self).__init__()
+        out_ch = (1,4,4,1)
+        #todo: this is x*y in u net
+        #todo: mha in unet1
+        self.mha = MHA(embed_dim=hidden_d*4,head_dim=8, batch_first=False)
+        self.mlp = MLP2(embed_dim=hidden_d*4)
+        self.mha2 = MHA(embed_dim=hidden_d*4,head_dim=8, batch_first=True)
+        self.mlp2 = MLP2(embed_dim=hidden_d*4)
+        self.final = nn.ModuleList([Head(hidden_d, ch) for ch in out_ch])
+        torch.nn.init.constant_(self.final[0].out_conv.bias, -6.)
+        torch.nn.init.kaiming_normal_(self.final[0].first[0].weight, mode='fan_in',
+                                      nonlinearity='relu')
+        torch.nn.init.kaiming_normal_(self.final[0].out_conv.weight, mode='fan_in',
+                                      nonlinearity='linear')
+        self.groupnorm = nn.GroupNorm(8, hidden_d*4, eps=1e-6)
+        self.conv_input = nn.Conv2d(hidden_d*4, hidden_d*4, kernel_size=1, padding=0)
+        self.conv_output = nn.Conv2d(hidden_d*4, hidden_d*4, kernel_size=1, padding=0)
 
-        self.final = nn.Conv2d(8,8,1,padding="same")
+        self.unet = UNet2d(1 , 48, depth=2, pad_convs=True,
+                                             initial_features=48,
+                                             activation=nn.ReLU(), norm=None, norm_groups=None,
+                                             pool_mode='StrideConv', upsample_mode='bilinear',
+                                             skip_gn_level=None)
+        self.unet2 = UNet2d(48 , 48, depth=2, pad_convs=True,
+                                             initial_features=48,
+                                             activation=nn.ReLU(), norm=None, norm_groups=None,
+                                             pool_mode='StrideConv', upsample_mode='bilinear',
+                                             skip_gn_level=None)
 
-    def forward(self, images):
-        return self.final(images)
+
+    def forward(self, inp):
+        inp /= inp.max()+0.001#todo: discard
+        x = self.unet(inp)
+        #concat isntead of add?
+        x,enc_out = self.unet2.forward_parts(x, "encoder")
+        x = self.unet2.forward_parts(x, "base")
+        res_long = x
+        b,c,h,w = x.shape
+        x = self.groupnorm(x)
+        x = self.conv_input(x)
+        x = x.view(b,c,h*w)
+
+        x = x.transpose(-1,-2)
+        #apply positional encoding on dim1
+        #apply mha over batch
+        x = self.mha(x)
+        x = self.mlp(x)
+        #apply mha over batch
+        # x = self.mha2(x)
+        # x = self.mlp2(x)
+        x = x.transpose(-1,-2)
+        x = x.view(b,c,h,w)
+        x = self.conv_output(x)+res_long
+        x = self.unet2.forward_parts(x, "decoder", encoder_out=enc_out)
+        heads = [f(x) for f in self.final]
+        return torch.cat(heads,dim=1)
 
 class ViT(nn.Module):
+
     def __init__(self, cfg):
+        #todo: keep base alive for all tests
         super(ViT, self).__init__()#load a config for sizes
         self.patch_size = cfg.patch_size
-        self.encoder = Encoder(cfg.encoder, hidden_d=cfg.hidden_d, patch_size=self.patch_size)#upscaling failed try downscaling; Discarded V4
-        self.decoder = Decoder(cfg.decoder, hidden_d=cfg.hidden_d, patch_size=self.patch_size)#downscaling works try further
+        self.decoder = Decoder(cfg.decoder, hidden_d=48, patch_size=self.patch_size)#downscaling works try further
         #V4 worked best hiddend 400
         #get and initialize defined activation
+        self.apply(self.weight_init)
         self.activation = getattr(activations, cfg.activation)()
 
     def forward(self, input):
-        images = self.encoder(input)
+        x = self.decoder(input)
+        x = self.activation(x)
+        return x
 
-        image_space = self.decoder(images)
-        if torch.any(torch.isnan(image_space)):
-            print("nan in decoder")
-        out = self.activation(image_space)
-        return out
+    @staticmethod
+    def weight_init(m):
+
+        if isinstance(m, torch.nn.Conv2d):
+            torch.nn.init.kaiming_normal_(m.weight, mode='fan_in', nonlinearity='relu')
+
+class Head(nn.Module):
+    def __init__(self, inch,outch):
+        super().__init__()
+        self.first = torch.nn.Sequential(nn.Conv2d(inch, outch, kernel_size=3, padding="same"),
+                            torch.nn.ReLU(),)
+        self.out_conv = nn.Conv2d(outch, outch, kernel_size=1, padding="same")
+
+    def forward(self, x):
+        x = self.first(x)
+        x = self.out_conv(x)
+        return x

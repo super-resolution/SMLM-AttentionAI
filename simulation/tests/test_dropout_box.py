@@ -1,6 +1,5 @@
-import numpy as np
 import unittest
-from ..data_augmentation import DropoutBox
+from simulation.src.data_augmentation import DropoutBox
 from copy import deepcopy
 import torch
 class TestDropoutBox(unittest.TestCase):

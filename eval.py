@@ -7,7 +7,7 @@ import torch
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
 
-from utility.dataset import CustomImageDataset
+from utility.dataset import CustomTrianingDataset
 from utility.emitters import Emitter
 from visualization.visualization import plot_emitter_set
 from third_party.decode.models import SigmaMUNet
@@ -74,7 +74,36 @@ def reshape_data(images):
     dataset[:-1,2,:,:] = images[1:]
     return dataset
 
-
+def full_evaluation(dat, emitter_truth, parameter="p"):
+    title = {"p": "Probability filter", "sig": "Sigma filter"}
+    jac = []
+    rmse = []
+    for i in range(9):
+        if parameter == "p":
+            filter = 1.0-.05*i
+            t = dat.filter(p=filter)#sig_y=sig_filter,sig_x=sig_filter)
+        elif parameter == "sig":
+            filter = .45-.05*i
+            t = dat.filter(sig_y=filter,sig_x=filter)
+        rm,ji = t.compute_jaccard(emitter_truth)
+        jac.append([filter,ji])
+        rmse.append([filter,rm])
+    jac = np.array(jac)
+    rmse = np.array(rmse)
+    fig,axs = plt.subplots()
+    axs.plot(jac[:,0], jac[:,1],"#378f8f", lw=3)
+    axs.set_title(title[parameter])
+    axs.tick_params(axis='y', labelcolor="#378f8f")
+    axs.set_ylabel('JI', color="#378f8f")
+    axs.set_xlabel("threshold")
+    axs2 = axs.twinx()
+    axs2.plot(rmse[:,0], rmse[:,1],'#ff6150', lw=3)
+    axs2.tick_params(axis='y', labelcolor='#ff6150')
+    axs2.set_ylabel('rmse', color='#ff6150')
+    #axs2.set_ylim([0,max(rmse[:,1])])
+    fig.tight_layout()
+    plt.savefig(f"figures/threshold_eval_{parameter}.png")
+    plt.show()
 
 
 
@@ -83,33 +112,24 @@ def myapp(cfg):
     device = cfg.network.device
     dataset_name = cfg.dataset.name
     dataset_offset = cfg.dataset.offset
-
-    datasets = CustomImageDataset(cfg.dataset.name, three_ch=True, offset=cfg.dataset.offset)
+    #todo: set three channel true if decode
+    three_ch = "decode" in cfg.training.name.lower()
+    datasets = CustomTrianingDataset(cfg.dataset.name, three_ch=three_ch, offset=cfg.dataset.offset)
     dataloader = DataLoader(datasets, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False)
 
     dtype = getattr(torch, cfg.network.dtype)
     #todo: use dataloader
 
-    # arr = np.load("data/"+ dataset_name + "/coords.npy" , allow_pickle=True)[:,::-1]
-    # indices = np.load("data/" + dataset_name + "/indices.npy", allow_pickle=True)[dataset_offset:]
-    # truth = []
-    # for i, ind in enumerate(indices):
-    #     val = arr[np.where(ind[:, 0] != 0)]
-    #     truth.append(val)
-
-
-    #
-    #images = imread(r"D:\Daten\Patrick\STORMHD\643\COS7_Phalloidin_ATTO643_1_200_2perHQ_4.tif")[13000:14000,60:130,60:130].astype(np.float32)/24
-    #images -= images.min()
-    #reshape for temporal context
-    #images = torch.nn.functional.pad(images, (0,0,0,1,0,1))
     model_path = 'trainings/model_'+cfg.training.name#change also in eval
     print(model_path)
     vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
+    if three_ch:
+        net = SigmaMUNet(3)
+    else:
+        net = vit.ViT(cfg.network.components)
 
-    net = SigmaMUNet(3)
-    #opt_cls = getattr(torch.optim, cfg.optimizer.name)
-    #opt = opt_cls(net.parameters(), **cfg.optimizer.params)
+    opt_cls = getattr(torch.optim, cfg.optimizer.name)
+    opt = opt_cls(net.parameters(), **cfg.optimizer.params)
 
     checkpoint = torch.load(model_path)
     net.load_state_dict(checkpoint['model_state_dict'])
@@ -124,35 +144,43 @@ def myapp(cfg):
     net.eval()
     #search_attention(net,dataloader)
     truth_list = []
+    emitter_truth = None
     for images, truth, mask, bg in dataloader:
-        truth_list.append(truth.cpu().numpy())
+        truth_list.append(np.concatenate(truth.cpu().numpy(),axis=0))
         with torch.no_grad():
              out_data.append(net(images).cpu())
+        if not emitter_truth:
+            emitter_truth = Emitter.from_ground_truth(truth.cpu().numpy())
+        else:
+            emitter_truth + Emitter.from_ground_truth(truth.cpu().numpy())
     out_data = torch.concat(out_data,dim=0)
-    truth = np.concatenate(truth_list,axis=0)
-    t = Emitter.from_ground_truth(truth)
+    # t = Emitter.from_ground_truth(truth)
     out_data = out_data.numpy()
-    # plt.imshow(np.mean(out_data[:,0],axis=0),cmap="hot")#todo: plot mean and std
-    # plt.colorbar()
-    #
+    #plt.imshow(np.mean(out_data[:,0],axis=0),cmap="hot")#todo: plot mean and std
+    #plt.colorbar()
+
     # plt.savefig("figures/avg_p.svg")
 
     #plt.scatter(truth[0][:,1],truth[0][:,0])
     #plt.show()
-    #truth = Emitter.from_ground_truth(truth)
     jac= []
     # for i in range(8):
-    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], 0.5)
+    #todo: create mapping for output
+    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], .7,) #maps=net.activation.mapping)#
     #
-    #dat = dat.filter(sig_y=0.9,sig_x=0.9)
-    #dat.compute_jaccard(t, out_data[:,0])
+    #automatically compute the best values
+    dat = dat.filter(sig_y=0.45,sig_x=0.45)
+    #todo: update computation and add crlb
+    #todo: optimize jaccard:
+    full_evaluation(dat, emitter_truth, parameter="sig")
+    #dat.compute_jaccard(emitter_truth, "figures/density/"+dataset_name+cfg.training.name, np.concatenate([im.cpu().numpy() for im,_,_,_ in dataloader],axis=0))
 
     #print(validate(dat,t))
     #plt.plot(jac)
     #plt.savefig("eval_jaccard.svg")
     #plt.show()
     #plot_emitter_gmm(dat)
-    plot_emitter_set(dat)
+    plot_emitter_set(dat, save_name="figures/density/"+dataset_name+cfg.training.name)
 
 if __name__ == '__main__':
     myapp()

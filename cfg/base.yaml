@@ -1,22 +1,22 @@
 #Simulation parameter file
 dataset:
   #name to save to
-  name: airyscan_complex2
-
-  mode: training
+  name: lab_logo_test
+  #either eval or training
+  mode: eval
   #base path
   path: data
   #number of pixels in width and height
   n_pix: 60
   #number of batches to simulate. Remains one file
-  n_batches: 1000
+  n_batches: 100
   #size per batch
   batch_size: 100
   #random seed for generation
   seed: 60
 emitter:
   #localisations per square µm²
-  emitter_density: .9
+  emitter_density: 5
   #off time in frames
   off_time: 100
   #we dont need this
