@@ -29,6 +29,7 @@ def plot_current_density_performances():
                 raise ValueError(f"No JI in {s[1]} check")
             name = density_f.replace(eval,"").split(".")[0]
             density = name[0]
+            print(f"{density} emitters/µm^2, {name[1:]} achieved a JI of {JI} and an RMSE of {RMSE}")
             marker = "X" if "decode" in name.lower() else "x"
             plt.scatter(JI, RMSE, c=cmap[i], marker=marker, label=fr"{density} emitter/$µm^2$ {name[1:]}")
             i += 0 if "decode" in name.lower() else 1

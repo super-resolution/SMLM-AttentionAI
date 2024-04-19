@@ -79,7 +79,7 @@ class FunctionalTestRendering():
         cmap = np.array([cmap(i/1000) for i in range(0,1000)])
 
         main_window.show()
-        p = Points(self.emitters.xyz, self.emitters.sigxsigy, self.emitters.frames, self.emitters.p, cmap)
+        p = Points(self.emitters.xyz, self.emitters.sigxsigy*2, self.emitters.frames, self.emitters.p, cmap)
 
         #write update function and connect signals
         widget.horizontalSlider.valueChanged.connect(lambda v: p.update_uniform("precision_filter",v,1))

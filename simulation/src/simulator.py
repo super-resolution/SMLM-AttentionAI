@@ -111,14 +111,14 @@ class Simulator():
 
     def create_batch(self, frames, ground_truth, offsets, bg_t, idx, density):
         if self.coeff < 1:
-            cur_arr = self.o_arr[np.where(np.random.binomial(1, self.coeff*1.5, self.o_arr.shape[0]))]
+            cur_arr = self.o_arr[np.where(np.random.binomial(1, self.coeff*.5, self.o_arr.shape[0]))]
 
         # todo: works only if coeff is adjusted
 
         # load points to gpu
         arr = torch.tensor(cur_arr, device=self.device, dtype=torch.float32)
         # load complex trace instead of simulating simple one
-        ch = self.load_complex_trace(cur_arr.shape[0], self.batch_size, "data/emitter_traces/switching.pkl")
+        ch = self.load_complex_trace(cur_arr.shape[0], self.batch_size, "data/emitter_traces/flickering2.pkl")
 
 
         # ch = self.simulate_simple_trace(self.off_state_prob, cur_arr.shape[0], self.batch_size)

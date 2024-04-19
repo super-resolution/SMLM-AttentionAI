@@ -65,11 +65,11 @@ class Decoder(nn.Module):
         heads = [f(x) for f in self.final]
         return torch.cat(heads,dim=1)
 
-class ViT(nn.Module):
+class Network(nn.Module):
 
     def __init__(self, cfg):
         #todo: keep base alive for all tests
-        super(ViT, self).__init__()#load a config for sizes
+        super(Network, self).__init__()#load a config for sizes
         self.patch_size = cfg.patch_size
         self.decoder = Decoder(cfg.decoder, hidden_d=48, patch_size=self.patch_size)#downscaling works try further
         #V4 worked best hiddend 400

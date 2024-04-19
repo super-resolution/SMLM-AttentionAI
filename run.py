@@ -39,8 +39,10 @@ def myapp(cfg):
     files = ["ContestHD.tif"]
     #files = ["dicht_Munc13-CF568_SRRF_3.tif"]
     #files = ["Gatta94R_20ms_15000fr_Epi_EMCCD_f7,5_256x256px_gain200_quad_line-PFS.tif"]
-    for f in files:
-        im = imread(path+f)[0:].astype(np.int32)
+    path = r"D:\Daten\Stefan\EXdSTORM\Messung 2" + "\\"
+    files = ["Reembedding NHS-AF647 20ms 256x mA 45kframes.tif","Reembedding NHS-AF647 20ms 256x mA 45kframes_X2.tif","Reembedding NHS-AF647 20ms 256x mA 45kframes_X3.tif"]
+    for i,f in enumerate(files):
+        im = imread(path+f)[4000:].astype(np.int32) if i== 0 else imread(path+f).astype(np.int32)
         if three_ch:
             im = reshape_data(im)
         im -= im.min()
@@ -81,9 +83,9 @@ def myapp(cfg):
                     out_data = net(im).cpu().numpy()[:,(0,2,3,5,6,7,8,9)]
         #out_data = np.concatenate([np.concatenate(out_data[0:2],axis=3),np.concatenate(out_data[2:],axis=3)],axis=2)
         if i==0:
-            dat = Emitter.from_result_tensor(out_data, .4)
+            dat = Emitter.from_result_tensor(out_data, .7)
         else:
-            dat + Emitter.from_result_tensor(out_data, .4)
+            dat + Emitter.from_result_tensor(out_data, .7)
     #out_data = np.concatenate(out_data, axis=0)
     #out_data = np.concatenate([np.concatenate([np.concatenate(out_data[::4],axis=0),np.concatenate(out_data[1::4],axis=0)],axis=3),np.concatenate([np.concatenate(out_data[2::4],axis=0),np.concatenate(out_data[3::4],axis=0)],axis=3)],axis=2)#todo: concatenate stuff
     #plt.imshow(np.mean(out_data[:,0],axis=0))

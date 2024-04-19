@@ -77,7 +77,6 @@ class Simulation(nn.Module):
         #Multiply number of photons and quantum efficiency
         #todo: discard expected number of photons
         discretepdf = pdf * self.quantum_efficiency
-        x = discretepdf.cpu().numpy()
         discretepdf += self.dark_noise * self.exposure_time +bg_t//2
         #Sample poisson of discrete pdf (Photon shot noise)
         x = td.Poisson(discretepdf+0.00001)

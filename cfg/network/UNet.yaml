@@ -1,17 +1,12 @@
 # todo: short text describing the network
-name: ViTV1
+name: UNet
 device: cuda
 #used datatype todo: use float 16?
 #batch size is 100
 dtype: float32
 components:
-  #patch size of ViT has to be quadratic
-  patch_size: None
   #hidden dimension worked best out of 400,800,1600,3200
-  hidden_d: None
-  #define sequence length for positional encoding
-  sequence_lenght: 50
-  #define feature-extractor unet in different file
+  hidden_d: 48
   mapping:
     UNet
   #currently linear and conv

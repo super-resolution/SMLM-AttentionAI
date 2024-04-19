@@ -1,7 +1,8 @@
 #Microscope parameter file
 name: HighPower
+#pixel values -> photons 13.06
 px_size: 128
-expected_number_of_photons: 400.
+expected_number_of_photons: 50.
 exposure_time: 20e-3
 dark_noise: 10.
 quantum_efficiency: 0.80

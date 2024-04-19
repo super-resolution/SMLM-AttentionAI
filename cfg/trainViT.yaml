@@ -1,14 +1,14 @@
 
 training:
   #base training file (can also be used for tranfer learning)
-  base: ViTV8
+  base: ViTV8ndata
   #target training file
-  name: ViTV8finetune
+  name: ViTV8ndata
   #number of training iterations
-  iterations: 80
+  iterations: 40
 dataset:
   #list of training datasets
-  train: [airyscan_finetune_switching]
+  train: [airyscan_complex2]
   #batch size to train on hardwarelimited
   batch_size: 50
   height: 60

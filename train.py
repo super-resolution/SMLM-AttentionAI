@@ -15,13 +15,14 @@ from models.loss import GMMLossDecode
 import importlib
 
 def try_to_load_model(model_path, optimizer_cfg, network_cfg, device, decode=False):
-    vit = importlib.import_module("models.VIT."+network_cfg.name.lower())#test if this works
-    print("loading network {}".format(network_cfg.name))
-    net = vit.ViT(network_cfg.components)
+    #todo: replace vit with networks
     if decode:
         net = SigmaMUNet(3)
+        print("loading Decode")
     else:
-        net = vit.ViT(network_cfg.components)
+        net_package = importlib.import_module("models.VIT." + network_cfg.name.lower())
+        net = net_package.Network(network_cfg.components)
+        print("loading network {}".format(network_cfg.name))
     loss = None
     epoch=0
     if optimizer_cfg.name == "Lion":

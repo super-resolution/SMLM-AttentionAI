@@ -13,6 +13,7 @@ class Decoder(nn.Module):
         self.mha = MHABlock(embed_dim=hidden_d*4)
         self.ca = CABlock(embed_dim=hidden_d)
         self.final = nn.ModuleList([Head(hidden_d, ch) for ch in out_ch])
+        self.bg_scale = nn.Conv2d(1, 1, kernel_size=1, padding=0)
         torch.nn.init.constant_(self.final[0].out_conv.bias, -6.)
         torch.nn.init.kaiming_normal_(self.final[0].first[0].weight, mode='fan_in',
                                       nonlinearity='relu')
@@ -54,7 +55,7 @@ class Decoder(nn.Module):
         x = self.unet2.forward_parts(x, "decoder", encoder_out=enc_out)
         heads = [f(x) for f in self.final]
         for i in range(1):
-            bg = heads[-1]
+            bg = self.bg_scale(heads[-1])
             #substract bg from input
             x2 = inp-bg
             x2 = x2/(x2.max()+0.001)
@@ -66,11 +67,11 @@ class Decoder(nn.Module):
         #use x2 for cross attention
         return torch.cat(heads,dim=1)
 
-class ViT(nn.Module):
+class Network(nn.Module):
 
     def __init__(self, cfg):
         #todo: keep base alive for all tests
-        super(ViT, self).__init__()#load a config for sizes
+        super(Network, self).__init__()#load a config for sizes
         self.patch_size = cfg.patch_size
         self.decoder = Decoder(cfg.decoder, hidden_d=48, patch_size=self.patch_size)#downscaling works try further
         #V4 worked best hiddend 400

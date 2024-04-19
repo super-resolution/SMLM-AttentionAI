@@ -1,13 +1,11 @@
 import torch
-
 from models import activations
 from models.layers import *
-from models.unet import UNet
 from third_party.decode.models.unet_param import UNet2d
 
 class Decoder(nn.Module):
 
-    def __init__(self, cfg, hidden_d=128, feature_map_d=8, mlp_ratio=2, patch_size=10):
+    def __init__(self, cfg, hidden_d=128):
         super(Decoder, self).__init__()
         out_ch = (1,4,4,1)
         #todo: this is x*y in u net
@@ -26,8 +24,13 @@ class Decoder(nn.Module):
         self.conv_input = nn.Conv2d(hidden_d*4, hidden_d*4, kernel_size=1, padding=0)
         self.conv_output = nn.Conv2d(hidden_d*4, hidden_d*4, kernel_size=1, padding=0)
 
-        self.unet2 = UNet2d(1 , 48, depth=2, pad_convs=True,
-                                             initial_features=48,
+        self.unet = UNet2d(1 , hidden_d, depth=2, pad_convs=True,
+                                             initial_features=hidden_d,
+                                             activation=nn.ReLU(), norm=None, norm_groups=None,
+                                             pool_mode='StrideConv', upsample_mode='bilinear',
+                                             skip_gn_level=None)
+        self.unet2 = UNet2d(hidden_d , hidden_d, depth=2, pad_convs=True,
+                                             initial_features=hidden_d,
                                              activation=nn.ReLU(), norm=None, norm_groups=None,
                                              pool_mode='StrideConv', upsample_mode='bilinear',
                                              skip_gn_level=None)
@@ -35,8 +38,9 @@ class Decoder(nn.Module):
 
     def forward(self, inp):
         inp /= inp.max()+0.001#todo: discard
+        x = self.unet(inp)
         #concat isntead of add?
-        x,enc_out = self.unet2.forward_parts(inp, "encoder")
+        x,enc_out = self.unet2.forward_parts(x, "encoder")
         x = self.unet2.forward_parts(x, "base")
         res_long = x
         b,c,h,w = x.shape
@@ -59,13 +63,12 @@ class Decoder(nn.Module):
         heads = [f(x) for f in self.final]
         return torch.cat(heads,dim=1)
 
-class ViT(nn.Module):
+class Network(nn.Module):
 
     def __init__(self, cfg):
         #todo: keep base alive for all tests
-        super(ViT, self).__init__()#load a config for sizes
-        self.patch_size = cfg.patch_size
-        self.decoder = Decoder(cfg.decoder, hidden_d=48, patch_size=self.patch_size)#downscaling works try further
+        super(Network, self).__init__()#load a config for sizes
+        self.decoder = Decoder(cfg.decoder, hidden_d=cfg.hidden_d)#downscaling works try further
         #V4 worked best hiddend 400
         #get and initialize defined activation
         self.apply(self.weight_init)

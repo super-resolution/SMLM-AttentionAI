@@ -4,7 +4,7 @@ import numpy as np
 def create_locs(im_size: np.ndarray, n: int = 30000000) -> np.ndarray:
     """
     Generate random locations within an image size for training a neural network.
-
+    Leave borders empty because neural network cant handle them
     Parameters:
         im_size (np.ndarray): Array representing the size of the image.
         n (int): Number of random points to generate. Defaults to 30,000,000.
@@ -12,7 +12,8 @@ def create_locs(im_size: np.ndarray, n: int = 30000000) -> np.ndarray:
     Returns:
         np.ndarray: Array of shape (n, 2) containing random points within the image size.
     """
-    locs = np.random.random_sample((n, 2)) * im_size
+
+    locs = np.random.random_sample((n, 2)) * (im_size-4)+2
     return locs
 
 

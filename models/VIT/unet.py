@@ -1,17 +1,16 @@
 import torch
-
 from models import activations
 from models.layers import *
-from models.unet import UNet
 from third_party.decode.models.unet_param import UNet2d
 
 
 class Decoder(nn.Module):
 
-    def __init__(self, cfg, hidden_d=128, feature_map_d=8, mlp_ratio=2, patch_size=10):
+    def __init__(self, cfg, hidden_d=128):
         super(Decoder, self).__init__()
         out_ch = (1,4,4,1)
         self.final = nn.ModuleList([Head(hidden_d, ch) for ch in out_ch])
+
         torch.nn.init.constant_(self.final[0].out_conv.bias, -6.)
         torch.nn.init.kaiming_normal_(self.final[0].first[0].weight, mode='fan_in',
                                       nonlinearity='relu')
@@ -19,8 +18,8 @@ class Decoder(nn.Module):
                                       nonlinearity='linear')
 
 
-        self.unet = UNet2d(1 , 48, depth=2, pad_convs=True,
-                                             initial_features=48,
+        self.unet = UNet2d(1 , hidden_d, depth=2, pad_convs=True,
+                                             initial_features=hidden_d,
                                              activation=nn.ReLU(), norm=None, norm_groups=None,
                                              pool_mode='StrideConv', upsample_mode='bilinear',
                                              skip_gn_level=None)
@@ -36,14 +35,15 @@ class Decoder(nn.Module):
         heads = [f(x) for f in self.final]
         return torch.cat(heads,dim=1)
 
-class ViT(nn.Module):
-
+class Network(nn.Module):
+    #todo: build super network class
+    #todo: includes activation
+    #todo: weight init
     def __init__(self, cfg):
         #todo: keep base alive for all tests
-        super(ViT, self).__init__()#load a config for sizes
-        self.patch_size = cfg.patch_size
+        super(Network, self).__init__()#load a config for sizes
         #discard cfg here
-        self.decoder = Decoder(cfg, hidden_d=48, patch_size=self.patch_size)#downscaling works try further
+        self.decoder = Decoder(cfg, hidden_d=cfg.hidden_d)#downscaling works try further
         #V4 worked best hiddend 400
         #get and initialize defined activation
         self.apply(self.weight_init)

@@ -309,7 +309,9 @@ class CABlock(nn.Module):
         self.ca = CA(embed_dim=embed_dim, head_dim=8, context_dim=embed_dim)
         self.mlp = MLP2(embed_dim=embed_dim)
         self.groupnorm = nn.GroupNorm(8, embed_dim, eps=1e-6)
+        self.groupnorm2 = nn.GroupNorm(8, embed_dim, eps=1e-6)
         self.conv_input = nn.Conv2d(embed_dim, embed_dim, kernel_size=1, padding=0)
+        self.conv_input2 = nn.Conv2d(embed_dim, embed_dim, kernel_size=1, padding=0)
         self.conv_output = nn.Conv2d(embed_dim, embed_dim, kernel_size=1, padding=0)
 
     def forward(self, x, y):
@@ -317,6 +319,8 @@ class CABlock(nn.Module):
         b, c, h, w = x.shape
         x = self.groupnorm(x)
         x = self.conv_input(x)
+        y = self.groupnorm2(y)
+        y = self.conv_input2(y)
         x = x.view(b, c, h * w)
         y = y.view(b, c, h * w)
         x = x.transpose(-1, -2)

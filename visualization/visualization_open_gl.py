@@ -77,8 +77,8 @@ class Points(GLGraphicsItem):
     def background_render(self, precision=999.):
         #image size/10 px size
         #todo: should be ~10 nm
-        self.width = int(self.position[:,0].max()//10)#int(896/322*1449)
-        self.height = int(self.position[:,1].max()//10)
+        self.width = int(self.position[:,0].max()//20)#int(896/322*1449)
+        self.height = int(self.position[:,1].max()//20)
         #self.roi = rect
         #compute model view matrices
         X = self.position[:,1].max()
