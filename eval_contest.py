@@ -69,7 +69,7 @@ def myapp(cfg):
     dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], .4,) #maps=net.activation.mapping)#
     #
     #automatically compute the best values
-    dat = dat.filter(sig_y=0.45,sig_x=0.45)
+    dat = dat.filter(sig_y=0.25,sig_x=0.25)
     #todo: update computation and add crlb
     #todo: optimize jaccard:
     print(dat.compute_jaccard(gt, ))

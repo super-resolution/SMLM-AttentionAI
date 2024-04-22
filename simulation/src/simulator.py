@@ -1,3 +1,4 @@
+import os
 import torch
 import numpy as np
 import pickle
@@ -12,7 +13,7 @@ from simulation.src.data_augmentation import DropoutBox
 class Simulator():
     def __init__(self, batch_size:int, n_pix:int, path:str, microscope:str,
                  emitter_density:float, off_time:int,
-                 positions:np.ndarray, mode:str, device="cuda"):
+                 positions:np.ndarray, mode:str, photon_trace_path:str, device="cuda"):
         """
         Initialize Simulator with configurations for simple markov chain
         :param batch_size: Size of one batch of dependent images
@@ -27,6 +28,7 @@ class Simulator():
         #todo: add unittests
         self.mode = mode
         self.path = path
+        self.photon_trace_path = photon_trace_path
         # initialize standard parameters
         # Emitters have 50% chance to switch into an off state and off_state_prob chance to stay there
         # compute switching prob with density if there is a denstiy
@@ -104,9 +106,9 @@ class Simulator():
         self.save(np.concatenate(ground_truth, axis=0), offsets, frames)
 
     def save(self, ground_truth, offsets, frames):
-        np.save(self.path + f"/ground_truth", ground_truth)
-        np.save(self.path + f"/offsets", offsets)
-        imwrite(self.path + "/images.tif", frames)
+        np.save(os.path.join(self.path, "ground_truth"), ground_truth)
+        np.save(os.path.join(self.path, "offsets"), offsets)
+        imwrite(os.path.join(self.path, "images.tif"), frames)
 
 
     def create_batch(self, frames, ground_truth, offsets, bg_t, idx, density):
@@ -118,13 +120,13 @@ class Simulator():
         # load points to gpu
         arr = torch.tensor(cur_arr, device=self.device, dtype=torch.float32)
         # load complex trace instead of simulating simple one
-        ch = self.load_complex_trace(cur_arr.shape[0], self.batch_size, "data/emitter_traces/flickering2.pkl")
+        ch = self.load_complex_trace(cur_arr.shape[0], self.batch_size, os.path.join(self.photon_trace_path))
 
 
         # ch = self.simulate_simple_trace(self.off_state_prob, cur_arr.shape[0], self.batch_size)
         for i, values in enumerate(ch):
             indices, photons = torch.tensor(values[:, 0], device=self.device), torch.tensor(values[:, 1],
-                                                                                            device=self.device)
+                                                                                            device=self.device)//2
             #todo: compute a density here and average it at the end
             # len(indices)/(self.im_size/10)**2) results in per micro meter²
             #todo: compute a fill factor in structures and multiply

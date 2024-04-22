@@ -1,0 +1,23 @@
+
+training:
+  #base training file (can also be used for tranfer learning)
+  base: AttentionUNetV2
+  #target training file
+  name: AttentionUNetV2
+  #number of training iterations
+  iterations: 40
+dataset:
+  #list of training datasets
+  train: [highpower_complex2]
+  #batch size to train on hardwarelimited
+  batch_size: 50
+  height: 60
+  width: 60
+  #size: 5000
+  #offset for frames to train on
+  offset: 0
+  #validation dataset
+  validation: airyscan_complex_test2
+defaults:
+  #uses log of dataset
+  - defaults

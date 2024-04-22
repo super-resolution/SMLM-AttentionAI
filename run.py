@@ -25,7 +25,6 @@ def myapp(cfg):
     dataset_offset = cfg.dataset.offset
     dtype = getattr(torch, cfg.network.dtype)
     three_ch = "decode" in cfg.training.name.lower()
-
     images = []
     files = ["COS7_Phalloidin_ATTO647_1_200_2perHQ_1.tif","COS7_Phalloidin_ATTO647_1_200_2perHQ_1_X2.tif","COS7_Phalloidin_ATTO647_1_200_2perHQ_1_X3.tif"]
     path = r"D:\Daten\Patrick\STORMHD\647" + "\\"
@@ -39,8 +38,8 @@ def myapp(cfg):
     files = ["ContestHD.tif"]
     #files = ["dicht_Munc13-CF568_SRRF_3.tif"]
     #files = ["Gatta94R_20ms_15000fr_Epi_EMCCD_f7,5_256x256px_gain200_quad_line-PFS.tif"]
-    path = r"D:\Daten\Stefan\EXdSTORM\Messung 2" + "\\"
-    files = ["Reembedding NHS-AF647 20ms 256x mA 45kframes.tif","Reembedding NHS-AF647 20ms 256x mA 45kframes_X2.tif","Reembedding NHS-AF647 20ms 256x mA 45kframes_X3.tif"]
+    path = r"D:\Daten\Stefan\EXdSTORM\Messung 6 200 mW - Mitos" + "\\"
+    files = ["Reembedding NHS-AF647 20ms 256x mA 45kframes_3.tif","Reembedding NHS-AF647 20ms 256x mA 45kframes_3_X2.tif","Reembedding NHS-AF647 20ms 256x mA 45kframes_3_X3.tif"]
     for i,f in enumerate(files):
         im = imread(path+f)[4000:].astype(np.int32) if i== 0 else imread(path+f).astype(np.int32)
         if three_ch:
@@ -60,7 +59,7 @@ def myapp(cfg):
     if three_ch:
         net = SigmaMUNet(3)
     else:
-        net = vit.ViT(cfg.network.components)
+        net = vit.Network(cfg.network.components)
     #opt_cls = getattr(torch.optim, cfg.optimizer.name)
     #opt = opt_cls(net.parameters(), **cfg.optimizer.params)
 

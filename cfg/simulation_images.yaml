@@ -1,0 +1,31 @@
+#Simulation parameter file
+dataset:
+  #name to save to
+  name: highpower_complex2
+  #either eval or training
+  mode: eval
+  #base path
+  path: data
+  #number of pixels in width and height
+  n_pix: 60
+  #number of batches to simulate. Remains one file
+  n_batches: 500
+  #size per batch
+  batch_size: 100
+  #random seed for generation
+  seed: 60
+emitter:
+  photon_trace_file: switching.pkl
+  #localisations per square µm²
+  emitter_density: 1.5
+  #off time in frames
+  off_time: 100
+  #we dont need this
+  #switching_probability: [[0.5,0.5],[0.99997, 0.00003]]
+  #todo use to compute sigma
+  wavelength: 660
+#run stuff on gpu
+device: cuda
+#set defaul parameters like microscope
+defaults:
+  - microscope: highpower

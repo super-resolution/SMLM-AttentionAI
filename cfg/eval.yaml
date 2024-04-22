@@ -5,7 +5,7 @@ training:
   name: ViTV8fine_tune2
   iterations: 150
 dataset:
-  name: lab_logo_dense2
+  name: ContestHD
   offset: 0
   batch_size: 50
 optimizer:

@@ -8,9 +8,10 @@ from tifffile.tifffile import imread
 import matplotlib.pyplot as plt
 
 class CustomImageDataset(Dataset):
-    def __init__(self, dataset, transform=None, target_transform=None, three_ch=False, offset=0):
+    def __init__(self, dataset, cwd, transform=None, target_transform=None, three_ch=False, offset=0):
 
-        images = imread("data/" + dataset + "/images.tif")[offset:].astype(np.float32)
+        path = [cwd,"data",dataset,"images.tif"]
+        images = imread(path)[offset:].astype(np.float32)
 
         if three_ch:
             self.images = self.reshape_data(images)
@@ -37,12 +38,12 @@ class CustomImageDataset(Dataset):
 
 
 class CustomTrianingDataset(Dataset):
-    def __init__(self, dataset, transform=None, target_transform=None, three_ch=False, offset=0):
-
-        bg = imread("data/" + dataset + "/bg_images.tif")
-        gt = np.load("data/" + dataset + "/ground_truth.npy", allow_pickle=True)
-        idx = np.load("data/" + dataset + "/offsets.npy", allow_pickle=True)[offset:]
-        images = imread("data/" + dataset + "/images.tif")[offset:].astype(np.float32)
+    def __init__(self, dataset, cwd, transform=None, target_transform=None, three_ch=False, offset=0):
+        folder = os.path.join(cwd, "data", dataset)
+        bg = imread(os.path.join(folder, "bg_images.tif"))
+        gt = np.load(os.path.join(folder, "ground_truth.npy"), allow_pickle=True)
+        idx = np.load(os.path.join(folder, "offsets.npy"), allow_pickle=True)[offset:]
+        images = imread(os.path.join(folder, "images.tif"))[offset:].astype(np.float32)
         # for i in range(n_batches):
         point_length = idx[1:] - idx[:-1]
         truth = []

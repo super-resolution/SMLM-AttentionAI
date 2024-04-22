@@ -1,21 +1,19 @@
+import importlib
 import time
-
+import os
 import hydra
-import matplotlib.pyplot as plt
-import numpy as np
+from hydra.utils import get_original_cwd
 import torch
 from lion_pytorch import Lion
 from torch.utils.data import DataLoader
 from torch.utils.data.dataloader import default_collate
-from third_party.decode.models import SigmaMUNet
 
-from utility.dataset import CustomTrianingDataset
-from utility.emitters import Emitter
 from models.loss import GMMLossDecode
-import importlib
+from third_party.decode.models import SigmaMUNet
+from utility.dataset import CustomTrianingDataset
+
 
 def try_to_load_model(model_path, optimizer_cfg, network_cfg, device, decode=False):
-    #todo: replace vit with networks
     if decode:
         net = SigmaMUNet(3)
         print("loading Decode")
@@ -70,20 +68,24 @@ def try_to_load_model(model_path, optimizer_cfg, network_cfg, device, decode=Fal
     return net,opt,loss,epoch
 
 
-@hydra.main(config_name="trainViT.yaml", config_path="cfg")
+@hydra.main(config_name="train.yaml", config_path="cfg")
 def myapp(cfg):
+    cwd = get_original_cwd()
+    folder_trainings = os.path.join(cwd,"trainings")
+    if not os.path.exists(folder_trainings):
+        os.mkdir(folder_trainings)
     device = cfg.network.device
     iterations = cfg.training.iterations
 
     three_ch = "decode" in cfg.training.name.lower()
-    datasets = [CustomTrianingDataset(cf, offset=cfg.dataset.offset, three_ch=three_ch) for cf in cfg.dataset.train]
+    datasets = [CustomTrianingDataset(cf,cwd, offset=cfg.dataset.offset, three_ch=three_ch) for cf in cfg.dataset.train]
     train_dataloaders = [DataLoader(data, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False) for data in datasets]
-    validation_dataset = CustomTrianingDataset(cfg.dataset.validation, offset=cfg.dataset.offset, three_ch=three_ch)
-    #todo: loss depends on batch size
+    validation_dataset = CustomTrianingDataset(cfg.dataset.validation,cwd, offset=cfg.dataset.offset, three_ch=three_ch)
+    #note: loss depends on batch size
     validation_dataloader = DataLoader(validation_dataset, batch_size=cfg.dataset.batch_size, collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False)
 
-    model_path = 'trainings/model_{}'.format(cfg.training.base)
-    save_path = 'trainings/model_{}'.format(cfg.training.name)
+    model_path = os.path.join(folder_trainings, 'model_{}'.format(cfg.training.base))
+    save_path = os.path.join(folder_trainings, 'model_{}'.format(cfg.training.name))
     net,opt,loss,epoch = try_to_load_model(model_path, cfg.optimizer, cfg.network, device, decode=three_ch)
 
     lossf = GMMLossDecode((cfg.dataset.height,cfg.dataset.width))

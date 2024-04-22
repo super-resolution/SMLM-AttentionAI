@@ -142,7 +142,7 @@ class Emitter():
         for i in range(self.frames.max()):
             #points = self.xyz[np.where((self.frames>=i*50) & (self.frames<(i+1)*50))]
             #othe = other.xyz[np.where((other.frames>=i*50) & (other.frames<(i+1)*50))]
-            points = self.xyz[np.where(self.frames==i)]#-np.array([20,10])[None,:]
+            points = self.xyz[np.where(self.frames==i)]#-np.array([0,10])[None,:]
             othe = other.xyz[np.where(other.frames==i)]
             ph = other.photons[np.where(other.frames==i)]
             #sigma / sqrt n
