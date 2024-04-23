@@ -1,0 +1,6 @@
+# specs are hardcoded components is not nescesarry
+name: Decode
+device: cuda
+#used datatype todo: use float 16?
+#batch size is 100
+dtype: float32

@@ -25,7 +25,7 @@ if __name__ == '__main__':
               "ViTV8": "UNet+U(+PosEncoding+Attention)Net",
               #"DecodeV2":"Decode2",
               "DecodeV4":"Decode",
-              "ViTV11": "UNet+U(+PosEncoding+Attention)Netdeep",
+              "DiffusionV1": "UNet+U(+PosEncoding+Attention)Netdeep",
               #"ViTV8ndata": "UNet+U(+PosEncoding+Attention)Netdeep"
               }
     start = 0
