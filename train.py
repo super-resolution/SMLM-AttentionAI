@@ -71,6 +71,7 @@ def try_to_load_model(model_path, optimizer_cfg, network_cfg, device, decode=Fal
 @hydra.main(config_name="train.yaml", config_path="cfg")
 def myapp(cfg):
     cwd = get_original_cwd()
+    torch.manual_seed(0)
     folder_trainings = os.path.join(cwd,"trainings")
     if not os.path.exists(folder_trainings):
         os.mkdir(folder_trainings)

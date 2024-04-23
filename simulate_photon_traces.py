@@ -85,14 +85,14 @@ class Simulation(nn.Module):
         cwd = os.getcwd()
         folder_data = os.path.join(cwd,"data")
         folder_traces = os.path.join(folder_data,"emitter_traces")
-        f_name = "test"
+        f_name = "switching"
         if not os.path.exists(folder_data):
             os.mkdir(folder_data)
         if not os.path.exists(folder_traces):
             os.mkdir(folder_traces)
-        with open(os.path.join(folder_traces, f_name+'.pkl'), 'wb') as f:
+        with open(os.path.join(folder_traces, f_name + '.pkl'), 'wb') as f:
             pickle.dump(frames, f)
-        np.savetxt(os.path.join(folder_traces, f_name,".txt"), self.rate_matrix)
+        np.savetxt(os.path.join(folder_traces, f_name + ".txt"), self.rate_matrix)
 
 
 

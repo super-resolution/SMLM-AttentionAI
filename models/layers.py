@@ -34,7 +34,7 @@ class PositionalEncoding(nn.Module):
         :param x: Input tensor to apply positional encoding to
         :return: Output tensor with applied dropout and position encoding
         """
-        x = x + self.pe[:x.size(0),:,None]
+        x = x + self.pe[:x.size(0),None,:]
         return self.dropout(x)
 
 
@@ -278,6 +278,8 @@ class MHABlock(nn.Module):
     def __init__(self, embed_dim: int, mlp_ratio: int = 2):
         super().__init__()
         self.mha = MHA(embed_dim=embed_dim, head_dim=8, batch_first=False)
+        self.pos_encoding = PositionalEncoding(embed_dim)
+
         self.mlp = MLP2(embed_dim=embed_dim)
         self.groupnorm = nn.GroupNorm(8, embed_dim, eps=1e-6)
         self.conv_input = nn.Conv2d(embed_dim, embed_dim, kernel_size=1, padding=0)
@@ -291,6 +293,7 @@ class MHABlock(nn.Module):
         x = x.view(b, c, h * w)
 
         x = x.transpose(-1, -2)
+        x = self.pos_encoding(x)
         # apply positional encoding on dim1
         # apply mha over batch
         x = self.mha(x)
@@ -314,20 +317,20 @@ class CABlock(nn.Module):
         self.conv_input2 = nn.Conv2d(embed_dim, embed_dim, kernel_size=1, padding=0)
         self.conv_output = nn.Conv2d(embed_dim, embed_dim, kernel_size=1, padding=0)
 
-    def forward(self, x, y):
+    def forward(self, x, context):
         res_long = x
         b, c, h, w = x.shape
         x = self.groupnorm(x)
         x = self.conv_input(x)
-        y = self.groupnorm2(y)
-        y = self.conv_input2(y)
+        context = self.groupnorm2(context)
+        context = self.conv_input2(context)
         x = x.view(b, c, h * w)
-        y = y.view(b, c, h * w)
+        context = context.view(b, c, h * w)
         x = x.transpose(-1, -2)
-        y = y.transpose(-1,-2)
+        context = context.transpose(-1,-2)
         # apply positional encoding on dim1
         # apply mha over batch
-        x = self.ca(x, y)
+        x = self.ca(x, context)
         x = self.mlp(x)
         # apply mha over batch
         x = x.transpose(-1, -2)
