@@ -55,7 +55,9 @@ class Emitter():
         self.frames = np.append(self.frames, frames, axis=0)
         self.ids = np.append(self.ids, np.arange(self.ids[-1], xyz.shape[0], 1), axis=0)
         self.check_data_integrety()
+
     def compute_jaccard2(self, other, images=None):
+        #works
         import matplotlib.pyplot as plt
         tp = 0
         fp = 0
@@ -68,7 +70,7 @@ class Emitter():
         perc_crlb = 0
         print(crlb)
         other = other.filter(photons=.3)
-        for i in range(self.frames.max()):
+        for i in range(self.frames.max()//50):
             pred_query = (self.frames>=i*50) & (self.frames<(i+1)*50)& np.all((self.xyz<5900),axis=1) & np.all((self.xyz>100),axis=1)
             points = self.xyz[np.where(pred_query)]
             gt_query = (other.frames>=i*50) & (other.frames<(i+1)*50) & np.all((other.xyz<5900),axis=1) & np.all((other.xyz>100),axis=1)
@@ -87,20 +89,23 @@ class Emitter():
                     x = np.array(tree.query(points))[:,:,0].T
                     #take closest points first
                     y = np.array(sorted(x, key=lambda x: (x[1],x[0])))
-                    indices = np.unique(y[:,1].astype(np.int32),return_index=True)[1]
+                    #condition one find unique neighbor
+                    condition1 = np.unique(y[:,1].astype(np.int32),return_index=True)[1]
                     #x = y[indices,:].T
                     offsets += list(points-othe[x[:,1].astype(np.int)])
-                    distances += list(y[indices,0])
                     #indices = x[1]
-                    crlb += list(np.sqrt(16/9*(186**2+100**2/12)/ph[x[indices,1].astype(np.int32)]))
+                    crlb += list(np.sqrt(16/9*(186**2+100**2/12)/ph[x[condition1,1].astype(np.int32)]))
                     #perc_crlb += (1*crlb>x[indices,0]).sum()
-                    #todo: select closest
-                    x = x[np.where(x[:,0]<100)[0]]#todo: this throws an error
+                    #condition 2 distance <100 nm
+                    condition2 = np.where(y[condition1,0]<100)[0]
+                    z = y[condition1,0]
+                    distances += list(z[condition2])
 
-                    dis += np.sum(y[indices,0])
-                    tp += indices.shape[0]
-                    fn += max(othe.shape[0]-indices.shape[0],0)
-                    fp += points.shape[0]-x.shape[0]
+                    tp += condition2.shape[0]
+                    #no loc in the range of 100nm
+                    fn += max(othe.shape[0]-condition2.shape[0],0)
+                    #distances>100 nm
+                    fp += points.shape[0]-np.where(x[:,0]<100)[0].shape[0]
                     # if max(othe.shape[0]-indices.shape[0],0)>0:
                     #     if np.any(images):
                     #         plt.imshow(np.sum(images[i*50:(i+1)*50],axis=0).T)
@@ -127,8 +132,10 @@ class Emitter():
         #print("check for offsets", np.mean(np.array(offsets),axis=0))
         print(f"TP: {tp}, FN: {fn}, FP{fp}")
         #root mean squared error
+        x = np.array(distances)
         print(f"RMSE: {np.sqrt(np.sum(np.array(distances)**2)/tp):.2f} nm")
         print(f"JI: {tp/(fn+tp+fp):.4f}")
+
     def compute_jaccard(self, other, output="tmp", images=None):
         import matplotlib.pyplot as plt
         tp = 0

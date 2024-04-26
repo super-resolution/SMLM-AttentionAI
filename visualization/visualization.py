@@ -58,5 +58,5 @@ def plot_emitter_set(emitters,save_name="temp", frc=False):
     im.save(f'{save_name}.jpg')
 
     # #array = np.log(array+1)
-    plt.imshow(downsampled, cmap='hot')
-    plt.show()
+    # plt.imshow(downsampled, cmap='hot')
+    # plt.show()

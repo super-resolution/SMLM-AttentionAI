@@ -1,6 +1,8 @@
 import importlib
-
+import os
 import hydra
+from hydra.utils import get_original_cwd
+
 import matplotlib.pyplot as plt
 import numpy as np
 import torch
@@ -17,10 +19,12 @@ from third_party.decode.models import SigmaMUNet
 @hydra.main(config_name="eval.yaml", config_path="cfg")
 def myapp(cfg):
     device = cfg.network.device
+    cwd = get_original_cwd()
+
     dataset_name = "ContestHD"
-    gt = Emitter.from_thunderstorm_csv("data/" + dataset_name + "/ground_truth.csv",contest=True)
+    gt = Emitter.from_thunderstorm_csv(os.path.join(cwd, "data" , dataset_name , "ground_truth.csv"),contest=True)
     three_ch = "decode" in cfg.training.name.lower()
-    datasets = CustomImageDataset(dataset_name, three_ch=three_ch, offset=cfg.dataset.offset)
+    datasets = CustomImageDataset(dataset_name,cwd, three_ch=three_ch, offset=cfg.dataset.offset)
     dataloader = DataLoader(datasets, batch_size=cfg.dataset.batch_size,collate_fn=lambda x: tuple(x_.type(torch.float32).to(device) for x_ in default_collate(x)), shuffle=False)
 
     dtype = getattr(torch, cfg.network.dtype)
@@ -31,7 +35,7 @@ def myapp(cfg):
     if three_ch:
         net = SigmaMUNet(3)
     else:
-        net = vit.ViT(cfg.network.components)
+        net = vit.Network(cfg.network.components)
 
     opt_cls = getattr(torch.optim, cfg.optimizer.name)
     opt = opt_cls(net.parameters(), **cfg.optimizer.params)
@@ -66,7 +70,7 @@ def myapp(cfg):
     jac= []
     # for i in range(8):
     #todo: create mapping for output
-    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], .4,) #maps=net.activation.mapping)#
+    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], .4) #maps=net.activation.mapping)#
     #
     #automatically compute the best values
     dat = dat.filter(sig_y=0.25,sig_x=0.25)

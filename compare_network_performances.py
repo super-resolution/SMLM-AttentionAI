@@ -13,18 +13,18 @@ if __name__ == '__main__':
     results = []
     fig,axs = plt.subplots(2,2)
     #map training name to a model feature
-    models = {"ViTV1": "UNet",
+    models = {#"ViTV1": "UNet",
               # "ViTVtest2":"U(+PosEncoding+Attention)Net+UNet",
               # "VITV2": "U(+Attention)Net",
               # "VITV3":"UNet+U(+Attention)Net",
               # "ViTV4":"UNet+U(+PosEncoding+Attention)Net",
               "AttentionUNetV2":"asdf",
               #"ViTV5highpowerfinetune":"flim",
-              "ViTV7":"UNet+U(+PosEncoding+2xAtt)Net",
+              #"ViTV7":"UNet+U(+PosEncoding+2xAtt)Net",
               #"ViTV7miniV2":"UNetdeep+Attention+UNetdeep",
-              "ViTV8": "UNet+U(+PosEncoding+Attention)Net",
+              #"ViTV8": "UNet+U(+PosEncoding+Attention)Net",
               #"DecodeV2":"Decode2",
-              "DecodeV4":"Decode",
+              "Decode":"Decode",
               "DiffusionV1": "UNet+U(+PosEncoding+Attention)Netdeep",
               #"ViTV8ndata": "UNet+U(+PosEncoding+Attention)Netdeep"
               }

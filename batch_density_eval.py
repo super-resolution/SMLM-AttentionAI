@@ -4,12 +4,15 @@ import matplotlib.pyplot as plt
 import re
 
 def batch_evaluation_with_hydra():
+    networks = ["AttentionUNetV2","Decode"]
+
     files = [f"lab_logo_dense{i}" for i in range(1,5)]
-    subprocess.call(["python", "eval.py","-m", f"dataset.name={','.join(files)}", "hydra.job.chdir=False"])
+    for net in networks:
+        subprocess.call(["python", "eval.py","-m", f"dataset.name={','.join(files)}", f"training.name={net}", f"network={net}", "hydra.job.chdir=False"])
 
 def plot_current_density_performances():
     files = os.listdir("figures/density")
-    networks = ["ViTV8","DecodeV4"]
+    networks = ["Decode","AttentionUNetV2"]
     eval = "lab_logo_dense"
     rmse = []
     ji = []
@@ -32,7 +35,7 @@ def plot_current_density_performances():
             print(f"{density} emitters/µm^2, {name[1:]} achieved a JI of {JI} and an RMSE of {RMSE}")
             marker = "X" if "decode" in name.lower() else "x"
             plt.scatter(JI, RMSE, c=cmap[i], marker=marker, label=fr"{density} emitter/$µm^2$ {name[1:]}")
-            i += 0 if "decode" in name.lower() else 1
+            i += 1 if "decode" in name.lower() else 0
     plt.xlabel("JI")
     plt.ylabel("RMSE [nm]")
     plt.legend()
@@ -41,4 +44,5 @@ def plot_current_density_performances():
 
 
 if __name__ == '__main__':
+    batch_evaluation_with_hydra()
     plot_current_density_performances()

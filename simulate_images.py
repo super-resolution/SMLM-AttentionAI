@@ -17,7 +17,7 @@ from simulation.src.structs import ApproachingLines
 def my_app(cfg):
     # A batch should contain 250 images
     # Should end up in ~100 000 frames
-    # Variate density and number of localisations
+    # Variate density_old and number of localisations
     # Define off time per batch
     # Keep microscope static
 

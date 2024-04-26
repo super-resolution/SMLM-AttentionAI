@@ -53,6 +53,7 @@ class Simulation(nn.Module):
         #create psf instance
         d= torch.tensor(2., device=device)
         #sigma set to 186
+        #todo: create random sigma and save it in output
         sig = torch.tensor(camera_dict.psf_sigma/camera_dict.px_size, device=device)
         #covariance matrix is diagonal till now
         cov = torch.tensor([[sig**2,0.],[0.,sig**2.]], device=device)
@@ -63,12 +64,12 @@ class Simulation(nn.Module):
 
     def forward(self, positions:torch.tensor, bg_t:torch.tensor=0)->torch.tensor:
         """
-        Simulate microscope image with given probability density function (pdf)
+        Simulate microscope image with given probability density_old function (pdf)
         default PGN Model
-        :param pdf: probability density function
+        :param pdf: probability density_old function
         :return: Simulated image
         """
-        #Create probability density function
+        #Create probability density_old function
         pdf = self.psf(positions[:,0:2],positions[:,2])
         #do not devide by zero
         # m = torch.max(pdf)

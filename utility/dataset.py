@@ -11,7 +11,7 @@ class CustomImageDataset(Dataset):
     def __init__(self, dataset, cwd, transform=None, target_transform=None, three_ch=False, offset=0):
 
         path = [cwd,"data",dataset,"images.tif"]
-        images = imread(path)[offset:].astype(np.float32)
+        images = imread(os.path.join(*path))[offset:].astype(np.float32)
 
         if three_ch:
             self.images = self.reshape_data(images)

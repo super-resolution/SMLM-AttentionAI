@@ -20,7 +20,7 @@ class Simulator():
         :param n_pix: Number of pixels in x,y to simulate
         :param path: Path for output data to save to
         :param microscope: Microscope.yaml to save for noise simulations
-        :param emitter_density: Emitter density per micro meter²
+        :param emitter_density: Emitter density_old per micro meter²
         :param off_time: Average off time for emitters
         :param positions: Position pool to draw emitters from
         :param device: Computation device
@@ -31,13 +31,13 @@ class Simulator():
         self.photon_trace_path = photon_trace_path
         # initialize standard parameters
         # Emitters have 50% chance to switch into an off state and off_state_prob chance to stay there
-        # compute switching prob with density if there is a denstiy
+        # compute switching prob with density_old if there is a denstiy
         # compute area of image
         self.device = device
         area = (n_pix * microscope.px_size / 1000) ** 2
         n_loc = positions.shape[0]
 
-        # either estimate off state_prob for density
+        # either estimate off state_prob for density_old
         off_state_prob = np.around(emitter_density / (n_loc / area), 9)
 
         # or adjust_n_loc instead of off_state prob
@@ -99,7 +99,7 @@ class Simulator():
         bg_t = torch.tensor(bg_images, device=self.device, dtype=torch.int16)
 
         for i in range(n_batches):
-            # adjust number of points if they dont fit off_time and density
+            # adjust number of points if they dont fit off_time and density_old
             idx = self.create_batch(frames, ground_truth, offsets,bg_t, idx, density)
         offsets.append(idx)
         print(np.mean(np.array(density)))
@@ -127,7 +127,7 @@ class Simulator():
         for i, values in enumerate(ch):
             indices, photons = torch.tensor(values[:, 0], device=self.device), torch.tensor(values[:, 1],
                                                                                             device=self.device)//2
-            #todo: compute a density here and average it at the end
+            #todo: compute a density_old here and average it at the end
             # len(indices)/(self.im_size/10)**2) results in per micro meter²
             #todo: compute a fill factor in structures and multiply
             density.append(len(indices)/((self.im_size/10)**2))

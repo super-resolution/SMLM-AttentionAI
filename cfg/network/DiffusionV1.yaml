@@ -6,7 +6,7 @@ components:
   #patch size of ViT has to be quadratic
   patch_size: None
   #hidden dimension worked best out of 400,800,1600,3200
-  hidden_d: 96
+  hidden_d: 48
   #define sequence length for positional encoding
   sequence_lenght: 50
   #define feature-extractor unet in different file

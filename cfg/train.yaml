@@ -1,11 +1,11 @@
 
 training:
   #base training file (can also be used for tranfer learning)
-  base: DiffusionV1
+  base: AttentionUNetV2
   #target training file
-  name: DiffusionV1
+  name: AttentionUNetV2
   #number of training iterations
-  iterations: 40
+  iterations: 18
 dataset:
   #list of training datasets
   train: [airyscan_complex2]

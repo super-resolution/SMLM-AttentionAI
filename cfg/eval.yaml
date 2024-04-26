@@ -1,11 +1,12 @@
+search_attention: False
 network:
   device: cuda
   dtype: float32
 training:
-  name: ViTV8fine_tune2
+  name: AttentionUNetV2
   iterations: 150
 dataset:
-  name: ContestHD
+  name: lab_logo_dense2
   offset: 0
   batch_size: 50
 optimizer:

@@ -1,0 +1,3 @@
+- dataset.name=lab_logo_dense3
+- training.name=AttentionUNetV2
+- network=AttentionUNetV2
