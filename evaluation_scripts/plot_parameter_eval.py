@@ -49,13 +49,13 @@ def plot_best_to_latex_table(fp):
     df = df.map(lambda s: np.array([float(v.strip("[]")) for v in s.split(",")]))
     #todo: select where JI is largest
     #todo: also plot loss?
-    densities = 4
+    densities = 1
     parameters = ["p"]
-    networks = ["Decode","AttentionUNetV2"]
-    base = "lab_logo_dense"
+    networks = ["Decode","AttentionUNetV2","Decodecontest","AttentionUNetV2contest"]
+    base = "ContestHD"#"lab_logo_dense
     df2 = defaultdict(list)
     for dens in range(densities):
-        density = base+str(dens+1)
+        density = base#+str(dens+1)
         for i,net in enumerate(networks):
             for j,param in enumerate(parameters):
                 col = density+net+param
@@ -69,4 +69,4 @@ def plot_best_to_latex_table(fp):
     print(df2.to_latex(float_format="{:.2f}".format))
 
 if __name__ == '__main__':
-    plot_best_to_latex_table(r"C:\Users\biophys\PycharmProjects\pytorchDataSIM\figures\threshold_eval.csv")
+    plot_best_to_latex_table(r"C:\Users\biophys\PycharmProjects\pytorchDataSIM\figures\threshold_contest.csv")

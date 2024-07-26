@@ -4,4 +4,4 @@ name: AdamW
 params:
   #set adaptive gradient
   #amsgrad: True
-  lr: 0.001
+  lr: 0.0004

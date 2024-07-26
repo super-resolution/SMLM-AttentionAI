@@ -20,8 +20,8 @@ class NetworkBase(nn.Module):
 
 
     def norm(self, inp):
-        m = inp.mean()
-        std = inp.std()
+        m = inp.min()
+        std = inp.max()-m
         inp = (inp-m)/std#todo: discard
         return inp
 
@@ -44,7 +44,7 @@ class Head(nn.Module):
     def __init__(self, inch,outch):
         super().__init__()
         self.first = torch.nn.Sequential(nn.Conv2d(inch, outch, kernel_size=3, padding="same"),
-                            torch.nn.ReLU(),)
+                            torch.nn.LeakyReLU(),)
         self.out_conv = nn.Conv2d(outch, outch, kernel_size=1, padding="same")
 
     def forward(self, x):

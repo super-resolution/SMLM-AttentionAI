@@ -86,7 +86,7 @@ def full_evaluation(dat, emitter_truth, parameter="p", save_name=""):
     title = {"p": "Probability filter", "sig": "Sigma filter"}
     jac = []
     rmse = []
-    for i in range(9):
+    for i in range(12):
         if parameter == "p":
             filter = 1.0-.05*i
             t = dat.filter(p=filter)#sig_y=sig_filter,sig_x=sig_filter)
@@ -97,7 +97,7 @@ def full_evaluation(dat, emitter_truth, parameter="p", save_name=""):
         jac.append([filter,ji])
         rmse.append([filter,rm])
     #todo: write to file instead of
-    p = f"figures/"+f"threshold_eval.csv"
+    p = f"figures/"+f"threshold_eval2.csv"
     S1=pd.Series(jac)
     S2=pd.Series(rmse)
     if os.path.exists(p):
@@ -189,22 +189,25 @@ def myapp(cfg):
     jac= []
     # for i in range(8):
     #todo: create mapping for output
-    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], .7,) #maps=net.activation.mapping)#
+    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], .9,) #maps=net.activation.mapping)#
     #
+    full_evaluation(dat, emitter_truth)
     #automatically compute the best values
     #dat = dat.filter(sig_y=0.45,sig_x=0.45)
     #todo: update computation and add crlb
     #todo: optimize jaccard:
-    full_evaluation(dat, emitter_truth, parameter="sig", save_name=dataset_name+cfg.training.name)
-    full_evaluation(dat, emitter_truth, save_name=dataset_name+cfg.training.name)
-    dat.compute_jaccard(emitter_truth, "figures/density/"+dataset_name+cfg.training.name, np.concatenate([im.cpu().numpy() for im,_,_,_ in dataloader],axis=0))
+    # full_evaluation(dat, emitter_truth, parameter="sig", save_name=dataset_name+cfg.training.name)
+    # full_evaluation(dat, emitter_truth, save_name=dataset_name+cfg.training.name)
+    print(dat.compute_jaccard(emitter_truth, f"figures/{cfg.dataset.save}/"+dataset_name+cfg.training.name, np.concatenate([im.cpu().numpy() for im,_,_,_ in dataloader],axis=0)))
 
     #print(validate(dat,t))
     #plt.plot(jac)
     #plt.savefig("eval_jaccard.svg")
     #plt.show()
     #plot_emitter_gmm(dat)
-    plot_emitter_set(dat, save_name="figures/density/"+dataset_name+cfg.training.name)
+    #todo: flip x,y
+    #dat.xyz = dat.xyz[:,(1,0)]
+    plot_emitter_set(dat, save_name= f"figures/{cfg.dataset.save}/"+dataset_name+cfg.training.name)
 
 if __name__ == '__main__':
     myapp()

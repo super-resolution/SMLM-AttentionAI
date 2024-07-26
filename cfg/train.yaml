@@ -3,12 +3,12 @@ training:
   #base training file (can also be used for tranfer learning)
   base: AttentionUNetV2
   #target training file
-  name: AttentionUNetV2
+  name: AttentionUNetV2_ld
   #number of training iterations
-  iterations: 18
+  iterations: 20
 dataset:
   #list of training datasets
-  train: [airyscan_complex2]
+  train: [airyscan_ld]
   #batch size to train on hardwarelimited
   batch_size: 50
   height: 60

@@ -32,7 +32,7 @@ def plot_emitter_set(emitters,save_name="temp", frc=False):
     # data_in = data_in[1::2]
 
     localizations = emitters.xyz  # +np.random.random((data_in.shape[0],2))
-    #array = np.zeros((5000,3000))
+    #array = np.zeros((4000,6000))
     array = np.zeros((int(localizations[:, 0].max()) + 1, int(localizations[:, 1].max()) + 1))  # create better rendering...
     #sort by sigma
     #sum up images

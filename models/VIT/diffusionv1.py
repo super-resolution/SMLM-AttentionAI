@@ -7,9 +7,7 @@ from models.VIT.base import NetworkBase
 
 
 class Network(NetworkBase):
-
     def __init__(self, cfg):
-        #todo: keep base alive for all tests
         hidden_d = cfg.hidden_d
         super(Network, self).__init__(cfg, hidden_d*2)#load a config for sizes
         #V4 worked best hiddend 400

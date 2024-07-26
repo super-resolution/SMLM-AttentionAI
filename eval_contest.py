@@ -2,6 +2,7 @@ import importlib
 import os
 import hydra
 from hydra.utils import get_original_cwd
+import pandas as pd
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -14,7 +15,31 @@ from utility.emitters import Emitter
 from visualization.visualization import plot_emitter_set
 from third_party.decode.models import SigmaMUNet
 
-
+def full_evaluation(dat, emitter_truth, parameter="p", save_name=""):
+    title = {"p": "Probability filter", "sig": "Sigma filter"}
+    jac = []
+    rmse = []
+    for i in range(9):
+        if parameter == "p":
+            filter = 0.7-.05*i
+            t = dat.filter(p=filter)#sig_y=sig_filter,sig_x=sig_filter)
+        elif parameter == "sig":
+            filter = .45-.03*i
+            t = dat.filter(sig_y=filter,sig_x=filter)
+        rm,ji = t.compute_jaccard(emitter_truth)
+        jac.append([filter,ji])
+        rmse.append([filter,rm])
+    #todo: write to file instead of
+    p = f"figures/"+f"threshold_contest.csv"
+    S1=pd.Series(jac)
+    S2=pd.Series(rmse)
+    if os.path.exists(p):
+        df = pd.read_csv(p)
+    else:
+        df = pd.DataFrame()
+    df[save_name+parameter+"_Jaccard"] = S1
+    df[save_name+parameter+"_RMSE"] = S2
+    df.to_csv(p)
 
 @hydra.main(config_name="eval.yaml", config_path="cfg")
 def myapp(cfg):
@@ -29,12 +54,12 @@ def myapp(cfg):
 
     dtype = getattr(torch, cfg.network.dtype)
 
-    model_path = 'trainings/model_'+cfg.training.name#change also in eval
+    model_path = os.path.join(cwd,'trainings','model_'+cfg.training.name)#change also in eval
     print(model_path)
-    vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
     if three_ch:
         net = SigmaMUNet(3)
     else:
+        vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
         net = vit.Network(cfg.network.components)
 
     opt_cls = getattr(torch.optim, cfg.optimizer.name)
@@ -70,20 +95,23 @@ def myapp(cfg):
     jac= []
     # for i in range(8):
     #todo: create mapping for output
-    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], .4) #maps=net.activation.mapping)#
+    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], .55) #maps=net.activation.mapping)#
     #
     #automatically compute the best values
-    dat = dat.filter(sig_y=0.25,sig_x=0.25)
+    #dat = dat.filter(sig_y=0.25,sig_x=0.25)
     #todo: update computation and add crlb
     #todo: optimize jaccard:
-    print(dat.compute_jaccard(gt, ))
+    print(dat.compute_jaccard(gt, output=cwd+"/figures/"+dataset_name+cfg.training.name+".txt", images=np.concatenate([torch.stack(im,dim=0).cpu().numpy() for im in dataloader],axis=0)))
 
+    full_evaluation(dat, gt, parameter="sig", save_name=dataset_name+cfg.training.name)
+    full_evaluation(dat, gt, save_name=dataset_name+cfg.training.name)
     #print(validate(dat,t))
     #plt.plot(jac)
     #plt.savefig("eval_jaccard.svg")
     #plt.show()
     #plot_emitter_gmm(dat)
-    plot_emitter_set(dat, save_name="figures/density/"+dataset_name+cfg.training.name)
+    #todo: mkdir contest
+    plot_emitter_set(dat, save_name=cwd+"/figures/contest/"+dataset_name+cfg.training.name)
 
 if __name__ == '__main__':
     myapp()

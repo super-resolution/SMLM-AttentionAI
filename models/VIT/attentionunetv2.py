@@ -16,6 +16,12 @@ class Network(NetworkBase):
         #weight init defined in super
         self.apply(self.weight_init)
 
+    def norm(self, inp):
+        m = inp.mean()
+        std = inp.std()
+        inp = (inp-m)/std#todo: discard
+        return inp
+
     def forward(self, inp):
         x = self.norm(inp)
         x = self.unet(x)

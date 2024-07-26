@@ -177,7 +177,7 @@ class Emitter():
                     tp += indices.shape[0]
                     fn += max(othe.shape[0]-indices.shape[0],0)
                     fp += points.shape[0]-indices.shape[0]
-                    # if othe.shape[0]-indices.shape[0]>0:
+                    # if othe.shape[0]-points.shape[0]<0:
                     #     #if i>200:
                     #     print(i)
                     #     if np.any(images):
@@ -493,15 +493,22 @@ class Emitter():
                     coords.append(np.array([coord[0], coord[1], i, coord[2]]))#x,y,frame,intensity
                     frames.append(i)
                     photons.append(coord[2])
-                    ids.append(coord[4])
+                    if len(coord)==5:
+                        ids.append(coord[4])
+
         coords = np.array(coords)
         coords[:, 0:2] *= 100
-        return cls(coords[:,0:2], np.array(photons), np.array(frames), ids=np.array(ids))
+        if ids:
+            return cls(coords[:,0:2], np.array(photons), np.array(frames), ids=np.array(ids))
+        else:
+            return cls(coords[:,0:2], np.array(photons), np.array(frames))
+
 
     @classmethod
     def from_thunderstorm_csv(cls, path, contest=False):
         results = pd.read_csv(path).to_numpy()
         if contest:
+            idx = np.where(results[:,5]>1000)
             frame = results[:,1]-1
             xyz = results[:,2:4]-50
             I = results[:,5]

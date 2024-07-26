@@ -6,7 +6,8 @@ training:
   name: AttentionUNetV2
   iterations: 150
 dataset:
-  name: lab_logo_dense2
+  name: airyscan_approaching_lines
+  save: approaching_lines
   offset: 0
   batch_size: 50
 optimizer:

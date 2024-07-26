@@ -21,7 +21,7 @@ class Simulation(nn.Module):
         r_ic = 7*10**7
         r_isc_s0 = 10**5
         r_s1_off = 2*10**4
-        r_off_s0 = 2.*10**-1
+        r_off_s0 = 2.*10**-0
         rate_matrix = [[0,r_exc,0,0,0], #S0
                        [r_f,0,r_isc,r_s1_off,r_ic],#S1
                        [r_isc_s0,0,0,0,0],   #Trp
@@ -40,7 +40,7 @@ class Simulation(nn.Module):
         self.transition_matrix[4,0] = 1
         self.photon_mat = torch.zeros((5,4),device="cuda")
         self.photon_mat[1,0] = 1
-    def forward(self, n_sample=80000, events_p_batch=10**4,batches=2):
+    def forward(self, n_sample=80000, events_p_batch=10**4,batches=20):
         state = torch.zeros((n_sample,4), dtype=torch.int64).to("cuda")
         state[:,0] = 1
         cum_time = torch.zeros(events_p_batch,n_sample)[:,None].to("cuda")
@@ -85,7 +85,7 @@ class Simulation(nn.Module):
         cwd = os.getcwd()
         folder_data = os.path.join(cwd,"data")
         folder_traces = os.path.join(folder_data,"emitter_traces")
-        f_name = "switching"
+        f_name = "contest"
         if not os.path.exists(folder_data):
             os.mkdir(folder_data)
         if not os.path.exists(folder_traces):

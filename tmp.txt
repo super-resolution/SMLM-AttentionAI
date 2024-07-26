@@ -2358,3 +2358,1958 @@ Hello
 TP: 155983, FN: 117786, FP30486
 RMSE: 52.72 nm
 JI: 0.5127
+Hello
+% under crlb 0.01
+TP: 25340, FN: 55592, FP15281
+RMSE: 67.95 nm
+JI: 0.2634
+Hello
+% under crlb 0.01
+TP: 6107, FN: 74825, FP34514
+RMSE: 76.48 nm
+JI: 0.0529
+Hello
+% under crlb 0.01
+TP: 25283, FN: 55649, FP15338
+RMSE: 68.18 nm
+JI: 0.2626
+Hello
+% under crlb 0.04
+TP: 24972, FN: 55745, FP15649
+RMSE: 52.48 nm
+JI: 0.2591
+Hello
+% under crlb 0.03
+TP: 22018, FN: 58458, FP18603
+RMSE: 56.00 nm
+JI: 0.2222
+Hello
+% under crlb 0.04
+TP: 30476, FN: 50456, FP10145
+RMSE: 49.71 nm
+JI: 0.3346
+Hello
+% under crlb 0.07
+TP: 42139, FN: 38793, FP13575
+RMSE: 42.97 nm
+JI: 0.4459
+Hello
+% under crlb 0.07
+TP: 43690, FN: 37242, FP15166
+RMSE: 43.41 nm
+JI: 0.4546
+Hello
+% under crlb 0.08
+TP: 45440, FN: 35492, FP18890
+RMSE: 43.17 nm
+JI: 0.4552
+Hello
+% under crlb 0.08
+TP: 45261, FN: 35671, FP18700
+RMSE: 43.07 nm
+JI: 0.4543
+Hello
+% under crlb 0.05
+TP: 26511, FN: 54421, FP4979
+RMSE: 48.02 nm
+JI: 0.3086
+Hello
+% under crlb 0.05
+TP: 26476, FN: 54456, FP4950
+RMSE: 48.03 nm
+JI: 0.3083
+Hello
+% under crlb 0.05
+TP: 26433, FN: 54499, FP4910
+RMSE: 48.03 nm
+JI: 0.3079
+Hello
+% under crlb 0.05
+TP: 26342, FN: 54590, FP4872
+RMSE: 48.04 nm
+JI: 0.3070
+Hello
+% under crlb 0.05
+TP: 26209, FN: 54723, FP4795
+RMSE: 48.05 nm
+JI: 0.3057
+Hello
+% under crlb 0.05
+TP: 25998, FN: 54934, FP4663
+RMSE: 48.05 nm
+JI: 0.3037
+Hello
+% under crlb 0.05
+TP: 25675, FN: 55257, FP4495
+RMSE: 48.04 nm
+JI: 0.3005
+Hello
+% under crlb 0.05
+TP: 25115, FN: 55817, FP4273
+RMSE: 48.03 nm
+JI: 0.2948
+Hello
+% under crlb 0.05
+TP: 24256, FN: 56676, FP3989
+RMSE: 47.98 nm
+JI: 0.2856
+Hello
+% under crlb 0.05
+TP: 21006, FN: 59926, FP3960
+RMSE: 46.96 nm
+JI: 0.2474
+Hello
+% under crlb 0.05
+TP: 22407, FN: 58525, FP4169
+RMSE: 47.28 nm
+JI: 0.2633
+Hello
+% under crlb 0.05
+TP: 23875, FN: 57057, FP4427
+RMSE: 47.57 nm
+JI: 0.2797
+Hello
+% under crlb 0.05
+TP: 25161, FN: 55771, FP4705
+RMSE: 47.77 nm
+JI: 0.2938
+Hello
+% under crlb 0.05
+TP: 25823, FN: 55109, FP4854
+RMSE: 47.86 nm
+JI: 0.3010
+Hello
+% under crlb 0.05
+TP: 26226, FN: 54706, FP4935
+RMSE: 47.92 nm
+JI: 0.3054
+Hello
+% under crlb 0.05
+TP: 26457, FN: 54475, FP4980
+RMSE: 47.98 nm
+JI: 0.3080
+Hello
+% under crlb 0.05
+TP: 26546, FN: 54386, FP5000
+RMSE: 48.01 nm
+JI: 0.3089
+Hello
+% under crlb 0.05
+TP: 26566, FN: 54366, FP5008
+RMSE: 48.01 nm
+JI: 0.3091
+Hello
+% under crlb 0.08
+TP: 49942, FN: 30990, FP19539
+RMSE: 41.67 nm
+JI: 0.4971
+Hello
+% under crlb 0.08
+TP: 49930, FN: 31002, FP19530
+RMSE: 41.68 nm
+JI: 0.4970
+Hello
+% under crlb 0.08
+TP: 49907, FN: 31025, FP19517
+RMSE: 41.67 nm
+JI: 0.4968
+Hello
+% under crlb 0.08
+TP: 49856, FN: 31076, FP19488
+RMSE: 41.67 nm
+JI: 0.4965
+Hello
+% under crlb 0.08
+TP: 49757, FN: 31175, FP19413
+RMSE: 41.68 nm
+JI: 0.4959
+Hello
+% under crlb 0.08
+TP: 49539, FN: 31393, FP19308
+RMSE: 41.71 nm
+JI: 0.4942
+Hello
+% under crlb 0.08
+TP: 49101, FN: 31831, FP19060
+RMSE: 41.78 nm
+JI: 0.4910
+Hello
+% under crlb 0.08
+TP: 48293, FN: 32639, FP18596
+RMSE: 41.85 nm
+JI: 0.4852
+Hello
+% under crlb 0.08
+TP: 46669, FN: 34263, FP17805
+RMSE: 42.04 nm
+JI: 0.4727
+Hello
+% under crlb 0.09
+TP: 45592, FN: 35340, FP14462
+RMSE: 40.51 nm
+JI: 0.4779
+Hello
+% under crlb 0.09
+TP: 46970, FN: 33962, FP15586
+RMSE: 40.87 nm
+JI: 0.4866
+Hello
+% under crlb 0.09
+TP: 48121, FN: 32811, FP16710
+RMSE: 41.22 nm
+JI: 0.4928
+Hello
+% under crlb 0.08
+TP: 48997, FN: 31935, FP17878
+RMSE: 41.45 nm
+JI: 0.4959
+Hello
+% under crlb 0.08
+TP: 49473, FN: 31459, FP18598
+RMSE: 41.54 nm
+JI: 0.4971
+Hello
+% under crlb 0.08
+TP: 49773, FN: 31159, FP19111
+RMSE: 41.62 nm
+JI: 0.4975
+Hello
+% under crlb 0.08
+TP: 49892, FN: 31040, FP19399
+RMSE: 41.65 nm
+JI: 0.4973
+Hello
+% under crlb 0.08
+TP: 49948, FN: 30984, FP19507
+RMSE: 41.68 nm
+JI: 0.4973
+Hello
+% under crlb 0.08
+TP: 49962, FN: 30970, FP19545
+RMSE: 41.68 nm
+JI: 0.4972
+Hello
+% under crlb 0.05
+TP: 26511, FN: 54421, FP4979
+RMSE: 48.02 nm
+JI: 0.3086
+Hello
+% under crlb 0.05
+TP: 26476, FN: 54456, FP4950
+RMSE: 48.03 nm
+JI: 0.3083
+Hello
+% under crlb 0.05
+TP: 26433, FN: 54499, FP4910
+RMSE: 48.03 nm
+JI: 0.3079
+Hello
+% under crlb 0.05
+TP: 26342, FN: 54590, FP4872
+RMSE: 48.04 nm
+JI: 0.3070
+Hello
+% under crlb 0.05
+TP: 26209, FN: 54723, FP4795
+RMSE: 48.05 nm
+JI: 0.3057
+Hello
+% under crlb 0.05
+TP: 25998, FN: 54934, FP4663
+RMSE: 48.05 nm
+JI: 0.3037
+Hello
+% under crlb 0.05
+TP: 25675, FN: 55257, FP4495
+RMSE: 48.04 nm
+JI: 0.3005
+Hello
+% under crlb 0.05
+TP: 25115, FN: 55817, FP4273
+RMSE: 48.03 nm
+JI: 0.2948
+Hello
+% under crlb 0.05
+TP: 24256, FN: 56676, FP3989
+RMSE: 47.98 nm
+JI: 0.2856
+Hello
+% under crlb 0.05
+TP: 21006, FN: 59926, FP3960
+RMSE: 46.96 nm
+JI: 0.2474
+Hello
+% under crlb 0.05
+TP: 22407, FN: 58525, FP4169
+RMSE: 47.28 nm
+JI: 0.2633
+Hello
+% under crlb 0.05
+TP: 23875, FN: 57057, FP4427
+RMSE: 47.57 nm
+JI: 0.2797
+Hello
+% under crlb 0.05
+TP: 25161, FN: 55771, FP4705
+RMSE: 47.77 nm
+JI: 0.2938
+Hello
+% under crlb 0.05
+TP: 25823, FN: 55109, FP4854
+RMSE: 47.86 nm
+JI: 0.3010
+Hello
+% under crlb 0.05
+TP: 26226, FN: 54706, FP4935
+RMSE: 47.92 nm
+JI: 0.3054
+Hello
+% under crlb 0.05
+TP: 26457, FN: 54475, FP4980
+RMSE: 47.98 nm
+JI: 0.3080
+Hello
+% under crlb 0.05
+TP: 26546, FN: 54386, FP5000
+RMSE: 48.01 nm
+JI: 0.3089
+Hello
+% under crlb 0.05
+TP: 26566, FN: 54366, FP5008
+RMSE: 48.01 nm
+JI: 0.3091
+Hello
+% under crlb 0.08
+TP: 49942, FN: 30990, FP19539
+RMSE: 41.67 nm
+JI: 0.4971
+Hello
+% under crlb 0.08
+TP: 49930, FN: 31002, FP19530
+RMSE: 41.68 nm
+JI: 0.4970
+Hello
+% under crlb 0.08
+TP: 49907, FN: 31025, FP19517
+RMSE: 41.67 nm
+JI: 0.4968
+Hello
+% under crlb 0.08
+TP: 49856, FN: 31076, FP19488
+RMSE: 41.67 nm
+JI: 0.4965
+Hello
+% under crlb 0.08
+TP: 49757, FN: 31175, FP19413
+RMSE: 41.68 nm
+JI: 0.4959
+Hello
+% under crlb 0.08
+TP: 49539, FN: 31393, FP19308
+RMSE: 41.71 nm
+JI: 0.4942
+Hello
+% under crlb 0.08
+TP: 49101, FN: 31831, FP19060
+RMSE: 41.78 nm
+JI: 0.4910
+Hello
+% under crlb 0.08
+TP: 48293, FN: 32639, FP18596
+RMSE: 41.85 nm
+JI: 0.4852
+Hello
+% under crlb 0.08
+TP: 46669, FN: 34263, FP17805
+RMSE: 42.04 nm
+JI: 0.4727
+Hello
+% under crlb 0.09
+TP: 45592, FN: 35340, FP14462
+RMSE: 40.51 nm
+JI: 0.4779
+Hello
+% under crlb 0.09
+TP: 46970, FN: 33962, FP15586
+RMSE: 40.87 nm
+JI: 0.4866
+Hello
+% under crlb 0.09
+TP: 48121, FN: 32811, FP16710
+RMSE: 41.22 nm
+JI: 0.4928
+Hello
+% under crlb 0.08
+TP: 48997, FN: 31935, FP17878
+RMSE: 41.45 nm
+JI: 0.4959
+Hello
+% under crlb 0.08
+TP: 49473, FN: 31459, FP18598
+RMSE: 41.54 nm
+JI: 0.4971
+Hello
+% under crlb 0.08
+TP: 49773, FN: 31159, FP19111
+RMSE: 41.62 nm
+JI: 0.4975
+Hello
+% under crlb 0.08
+TP: 49892, FN: 31040, FP19399
+RMSE: 41.65 nm
+JI: 0.4973
+Hello
+% under crlb 0.08
+TP: 49948, FN: 30984, FP19507
+RMSE: 41.68 nm
+JI: 0.4973
+Hello
+% under crlb 0.08
+TP: 49962, FN: 30970, FP19545
+RMSE: 41.68 nm
+JI: 0.4972
+Hello
+% under crlb 0.04
+TP: 30302, FN: 50630, FP10057
+RMSE: 49.68 nm
+JI: 0.3330
+Hello
+% under crlb 0.04
+TP: 30189, FN: 50743, FP10005
+RMSE: 49.69 nm
+JI: 0.3320
+Hello
+% under crlb 0.04
+TP: 30031, FN: 50901, FP9910
+RMSE: 49.65 nm
+JI: 0.3306
+Hello
+% under crlb 0.04
+TP: 29777, FN: 51155, FP9770
+RMSE: 49.64 nm
+JI: 0.3283
+Hello
+% under crlb 0.04
+TP: 29361, FN: 51571, FP9555
+RMSE: 49.58 nm
+JI: 0.3245
+Hello
+% under crlb 0.04
+TP: 28702, FN: 52230, FP9238
+RMSE: 49.52 nm
+JI: 0.3183
+Hello
+% under crlb 0.04
+TP: 27634, FN: 53298, FP8739
+RMSE: 49.47 nm
+JI: 0.3082
+Hello
+% under crlb 0.05
+TP: 26030, FN: 54902, FP8026
+RMSE: 49.36 nm
+JI: 0.2926
+Hello
+% under crlb 0.05
+TP: 23573, FN: 57359, FP7021
+RMSE: 49.06 nm
+JI: 0.2680
+Hello
+% under crlb 0.04
+TP: 27742, FN: 53190, FP7527
+RMSE: 49.74 nm
+JI: 0.3136
+Hello
+% under crlb 0.04
+TP: 28121, FN: 52811, FP7797
+RMSE: 49.79 nm
+JI: 0.3169
+Hello
+% under crlb 0.04
+TP: 28450, FN: 52482, FP8046
+RMSE: 49.83 nm
+JI: 0.3197
+Hello
+% under crlb 0.04
+TP: 28780, FN: 52152, FP8314
+RMSE: 49.86 nm
+JI: 0.3225
+Hello
+% under crlb 0.04
+TP: 29005, FN: 51927, FP8497
+RMSE: 49.89 nm
+JI: 0.3243
+Hello
+% under crlb 0.04
+TP: 29201, FN: 51731, FP8659
+RMSE: 49.89 nm
+JI: 0.3259
+Hello
+% under crlb 0.04
+TP: 29364, FN: 51568, FP8808
+RMSE: 49.88 nm
+JI: 0.3272
+Hello
+% under crlb 0.04
+TP: 29538, FN: 51394, FP8960
+RMSE: 49.87 nm
+JI: 0.3286
+Hello
+% under crlb 0.04
+TP: 29727, FN: 51205, FP9124
+RMSE: 49.85 nm
+JI: 0.3301
+Hello
+% under crlb 0.08
+TP: 43928, FN: 37004, FP15671
+RMSE: 43.53 nm
+JI: 0.4547
+Hello
+% under crlb 0.08
+TP: 43882, FN: 37050, FP15650
+RMSE: 43.52 nm
+JI: 0.4543
+Hello
+% under crlb 0.08
+TP: 43798, FN: 37134, FP15613
+RMSE: 43.51 nm
+JI: 0.4537
+Hello
+% under crlb 0.08
+TP: 43599, FN: 37333, FP15509
+RMSE: 43.51 nm
+JI: 0.4521
+Hello
+% under crlb 0.08
+TP: 43277, FN: 37655, FP15345
+RMSE: 43.53 nm
+JI: 0.4495
+Hello
+% under crlb 0.08
+TP: 42556, FN: 38376, FP15076
+RMSE: 43.52 nm
+JI: 0.4433
+Hello
+% under crlb 0.08
+TP: 41391, FN: 39541, FP14618
+RMSE: 43.46 nm
+JI: 0.4332
+Hello
+% under crlb 0.08
+TP: 39324, FN: 41608, FP13789
+RMSE: 43.44 nm
+JI: 0.4152
+Hello
+% under crlb 0.08
+TP: 36040, FN: 44892, FP12525
+RMSE: 43.37 nm
+JI: 0.3856
+Hello
+% under crlb 0.08
+TP: 40225, FN: 40707, FP11484
+RMSE: 42.71 nm
+JI: 0.4353
+Hello
+% under crlb 0.08
+TP: 41520, FN: 39412, FP12502
+RMSE: 43.03 nm
+JI: 0.4444
+Hello
+% under crlb 0.08
+TP: 42355, FN: 38577, FP13428
+RMSE: 43.24 nm
+JI: 0.4489
+Hello
+% under crlb 0.08
+TP: 42984, FN: 37948, FP14236
+RMSE: 43.37 nm
+JI: 0.4517
+Hello
+% under crlb 0.08
+TP: 43274, FN: 37658, FP14643
+RMSE: 43.41 nm
+JI: 0.4528
+Hello
+% under crlb 0.08
+TP: 43458, FN: 37474, FP14902
+RMSE: 43.44 nm
+JI: 0.4535
+Hello
+% under crlb 0.08
+TP: 43579, FN: 37353, FP15078
+RMSE: 43.47 nm
+JI: 0.4539
+Hello
+% under crlb 0.08
+TP: 43684, FN: 37248, FP15225
+RMSE: 43.50 nm
+JI: 0.4543
+Hello
+% under crlb 0.08
+TP: 43762, FN: 37170, FP15342
+RMSE: 43.52 nm
+JI: 0.4546
+Hello
+% under crlb 0.06
+TP: 42020, FN: 38912, FP28736
+RMSE: 46.23 nm
+JI: 0.3832
+Hello
+% under crlb 0.06
+TP: 41966, FN: 38966, FP28637
+RMSE: 46.24 nm
+JI: 0.3830
+Hello
+% under crlb 0.06
+TP: 41877, FN: 39055, FP28502
+RMSE: 46.23 nm
+JI: 0.3827
+Hello
+% under crlb 0.06
+TP: 41733, FN: 39199, FP28320
+RMSE: 46.25 nm
+JI: 0.3820
+Hello
+% under crlb 0.06
+TP: 41519, FN: 39413, FP28039
+RMSE: 46.27 nm
+JI: 0.3810
+Hello
+% under crlb 0.06
+TP: 41171, FN: 39761, FP27573
+RMSE: 46.26 nm
+JI: 0.3794
+Hello
+% under crlb 0.06
+TP: 40622, FN: 40310, FP26906
+RMSE: 46.24 nm
+JI: 0.3767
+Hello
+% under crlb 0.06
+TP: 39759, FN: 41173, FP25906
+RMSE: 46.24 nm
+JI: 0.3721
+Hello
+% under crlb 0.06
+TP: 38358, FN: 42574, FP24499
+RMSE: 46.22 nm
+JI: 0.3638
+Hello
+% under crlb 0.06
+TP: 28398, FN: 52534, FP18905
+RMSE: 43.93 nm
+JI: 0.2844
+Hello
+% under crlb 0.06
+TP: 30469, FN: 50463, FP21212
+RMSE: 44.02 nm
+JI: 0.2983
+Hello
+% under crlb 0.06
+TP: 32365, FN: 48567, FP22783
+RMSE: 44.24 nm
+JI: 0.3121
+Hello
+% under crlb 0.06
+TP: 33776, FN: 47156, FP23678
+RMSE: 44.38 nm
+JI: 0.3229
+Hello
+% under crlb 0.06
+TP: 35196, FN: 45736, FP24330
+RMSE: 44.65 nm
+JI: 0.3344
+Hello
+% under crlb 0.06
+TP: 36590, FN: 44342, FP24909
+RMSE: 44.94 nm
+JI: 0.3457
+Hello
+% under crlb 0.06
+TP: 37942, FN: 42990, FP25523
+RMSE: 45.28 nm
+JI: 0.3564
+Hello
+% under crlb 0.06
+TP: 39144, FN: 41788, FP26196
+RMSE: 45.52 nm
+JI: 0.3654
+Hello
+% under crlb 0.06
+TP: 40235, FN: 40697, FP26858
+RMSE: 45.80 nm
+JI: 0.3733
+Hello
+% under crlb 0.11
+TP: 61746, FN: 19186, FP65681
+RMSE: 38.56 nm
+JI: 0.4211
+Hello
+% under crlb 0.11
+TP: 61720, FN: 19212, FP65635
+RMSE: 38.56 nm
+JI: 0.4211
+Hello
+% under crlb 0.11
+TP: 61675, FN: 19257, FP65552
+RMSE: 38.55 nm
+JI: 0.4210
+Hello
+% under crlb 0.11
+TP: 61576, FN: 19356, FP65414
+RMSE: 38.56 nm
+JI: 0.4208
+Hello
+% under crlb 0.11
+TP: 61403, FN: 19529, FP65088
+RMSE: 38.57 nm
+JI: 0.4205
+Hello
+% under crlb 0.11
+TP: 61089, FN: 19843, FP64540
+RMSE: 38.62 nm
+JI: 0.4199
+Hello
+% under crlb 0.11
+TP: 60433, FN: 20499, FP63490
+RMSE: 38.75 nm
+JI: 0.4184
+Hello
+% under crlb 0.10
+TP: 59295, FN: 21637, FP61534
+RMSE: 38.92 nm
+JI: 0.4162
+Hello
+% under crlb 0.10
+TP: 57166, FN: 23766, FP58162
+RMSE: 39.26 nm
+JI: 0.4110
+Hello
+% under crlb 0.11
+TP: 54729, FN: 26203, FP43559
+RMSE: 37.34 nm
+JI: 0.4396
+Hello
+% under crlb 0.11
+TP: 56223, FN: 24709, FP46970
+RMSE: 37.54 nm
+JI: 0.4396
+Hello
+% under crlb 0.11
+TP: 57509, FN: 23423, FP50061
+RMSE: 37.73 nm
+JI: 0.4390
+Hello
+% under crlb 0.11
+TP: 58539, FN: 22393, FP52631
+RMSE: 37.89 nm
+JI: 0.4383
+Hello
+% under crlb 0.11
+TP: 59386, FN: 21546, FP54989
+RMSE: 38.02 nm
+JI: 0.4369
+Hello
+% under crlb 0.11
+TP: 60102, FN: 20830, FP57289
+RMSE: 38.14 nm
+JI: 0.4348
+Hello
+% under crlb 0.11
+TP: 60628, FN: 20304, FP59387
+RMSE: 38.24 nm
+JI: 0.4321
+Hello
+% under crlb 0.11
+TP: 61014, FN: 19918, FP61254
+RMSE: 38.35 nm
+JI: 0.4291
+Hello
+% under crlb 0.11
+TP: 61309, FN: 19623, FP62922
+RMSE: 38.43 nm
+JI: 0.4262
+Hello
+% under crlb 0.06
+TP: 43640, FN: 37292, FP62316
+RMSE: 47.01 nm
+JI: 0.3046
+Hello
+% under crlb 0.06
+TP: 43227, FN: 37705, FP61549
+RMSE: 47.03 nm
+JI: 0.3034
+Hello
+% under crlb 0.06
+TP: 42648, FN: 38284, FP60496
+RMSE: 47.00 nm
+JI: 0.3016
+Hello
+% under crlb 0.06
+TP: 41911, FN: 39021, FP59075
+RMSE: 47.04 nm
+JI: 0.2993
+Hello
+% under crlb 0.06
+TP: 40871, FN: 40061, FP57164
+RMSE: 47.02 nm
+JI: 0.2960
+Hello
+% under crlb 0.06
+TP: 39415, FN: 41517, FP54571
+RMSE: 47.04 nm
+JI: 0.2909
+Hello
+% under crlb 0.06
+TP: 37396, FN: 43536, FP50923
+RMSE: 47.09 nm
+JI: 0.2836
+Hello
+% under crlb 0.06
+TP: 34543, FN: 46389, FP45928
+RMSE: 47.06 nm
+JI: 0.2723
+Hello
+% under crlb 0.06
+TP: 30760, FN: 50172, FP39040
+RMSE: 46.95 nm
+JI: 0.2564
+Hello
+% under crlb 0.06
+TP: 31989, FN: 48943, FP28904
+RMSE: 47.70 nm
+JI: 0.2912
+Hello
+% under crlb 0.06
+TP: 32401, FN: 48531, FP29863
+RMSE: 47.69 nm
+JI: 0.2924
+Hello
+% under crlb 0.06
+TP: 32792, FN: 48140, FP30628
+RMSE: 47.68 nm
+JI: 0.2939
+Hello
+% under crlb 0.06
+TP: 33143, FN: 47789, FP31195
+RMSE: 47.69 nm
+JI: 0.2956
+Hello
+% under crlb 0.06
+TP: 33517, FN: 47415, FP31764
+RMSE: 47.76 nm
+JI: 0.2974
+Hello
+% under crlb 0.06
+TP: 33897, FN: 47035, FP32360
+RMSE: 47.78 nm
+JI: 0.2992
+Hello
+% under crlb 0.06
+TP: 34275, FN: 46657, FP32945
+RMSE: 47.78 nm
+JI: 0.3010
+Hello
+% under crlb 0.06
+TP: 34648, FN: 46284, FP33613
+RMSE: 47.81 nm
+JI: 0.3025
+Hello
+% under crlb 0.06
+TP: 35115, FN: 45817, FP34366
+RMSE: 47.83 nm
+JI: 0.3046
+Hello
+% under crlb 0.10
+TP: 56129, FN: 24803, FP67812
+RMSE: 39.88 nm
+JI: 0.3774
+Hello
+% under crlb 0.10
+TP: 55965, FN: 24967, FP67501
+RMSE: 39.88 nm
+JI: 0.3770
+Hello
+% under crlb 0.10
+TP: 55725, FN: 25207, FP67018
+RMSE: 39.87 nm
+JI: 0.3766
+Hello
+% under crlb 0.10
+TP: 55279, FN: 25653, FP66240
+RMSE: 39.86 nm
+JI: 0.3756
+Hello
+% under crlb 0.10
+TP: 54599, FN: 26333, FP65101
+RMSE: 39.91 nm
+JI: 0.3739
+Hello
+% under crlb 0.10
+TP: 53390, FN: 27542, FP63145
+RMSE: 39.98 nm
+JI: 0.3706
+Hello
+% under crlb 0.10
+TP: 51551, FN: 29381, FP60250
+RMSE: 40.09 nm
+JI: 0.3651
+Hello
+% under crlb 0.10
+TP: 48652, FN: 32280, FP55630
+RMSE: 40.28 nm
+JI: 0.3563
+Hello
+% under crlb 0.10
+TP: 44106, FN: 36826, FP48812
+RMSE: 40.49 nm
+JI: 0.3399
+Hello
+% under crlb 0.10
+TP: 48217, FN: 32715, FP41993
+RMSE: 39.94 nm
+JI: 0.3922
+Hello
+% under crlb 0.10
+TP: 49677, FN: 31255, FP45817
+RMSE: 39.99 nm
+JI: 0.3919
+Hello
+% under crlb 0.10
+TP: 50749, FN: 30183, FP48911
+RMSE: 40.02 nm
+JI: 0.3908
+Hello
+% under crlb 0.10
+TP: 51585, FN: 29347, FP51269
+RMSE: 40.02 nm
+JI: 0.3902
+Hello
+% under crlb 0.10
+TP: 52200, FN: 28732, FP53245
+RMSE: 40.01 nm
+JI: 0.3890
+Hello
+% under crlb 0.10
+TP: 52764, FN: 28168, FP54970
+RMSE: 40.07 nm
+JI: 0.3883
+Hello
+% under crlb 0.10
+TP: 53192, FN: 27740, FP56513
+RMSE: 40.06 nm
+JI: 0.3870
+Hello
+% under crlb 0.10
+TP: 53622, FN: 27310, FP58052
+RMSE: 40.09 nm
+JI: 0.3858
+Hello
+% under crlb 0.10
+TP: 53993, FN: 26939, FP59422
+RMSE: 40.11 nm
+JI: 0.3847
+Hello
+% under crlb 0.05
+TP: 31002, FN: 49930, FP9361
+RMSE: 47.75 nm
+JI: 0.3433
+Hello
+% under crlb 0.05
+TP: 30965, FN: 49967, FP9323
+RMSE: 47.76 nm
+JI: 0.3431
+Hello
+% under crlb 0.05
+TP: 30913, FN: 50019, FP9267
+RMSE: 47.77 nm
+JI: 0.3427
+Hello
+% under crlb 0.05
+TP: 30802, FN: 50130, FP9205
+RMSE: 47.78 nm
+JI: 0.3417
+Hello
+% under crlb 0.05
+TP: 30651, FN: 50281, FP9101
+RMSE: 47.79 nm
+JI: 0.3404
+Hello
+% under crlb 0.05
+TP: 30409, FN: 50523, FP8909
+RMSE: 47.77 nm
+JI: 0.3385
+Hello
+% under crlb 0.05
+TP: 30027, FN: 50905, FP8667
+RMSE: 47.77 nm
+JI: 0.3351
+Hello
+% under crlb 0.05
+TP: 29385, FN: 51547, FP8323
+RMSE: 47.77 nm
+JI: 0.3292
+Hello
+% under crlb 0.05
+TP: 28403, FN: 52529, FP7849
+RMSE: 47.76 nm
+JI: 0.3199
+Hello
+% under crlb 0.05
+TP: 22730, FN: 58202, FP7316
+RMSE: 46.02 nm
+JI: 0.2576
+Hello
+% under crlb 0.05
+TP: 24157, FN: 56775, FP7578
+RMSE: 46.37 nm
+JI: 0.2729
+Hello
+% under crlb 0.05
+TP: 25668, FN: 55264, FP7879
+RMSE: 46.67 nm
+JI: 0.2890
+Hello
+% under crlb 0.05
+TP: 27030, FN: 53902, FP8213
+RMSE: 46.90 nm
+JI: 0.3032
+Hello
+% under crlb 0.05
+TP: 28351, FN: 52581, FP8549
+RMSE: 47.21 nm
+JI: 0.3168
+Hello
+% under crlb 0.05
+TP: 29591, FN: 51341, FP8900
+RMSE: 47.45 nm
+JI: 0.3294
+Hello
+% under crlb 0.05
+TP: 30280, FN: 50652, FP9103
+RMSE: 47.60 nm
+JI: 0.3363
+Hello
+% under crlb 0.05
+TP: 30717, FN: 50215, FP9245
+RMSE: 47.67 nm
+JI: 0.3406
+Hello
+% under crlb 0.05
+TP: 30931, FN: 50001, FP9337
+RMSE: 47.71 nm
+JI: 0.3427
+Hello
+% under crlb 0.09
+TP: 54639, FN: 26293, FP33382
+RMSE: 40.84 nm
+JI: 0.4780
+Hello
+% under crlb 0.09
+TP: 54623, FN: 26309, FP33366
+RMSE: 40.84 nm
+JI: 0.4779
+Hello
+% under crlb 0.09
+TP: 54596, FN: 26336, FP33343
+RMSE: 40.84 nm
+JI: 0.4778
+Hello
+% under crlb 0.09
+TP: 54535, FN: 26397, FP33291
+RMSE: 40.85 nm
+JI: 0.4774
+Hello
+% under crlb 0.09
+TP: 54411, FN: 26521, FP33175
+RMSE: 40.85 nm
+JI: 0.4768
+Hello
+% under crlb 0.09
+TP: 54166, FN: 26766, FP32970
+RMSE: 40.88 nm
+JI: 0.4755
+Hello
+% under crlb 0.09
+TP: 53639, FN: 27293, FP32553
+RMSE: 40.94 nm
+JI: 0.4727
+Hello
+% under crlb 0.09
+TP: 52716, FN: 28216, FP31728
+RMSE: 41.04 nm
+JI: 0.4679
+Hello
+% under crlb 0.09
+TP: 50916, FN: 30016, FP30305
+RMSE: 41.26 nm
+JI: 0.4577
+Hello
+% under crlb 0.09
+TP: 48809, FN: 32123, FP23721
+RMSE: 39.46 nm
+JI: 0.4664
+Hello
+% under crlb 0.09
+TP: 50281, FN: 30651, FP25178
+RMSE: 39.82 nm
+JI: 0.4739
+Hello
+% under crlb 0.09
+TP: 51531, FN: 29401, FP26673
+RMSE: 40.12 nm
+JI: 0.4789
+Hello
+% under crlb 0.09
+TP: 52546, FN: 28386, FP28209
+RMSE: 40.35 nm
+JI: 0.4815
+Hello
+% under crlb 0.09
+TP: 53303, FN: 27629, FP29654
+RMSE: 40.50 nm
+JI: 0.4820
+Hello
+% under crlb 0.09
+TP: 53912, FN: 27020, FP31074
+RMSE: 40.64 nm
+JI: 0.4813
+Hello
+% under crlb 0.09
+TP: 54248, FN: 26684, FP32042
+RMSE: 40.71 nm
+JI: 0.4802
+Hello
+% under crlb 0.09
+TP: 54470, FN: 26462, FP32681
+RMSE: 40.78 nm
+JI: 0.4794
+Hello
+% under crlb 0.09
+TP: 54586, FN: 26346, FP33148
+RMSE: 40.81 nm
+JI: 0.4785
+Hello
+% under crlb 0.06
+TP: 42705, FN: 38227, FP56313
+RMSE: 47.26 nm
+JI: 0.3112
+Hello
+% under crlb 0.06
+TP: 42298, FN: 38634, FP55600
+RMSE: 47.28 nm
+JI: 0.3098
+Hello
+% under crlb 0.06
+TP: 41742, FN: 39190, FP54636
+RMSE: 47.24 nm
+JI: 0.3079
+Hello
+% under crlb 0.06
+TP: 41030, FN: 39902, FP53338
+RMSE: 47.26 nm
+JI: 0.3056
+Hello
+% under crlb 0.06
+TP: 40034, FN: 40898, FP51638
+RMSE: 47.24 nm
+JI: 0.3020
+Hello
+% under crlb 0.06
+TP: 38627, FN: 42305, FP49324
+RMSE: 47.25 nm
+JI: 0.2965
+Hello
+% under crlb 0.06
+TP: 36664, FN: 44268, FP46103
+RMSE: 47.27 nm
+JI: 0.2886
+Hello
+% under crlb 0.06
+TP: 33903, FN: 47029, FP41736
+RMSE: 47.20 nm
+JI: 0.2764
+Hello
+% under crlb 0.06
+TP: 30262, FN: 50670, FP35629
+RMSE: 47.06 nm
+JI: 0.2596
+Hello
+% under crlb 0.06
+TP: 31388, FN: 49544, FP25653
+RMSE: 47.88 nm
+JI: 0.2945
+Hello
+% under crlb 0.06
+TP: 31791, FN: 49141, FP26092
+RMSE: 47.93 nm
+JI: 0.2970
+Hello
+% under crlb 0.06
+TP: 32155, FN: 48777, FP26500
+RMSE: 47.96 nm
+JI: 0.2993
+Hello
+% under crlb 0.06
+TP: 32520, FN: 48412, FP26961
+RMSE: 47.99 nm
+JI: 0.3014
+Hello
+% under crlb 0.06
+TP: 32902, FN: 48030, FP27469
+RMSE: 48.06 nm
+JI: 0.3035
+Hello
+% under crlb 0.06
+TP: 33283, FN: 47649, FP28001
+RMSE: 48.09 nm
+JI: 0.3055
+Hello
+% under crlb 0.06
+TP: 33606, FN: 47326, FP28443
+RMSE: 48.07 nm
+JI: 0.3073
+Hello
+% under crlb 0.06
+TP: 33928, FN: 47004, FP28933
+RMSE: 48.08 nm
+JI: 0.3088
+Hello
+% under crlb 0.06
+TP: 34335, FN: 46597, FP29465
+RMSE: 48.09 nm
+JI: 0.3110
+Hello
+% under crlb 0.09
+TP: 51405, FN: 29527, FP43940
+RMSE: 41.46 nm
+JI: 0.4117
+Hello
+% under crlb 0.09
+TP: 51260, FN: 29672, FP43736
+RMSE: 41.45 nm
+JI: 0.4112
+Hello
+% under crlb 0.09
+TP: 51079, FN: 29853, FP43417
+RMSE: 41.44 nm
+JI: 0.4108
+Hello
+% under crlb 0.09
+TP: 50702, FN: 30230, FP42912
+RMSE: 41.42 nm
+JI: 0.4094
+Hello
+% under crlb 0.09
+TP: 50142, FN: 30790, FP42209
+RMSE: 41.44 nm
+JI: 0.4072
+Hello
+% under crlb 0.09
+TP: 49105, FN: 31827, FP41019
+RMSE: 41.46 nm
+JI: 0.4027
+Hello
+% under crlb 0.10
+TP: 47485, FN: 33447, FP39317
+RMSE: 41.48 nm
+JI: 0.3949
+Hello
+% under crlb 0.10
+TP: 44901, FN: 36031, FP36530
+RMSE: 41.58 nm
+JI: 0.3823
+Hello
+% under crlb 0.10
+TP: 40867, FN: 40065, FP32406
+RMSE: 41.64 nm
+JI: 0.3606
+Hello
+% under crlb 0.09
+TP: 44409, FN: 36523, FP27241
+RMSE: 41.07 nm
+JI: 0.4105
+Hello
+% under crlb 0.09
+TP: 45810, FN: 35122, FP28904
+RMSE: 41.36 nm
+JI: 0.4171
+Hello
+% under crlb 0.09
+TP: 46780, FN: 34152, FP30427
+RMSE: 41.56 nm
+JI: 0.4201
+Hello
+% under crlb 0.09
+TP: 47565, FN: 33367, FP31840
+RMSE: 41.64 nm
+JI: 0.4218
+Hello
+% under crlb 0.09
+TP: 48105, FN: 32827, FP33134
+RMSE: 41.69 nm
+JI: 0.4217
+Hello
+% under crlb 0.09
+TP: 48567, FN: 32365, FP34334
+RMSE: 41.75 nm
+JI: 0.4213
+Hello
+% under crlb 0.09
+TP: 48882, FN: 32050, FP35210
+RMSE: 41.76 nm
+JI: 0.4209
+Hello
+% under crlb 0.09
+TP: 49185, FN: 31747, FP36059
+RMSE: 41.77 nm
+JI: 0.4204
+Hello
+% under crlb 0.09
+TP: 49467, FN: 31465, FP36826
+RMSE: 41.78 nm
+JI: 0.4201
+Hello
+% under crlb 0.05
+TP: 26511, FN: 54421, FP4979
+RMSE: 48.02 nm
+JI: 0.3086
+Hello
+% under crlb 0.05
+TP: 26476, FN: 54456, FP4950
+RMSE: 48.03 nm
+JI: 0.3083
+Hello
+% under crlb 0.05
+TP: 26433, FN: 54499, FP4910
+RMSE: 48.03 nm
+JI: 0.3079
+Hello
+% under crlb 0.05
+TP: 26342, FN: 54590, FP4872
+RMSE: 48.04 nm
+JI: 0.3070
+Hello
+% under crlb 0.05
+TP: 26209, FN: 54723, FP4795
+RMSE: 48.05 nm
+JI: 0.3057
+Hello
+% under crlb 0.05
+TP: 25998, FN: 54934, FP4663
+RMSE: 48.05 nm
+JI: 0.3037
+Hello
+% under crlb 0.05
+TP: 25675, FN: 55257, FP4495
+RMSE: 48.04 nm
+JI: 0.3005
+Hello
+% under crlb 0.05
+TP: 25115, FN: 55817, FP4273
+RMSE: 48.03 nm
+JI: 0.2948
+Hello
+% under crlb 0.05
+TP: 24256, FN: 56676, FP3989
+RMSE: 47.98 nm
+JI: 0.2856
+Hello
+% under crlb 0.05
+TP: 21006, FN: 59926, FP3960
+RMSE: 46.96 nm
+JI: 0.2474
+Hello
+% under crlb 0.05
+TP: 22407, FN: 58525, FP4169
+RMSE: 47.28 nm
+JI: 0.2633
+Hello
+% under crlb 0.05
+TP: 23875, FN: 57057, FP4427
+RMSE: 47.57 nm
+JI: 0.2797
+Hello
+% under crlb 0.05
+TP: 25161, FN: 55771, FP4705
+RMSE: 47.77 nm
+JI: 0.2938
+Hello
+% under crlb 0.05
+TP: 25823, FN: 55109, FP4854
+RMSE: 47.86 nm
+JI: 0.3010
+Hello
+% under crlb 0.05
+TP: 26226, FN: 54706, FP4935
+RMSE: 47.92 nm
+JI: 0.3054
+Hello
+% under crlb 0.05
+TP: 26457, FN: 54475, FP4980
+RMSE: 47.98 nm
+JI: 0.3080
+Hello
+% under crlb 0.05
+TP: 26546, FN: 54386, FP5000
+RMSE: 48.01 nm
+JI: 0.3089
+Hello
+% under crlb 0.05
+TP: 26566, FN: 54366, FP5008
+RMSE: 48.01 nm
+JI: 0.3091
+Hello
+% under crlb 0.08
+TP: 49942, FN: 30990, FP19539
+RMSE: 41.67 nm
+JI: 0.4971
+Hello
+% under crlb 0.08
+TP: 49930, FN: 31002, FP19530
+RMSE: 41.68 nm
+JI: 0.4970
+Hello
+% under crlb 0.08
+TP: 49907, FN: 31025, FP19517
+RMSE: 41.67 nm
+JI: 0.4968
+Hello
+% under crlb 0.08
+TP: 49856, FN: 31076, FP19488
+RMSE: 41.67 nm
+JI: 0.4965
+Hello
+% under crlb 0.08
+TP: 49757, FN: 31175, FP19413
+RMSE: 41.68 nm
+JI: 0.4959
+Hello
+% under crlb 0.08
+TP: 49539, FN: 31393, FP19308
+RMSE: 41.71 nm
+JI: 0.4942
+Hello
+% under crlb 0.08
+TP: 49101, FN: 31831, FP19060
+RMSE: 41.78 nm
+JI: 0.4910
+Hello
+% under crlb 0.08
+TP: 48293, FN: 32639, FP18596
+RMSE: 41.85 nm
+JI: 0.4852
+Hello
+% under crlb 0.08
+TP: 46669, FN: 34263, FP17805
+RMSE: 42.04 nm
+JI: 0.4727
+Hello
+% under crlb 0.09
+TP: 45592, FN: 35340, FP14462
+RMSE: 40.51 nm
+JI: 0.4779
+Hello
+% under crlb 0.09
+TP: 46970, FN: 33962, FP15586
+RMSE: 40.87 nm
+JI: 0.4866
+Hello
+% under crlb 0.09
+TP: 48121, FN: 32811, FP16710
+RMSE: 41.22 nm
+JI: 0.4928
+Hello
+% under crlb 0.08
+TP: 48997, FN: 31935, FP17878
+RMSE: 41.45 nm
+JI: 0.4959
+Hello
+% under crlb 0.08
+TP: 49473, FN: 31459, FP18598
+RMSE: 41.54 nm
+JI: 0.4971
+Hello
+% under crlb 0.08
+TP: 49773, FN: 31159, FP19111
+RMSE: 41.62 nm
+JI: 0.4975
+Hello
+% under crlb 0.08
+TP: 49892, FN: 31040, FP19399
+RMSE: 41.65 nm
+JI: 0.4973
+Hello
+% under crlb 0.08
+TP: 49948, FN: 30984, FP19507
+RMSE: 41.68 nm
+JI: 0.4973
+Hello
+% under crlb 0.08
+TP: 49962, FN: 30970, FP19545
+RMSE: 41.68 nm
+JI: 0.4972
+Hello
+% under crlb 0.04
+TP: 30302, FN: 50630, FP10057
+RMSE: 49.68 nm
+JI: 0.3330
+Hello
+% under crlb 0.04
+TP: 30189, FN: 50743, FP10005
+RMSE: 49.69 nm
+JI: 0.3320
+Hello
+% under crlb 0.04
+TP: 30031, FN: 50901, FP9910
+RMSE: 49.65 nm
+JI: 0.3306
+Hello
+% under crlb 0.04
+TP: 29777, FN: 51155, FP9770
+RMSE: 49.64 nm
+JI: 0.3283
+Hello
+% under crlb 0.04
+TP: 29361, FN: 51571, FP9555
+RMSE: 49.58 nm
+JI: 0.3245
+Hello
+% under crlb 0.04
+TP: 28702, FN: 52230, FP9238
+RMSE: 49.52 nm
+JI: 0.3183
+Hello
+% under crlb 0.04
+TP: 27634, FN: 53298, FP8739
+RMSE: 49.47 nm
+JI: 0.3082
+Hello
+% under crlb 0.05
+TP: 26030, FN: 54902, FP8026
+RMSE: 49.36 nm
+JI: 0.2926
+Hello
+% under crlb 0.05
+TP: 23573, FN: 57359, FP7021
+RMSE: 49.06 nm
+JI: 0.2680
+Hello
+% under crlb 0.04
+TP: 27742, FN: 53190, FP7527
+RMSE: 49.74 nm
+JI: 0.3136
+Hello
+% under crlb 0.04
+TP: 28121, FN: 52811, FP7797
+RMSE: 49.79 nm
+JI: 0.3169
+Hello
+% under crlb 0.04
+TP: 28450, FN: 52482, FP8046
+RMSE: 49.83 nm
+JI: 0.3197
+Hello
+% under crlb 0.04
+TP: 28780, FN: 52152, FP8314
+RMSE: 49.86 nm
+JI: 0.3225
+Hello
+% under crlb 0.04
+TP: 29005, FN: 51927, FP8497
+RMSE: 49.89 nm
+JI: 0.3243
+Hello
+% under crlb 0.04
+TP: 29201, FN: 51731, FP8659
+RMSE: 49.89 nm
+JI: 0.3259
+Hello
+% under crlb 0.04
+TP: 29364, FN: 51568, FP8808
+RMSE: 49.88 nm
+JI: 0.3272
+Hello
+% under crlb 0.04
+TP: 29538, FN: 51394, FP8960
+RMSE: 49.87 nm
+JI: 0.3286
+Hello
+% under crlb 0.04
+TP: 29727, FN: 51205, FP9124
+RMSE: 49.85 nm
+JI: 0.3301
+Hello
+% under crlb 0.08
+TP: 43928, FN: 37004, FP15671
+RMSE: 43.53 nm
+JI: 0.4547
+Hello
+% under crlb 0.08
+TP: 43882, FN: 37050, FP15650
+RMSE: 43.52 nm
+JI: 0.4543
+Hello
+% under crlb 0.08
+TP: 43798, FN: 37134, FP15613
+RMSE: 43.51 nm
+JI: 0.4537
+Hello
+% under crlb 0.08
+TP: 43599, FN: 37333, FP15509
+RMSE: 43.51 nm
+JI: 0.4521
+Hello
+% under crlb 0.08
+TP: 43277, FN: 37655, FP15345
+RMSE: 43.53 nm
+JI: 0.4495
+Hello
+% under crlb 0.08
+TP: 42556, FN: 38376, FP15076
+RMSE: 43.52 nm
+JI: 0.4433
+Hello
+% under crlb 0.08
+TP: 41391, FN: 39541, FP14618
+RMSE: 43.46 nm
+JI: 0.4332
+Hello
+% under crlb 0.08
+TP: 39324, FN: 41608, FP13789
+RMSE: 43.44 nm
+JI: 0.4152
+Hello
+% under crlb 0.08
+TP: 36040, FN: 44892, FP12525
+RMSE: 43.37 nm
+JI: 0.3856
+Hello
+% under crlb 0.08
+TP: 40225, FN: 40707, FP11484
+RMSE: 42.71 nm
+JI: 0.4353
+Hello
+% under crlb 0.08
+TP: 41520, FN: 39412, FP12502
+RMSE: 43.03 nm
+JI: 0.4444
+Hello
+% under crlb 0.08
+TP: 42355, FN: 38577, FP13428
+RMSE: 43.24 nm
+JI: 0.4489
+Hello
+% under crlb 0.08
+TP: 42984, FN: 37948, FP14236
+RMSE: 43.37 nm
+JI: 0.4517
+Hello
+% under crlb 0.08
+TP: 43274, FN: 37658, FP14643
+RMSE: 43.41 nm
+JI: 0.4528
+Hello
+% under crlb 0.08
+TP: 43458, FN: 37474, FP14902
+RMSE: 43.44 nm
+JI: 0.4535
+Hello
+% under crlb 0.08
+TP: 43579, FN: 37353, FP15078
+RMSE: 43.47 nm
+JI: 0.4539
+Hello
+% under crlb 0.08
+TP: 43684, FN: 37248, FP15225
+RMSE: 43.50 nm
+JI: 0.4543
+Hello
+% under crlb 0.08
+TP: 43762, FN: 37170, FP15342
+RMSE: 43.52 nm
+JI: 0.4546
+Hello
+% under crlb 0.07
+TP: 106130, FN: 435148, FP28516
+RMSE: 41.28 nm
+JI: 0.1863
+Hello
+% under crlb 0.07
+TP: 120184, FN: 421094, FP30178
+RMSE: 41.59 nm
+JI: 0.2103
+Hello
+% under crlb 0.07
+TP: 136764, FN: 404514, FP31624
+RMSE: 41.91 nm
+JI: 0.2387
+Hello
+% under crlb 0.07
+TP: 155577, FN: 385701, FP33121
+RMSE: 42.24 nm
+JI: 0.2709
+Hello
+% under crlb 0.07
+TP: 176822, FN: 364456, FP34921
+RMSE: 42.54 nm
+JI: 0.3069
+Hello
+% under crlb 0.07
+TP: 198938, FN: 342340, FP36915
+RMSE: 42.83 nm
+JI: 0.3441
+Hello
+% under crlb 0.07
+TP: 217704, FN: 323574, FP39341
+RMSE: 43.05 nm
+JI: 0.3750
+Hello
+% under crlb 0.07
+TP: 230678, FN: 310600, FP41891
+RMSE: 43.27 nm
+JI: 0.3956
+Hello
+% under crlb 0.07
+TP: 242799, FN: 298479, FP43814
+RMSE: 43.45 nm
+JI: 0.4150
+Hello
+% under crlb 0.07
+TP: 106130, FN: 435148, FP28516
+RMSE: 41.28 nm
+JI: 0.1863
+Hello
+% under crlb 0.07
+TP: 120184, FN: 421094, FP30178
+RMSE: 41.59 nm
+JI: 0.2103
+Hello
+% under crlb 0.07
+TP: 136764, FN: 404514, FP31624
+RMSE: 41.91 nm
+JI: 0.2387
+Hello
+% under crlb 0.07
+TP: 155577, FN: 385701, FP33121
+RMSE: 42.24 nm
+JI: 0.2709
+Hello
+% under crlb 0.07
+TP: 176822, FN: 364456, FP34921
+RMSE: 42.54 nm
+JI: 0.3069
+Hello
+% under crlb 0.07
+TP: 198938, FN: 342340, FP36915
+RMSE: 42.83 nm
+JI: 0.3441
+Hello
+% under crlb 0.07
+TP: 217704, FN: 323574, FP39341
+RMSE: 43.05 nm
+JI: 0.3750
+Hello
+% under crlb 0.07
+TP: 230678, FN: 310600, FP41891
+RMSE: 43.27 nm
+JI: 0.3956
+Hello
+% under crlb 0.07
+TP: 242799, FN: 298479, FP43814
+RMSE: 43.45 nm
+JI: 0.4150
+Hello
+% under crlb 0.07
+TP: 106130, FN: 435148, FP28516
+RMSE: 41.28 nm
+JI: 0.1863
+Hello
+% under crlb 0.07
+TP: 120184, FN: 421094, FP30178
+RMSE: 41.59 nm
+JI: 0.2103
+Hello
+% under crlb 0.07
+TP: 136764, FN: 404514, FP31624
+RMSE: 41.91 nm
+JI: 0.2387
+Hello
+% under crlb 0.07
+TP: 155577, FN: 385701, FP33121
+RMSE: 42.24 nm
+JI: 0.2709
+Hello
+% under crlb 0.07
+TP: 176822, FN: 364456, FP34921
+RMSE: 42.54 nm
+JI: 0.3069
+Hello
+% under crlb 0.07
+TP: 198938, FN: 342340, FP36915
+RMSE: 42.83 nm
+JI: 0.3441
+Hello
+% under crlb 0.07
+TP: 217704, FN: 323574, FP39341
+RMSE: 43.05 nm
+JI: 0.3750
+Hello
+% under crlb 0.07
+TP: 230678, FN: 310600, FP41891
+RMSE: 43.27 nm
+JI: 0.3956
+Hello
+% under crlb 0.07
+TP: 242799, FN: 298479, FP43814
+RMSE: 43.45 nm
+JI: 0.4150
+Hello
+% under crlb 0.07
+TP: 249377, FN: 291901, FP44747
+RMSE: 43.57 nm
+JI: 0.4255
+Hello
+% under crlb 0.07
+TP: 253645, FN: 287633, FP45431
+RMSE: 43.64 nm
+JI: 0.4323
+Hello
+% under crlb 0.07
+TP: 256268, FN: 285010, FP45849
+RMSE: 43.70 nm
+JI: 0.4365
+Hello
+% under crlb 0.07
+TP: 106130, FN: 435148, FP28516
+RMSE: 41.28 nm
+JI: 0.1863
+Hello
+% under crlb 0.07
+TP: 120184, FN: 421094, FP30178
+RMSE: 41.59 nm
+JI: 0.2103
+Hello
+% under crlb 0.07
+TP: 136764, FN: 404514, FP31624
+RMSE: 41.91 nm
+JI: 0.2387
+Hello
+% under crlb 0.07
+TP: 155577, FN: 385701, FP33121
+RMSE: 42.24 nm
+JI: 0.2709
+Hello
+% under crlb 0.07
+TP: 176822, FN: 364456, FP34921
+RMSE: 42.54 nm
+JI: 0.3069
+Hello
+% under crlb 0.07
+TP: 198938, FN: 342340, FP36915
+RMSE: 42.83 nm
+JI: 0.3441
+Hello
+% under crlb 0.07
+TP: 217704, FN: 323574, FP39341
+RMSE: 43.05 nm
+JI: 0.3750
+Hello
+% under crlb 0.07
+TP: 230678, FN: 310600, FP41891
+RMSE: 43.27 nm
+JI: 0.3956
+Hello
+% under crlb 0.07
+TP: 242799, FN: 298479, FP43814
+RMSE: 43.45 nm
+JI: 0.4150
+Hello
+% under crlb 0.03
+TP: 2181, FN: 78751, FP761
+RMSE: 59.31 nm
+JI: 0.0267
+Hello
+% under crlb 0.03
+TP: 2177, FN: 78755, FP758
+RMSE: 59.33 nm
+JI: 0.0266
+Hello
+% under crlb 0.03
+TP: 2177, FN: 78755, FP756
+RMSE: 59.33 nm
+JI: 0.0267
+Hello
+% under crlb 0.03
+TP: 2169, FN: 78763, FP755
+RMSE: 59.31 nm
+JI: 0.0266
+Hello
+% under crlb 0.03
+TP: 2164, FN: 78768, FP752
+RMSE: 59.24 nm
+JI: 0.0265
+Hello
+% under crlb 0.03
+TP: 2154, FN: 78778, FP745
+RMSE: 59.19 nm
+JI: 0.0264
+Hello
+% under crlb 0.03
+TP: 2129, FN: 78803, FP726
+RMSE: 59.25 nm
+JI: 0.0261
+Hello
+% under crlb 0.03
+TP: 2093, FN: 78839, FP707
+RMSE: 59.12 nm
+JI: 0.0256
+Hello
+% under crlb 0.03
+TP: 1995, FN: 78937, FP662
+RMSE: 58.99 nm
+JI: 0.0245
+Hello
+% under crlb 0.03
+TP: 1512, FN: 78783, FP530
+RMSE: 58.21 nm
+JI: 0.0187
+Hello
+% under crlb 0.03
+TP: 1696, FN: 79236, FP579
+RMSE: 58.43 nm
+JI: 0.0208
+Hello
+% under crlb 0.03
+TP: 1869, FN: 79063, FP632
+RMSE: 58.63 nm
+JI: 0.0229
+Hello
+% under crlb 0.03
+TP: 2071, FN: 78861, FP704
+RMSE: 59.00 nm
+JI: 0.0254
+Hello
+% under crlb 0.03
+TP: 2120, FN: 78812, FP726
+RMSE: 59.15 nm
+JI: 0.0260
+Hello
+% under crlb 0.03
+TP: 2155, FN: 78777, FP744
+RMSE: 59.21 nm
+JI: 0.0264
+Hello
+% under crlb 0.03
+TP: 2172, FN: 78760, FP749
+RMSE: 59.26 nm
+JI: 0.0266
+Hello
+% under crlb 0.03
+TP: 2178, FN: 78754, FP750
+RMSE: 59.30 nm
+JI: 0.0267
+Hello
+% under crlb 0.03
+TP: 2180, FN: 78752, FP758
+RMSE: 59.31 nm
+JI: 0.0267

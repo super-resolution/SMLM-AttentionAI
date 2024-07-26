@@ -115,7 +115,7 @@ class Simulator():
         if self.coeff < 1:
             cur_arr = self.o_arr[np.where(np.random.binomial(1, self.coeff*.5, self.o_arr.shape[0]))]
 
-        # todo: works only if coeff is adjusted
+        #todo: arr now has z dimension
 
         # load points to gpu
         arr = torch.tensor(cur_arr, device=self.device, dtype=torch.float32)
@@ -126,7 +126,7 @@ class Simulator():
         # ch = self.simulate_simple_trace(self.off_state_prob, cur_arr.shape[0], self.batch_size)
         for i, values in enumerate(ch):
             indices, photons = torch.tensor(values[:, 0], device=self.device), torch.tensor(values[:, 1],
-                                                                                            device=self.device)//2
+                                                                                            device=self.device)
             #todo: compute a density_old here and average it at the end
             # len(indices)/(self.im_size/10)**2) results in per micro meter²
             #todo: compute a fill factor in structures and multiply
@@ -155,7 +155,7 @@ class Simulator():
                     dim=1)
 
             # feed bg image here and data
-            frame = self.sim(dat, bg_t[bg_index[0]])
+            frame = self.sim(dat, bg_t[bg_index[0]]//2)
             frames.append(frame.cpu().squeeze().numpy())
             # save ground truth
             data = dat.cpu().numpy()

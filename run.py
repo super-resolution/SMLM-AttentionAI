@@ -40,8 +40,10 @@ def myapp(cfg):
     #files = ["Gatta94R_20ms_15000fr_Epi_EMCCD_f7,5_256x256px_gain200_quad_line-PFS.tif"]
     path = r"D:\Daten\Stefan\EXdSTORM\Messung 6 200 mW - Mitos" + "\\"
     files = ["Reembedding NHS-AF647 20ms 256x mA 45kframes_3.tif","Reembedding NHS-AF647 20ms 256x mA 45kframes_3_X2.tif","Reembedding NHS-AF647 20ms 256x mA 45kframes_3_X3.tif"]
+    path = r"D:\Daten\sarah" + "\\"
+    files = ["2_Tubulin_A647_dSTORM.tif"]
     for i,f in enumerate(files):
-        im = imread(path+f)[4000:].astype(np.int32) if i== 0 else imread(path+f).astype(np.int32)
+        im = imread(path+f)[:4000].astype(np.int32) if i== 0 else imread(path+f).astype(np.int32)
         if three_ch:
             im = reshape_data(im)
         im -= im.min()
@@ -55,10 +57,10 @@ def myapp(cfg):
     model_path = 'trainings/model_'+cfg.training.name
     print(model_path)
     print(model_path)
-    vit = importlib.import_module("models.VIT."+cfg.network.name.lower())#test if this works
     if three_ch:
         net = SigmaMUNet(3)
     else:
+        vit = importlib.import_module("models.VIT." + cfg.network.name.lower())  # test if this works
         net = vit.Network(cfg.network.components)
     #opt_cls = getattr(torch.optim, cfg.optimizer.name)
     #opt = opt_cls(net.parameters(), **cfg.optimizer.params)

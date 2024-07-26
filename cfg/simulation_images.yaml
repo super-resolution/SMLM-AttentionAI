@@ -1,7 +1,8 @@
 #Simulation parameter file
 dataset:
+  #todo: simulate 3D
   #name to save to
-  name: highpower_complex2
+  name: contest
   #either eval or training
   mode: eval
   #base path
@@ -9,15 +10,15 @@ dataset:
   #number of pixels in width and height
   n_pix: 60
   #number of batches to simulate. Remains one file
-  n_batches: 500
+  n_batches: 100
   #size per batch
   batch_size: 100
   #random seed for generation
   seed: 60
 emitter:
-  photon_trace_file: switching.pkl
+  photon_trace_file: contest.pkl
   #localisations per square µm²
-  emitter_density: 1.5
+  emitter_density: 5
   #off time in frames
   off_time: 100
   #we dont need this
@@ -28,4 +29,4 @@ emitter:
 device: cuda
 #set defaul parameters like microscope
 defaults:
-  - microscope: highpower
+  - microscope: contest

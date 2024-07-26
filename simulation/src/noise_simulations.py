@@ -69,6 +69,8 @@ class Simulation(nn.Module):
         :param pdf: probability density_old function
         :return: Simulated image
         """
+        #positions[2] is z
+        #todo: construct tensor from z
         #Create probability density_old function
         pdf = self.psf(positions[:,0:2],positions[:,2])
         #do not devide by zero

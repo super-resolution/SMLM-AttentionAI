@@ -113,12 +113,12 @@ class UpSpat(nn.Module):
         """
         super().__init__()
         # if bilinear, use the normal convolutions to reduce the number of channels
-        self.spat = SpatialAttentionBlock(in_channels, in_channels // 2)
+        self.spat = SpatialAttentionBlock(in_channels, in_channels // 2, out_channels//2)
         if bilinear:
             self.up = nn.Upsample(scale_factor=scale, mode='bilinear', align_corners=True)
-            self.conv = DoubleConv(in_channels, out_channels, in_channels // 2)
+            self.conv = DoubleConv(in_channels+in_channels//2, out_channels, in_channels // 2)
         else:
-            self.up = nn.ConvTranspose2d(in_channels, in_channels // 2, kernel_size=2, stride=2)
+            self.up = nn.ConvTranspose2d(in_channels, in_channels // 4, kernel_size=2, stride=2)
             self.conv = DoubleConv(in_channels, out_channels)
 
     def forward(self, x1:Tensor, x2:Tensor) -> Tensor:
@@ -136,7 +136,7 @@ class UpSpat(nn.Module):
         #pad stuff if nescesarry
         x1 = F.pad(x1, [diffX // 2, diffX - diffX // 2,
                         diffY // 2, diffY - diffY // 2])
-        self.spat(x1,x2)
+        x2 = self.spat(x1,x2)
         x = torch.cat([x2, x1], dim=1)
         return self.conv(x)
 
