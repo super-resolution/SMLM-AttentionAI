@@ -22,6 +22,13 @@ class Network(NetworkBase):
         inp = (inp-m)/std#todo: discard
         return inp
 
+    def norm2(self, inp):
+        mi = inp.min()
+        inp = inp-mi
+        ma = inp.max()
+        inp = inp/ma#todo: discard
+        return inp
+
     def forward(self, inp):
         x = self.norm(inp)
         x = self.unet(x)

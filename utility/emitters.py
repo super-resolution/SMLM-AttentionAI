@@ -72,7 +72,7 @@ class Emitter():
         other = other.filter(photons=.3)
         for i in range(self.frames.max()//50):
             pred_query = (self.frames>=i*50) & (self.frames<(i+1)*50)& np.all((self.xyz<5900),axis=1) & np.all((self.xyz>100),axis=1)
-            points = self.xyz[np.where(pred_query)]
+            points = self.xyz[np.where(pred_query)]#+np.array([28,22])[None,:]
             gt_query = (other.frames>=i*50) & (other.frames<(i+1)*50) & np.all((other.xyz<5900),axis=1) & np.all((other.xyz>100),axis=1)
 
             othe,ind_ph = np.unique(other.xyz[np.where(gt_query)],axis=0, return_index=True)
@@ -106,14 +106,14 @@ class Emitter():
                     fn += max(othe.shape[0]-condition2.shape[0],0)
                     #distances>100 nm
                     fp += points.shape[0]-np.where(x[:,0]<100)[0].shape[0]
-                    # if max(othe.shape[0]-indices.shape[0],0)>0:
+                    # if max(othe.shape[0]-points.shape[0],0)>0:
                     #     if np.any(images):
                     #         plt.imshow(np.sum(images[i*50:(i+1)*50],axis=0).T)
-                    #     plt.scatter(points[:,0]/100,points[:,1]/100, marker="X", label="fit")
-                    #     ind = set(range(othe.shape[0]))-set(y[indices,1].astype(np.int32))
-                    #     plt.scatter(othe[list(ind),0]/100,othe[list(ind),1]/100, marker="X")
-                    #     plt.legend()
-                    #     plt.show()
+                    plt.scatter(points[:,0]/100,points[:,1]/100, marker="X", label="fit")
+                    ind = set(range(othe.shape[0]))-set(y[condition1,1].astype(np.int32))
+                    plt.scatter(othe[:,0]/100,othe[:,1]/100, marker="X")
+                    plt.legend()
+                    plt.show()
             else:
                 fp += points.shape[0]
         print(np.mean(offsets,axis=0))
@@ -123,7 +123,7 @@ class Emitter():
         plt.ylabel("a.u.")
         plt.xlabel("distance [nm]")
         plt.legend()
-        plt.savefig(r"figures/crlb_base_decode.svg")
+        plt.savefig(r"figures/crlb_attention_u_net_ld.svg")
         plt.show()
         #todo: crlb histogram plot
         print(perc_crlb/tp)
@@ -189,14 +189,15 @@ class Emitter():
             else:
                 fp += points.shape[0]
         print("offsets are ", np.mean(np.array(offsets),axis=0))
-        with open(f'{output}.txt', 'a') as the_file:
-            the_file.write('Hello\n')
-            the_file.write(f"% under crlb {perc_crlb/tp:.2f}\n")
-            #print("check for offsets", np.mean(np.array(offsets),axis=0))
-            the_file.write(f"TP: {tp}, FN: {fn}, FP{fp}\n")
-            #root mean squared error
-            the_file.write(f"RMSE: {np.sqrt(dis/tp):.2f} nm\n")
-            the_file.write(f"JI: {tp/(fn+tp+fp):.4f}\n")
+        if tp>0:
+            with open(f'{output}.txt', 'a') as the_file:
+                the_file.write('Hello\n')
+                the_file.write(f"% under crlb {perc_crlb/tp:.2f}\n")
+                #print("check for offsets", np.mean(np.array(offsets),axis=0))
+                the_file.write(f"TP: {tp}, FN: {fn}, FP{fp}\n")
+                #root mean squared error
+                the_file.write(f"RMSE: {np.sqrt(dis/tp):.2f} nm\n")
+                the_file.write(f"JI: {tp/(fn+tp+fp):.4f}\n")
         return np.sqrt(dis/tp),tp/(fn+tp+fp)
 
 
@@ -438,7 +439,8 @@ class Emitter():
             pass
         else:
             if not np.any(coord_list):
-                print("warning no coordinate list loaded -> no offsets are added")
+                pass
+                #print("warning no coordinate list loaded -> no offsets are added")
 
             xyz = []
             N_list = []

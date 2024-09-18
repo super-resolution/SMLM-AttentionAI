@@ -1,0 +1,5 @@
+- dataset.name=lab_logo_dense4
+- training.name=DiffusionV3_64
+- network=DiffusionV3
+- network.components.hidden_d=64
+- dataset.save=density

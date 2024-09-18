@@ -104,6 +104,7 @@ def full_evaluation(dat, emitter_truth, parameter="p", save_name=""):
         df = pd.read_csv(p)
     else:
         df = pd.DataFrame()
+    print(jac, rmse)
     df[save_name+parameter+"_Jaccard"] = S1
     df[save_name+parameter+"_RMSE"] = S2
     df.to_csv(p)
@@ -189,17 +190,17 @@ def myapp(cfg):
     jac= []
     # for i in range(8):
     #todo: create mapping for output
-    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], .9,) #maps=net.activation.mapping)#
+    dat = Emitter.from_result_tensor(out_data[:, (0,2,3,5,6,7,8,9)], .7,) #maps=net.activation.mapping)#
     #
-    full_evaluation(dat, emitter_truth)
+    #full_evaluation(dat, emitter_truth)
     #automatically compute the best values
     #dat = dat.filter(sig_y=0.45,sig_x=0.45)
     #todo: update computation and add crlb
     #todo: optimize jaccard:
     # full_evaluation(dat, emitter_truth, parameter="sig", save_name=dataset_name+cfg.training.name)
     # full_evaluation(dat, emitter_truth, save_name=dataset_name+cfg.training.name)
-    print(dat.compute_jaccard(emitter_truth, f"figures/{cfg.dataset.save}/"+dataset_name+cfg.training.name, np.concatenate([im.cpu().numpy() for im,_,_,_ in dataloader],axis=0)))
-
+    print(dat.compute_jaccard(emitter_truth, f"figures/{cfg.dataset.save}/"+dataset_name+cfg.training.name, images=np.concatenate([im.cpu().numpy() for im,_,_,_ in dataloader],axis=0)))
+    print(dat.compute_jaccard2(emitter_truth,images=np.concatenate([im.cpu().numpy() for im,_,_,_ in dataloader],axis=0)))
     #print(validate(dat,t))
     #plt.plot(jac)
     #plt.savefig("eval_jaccard.svg")

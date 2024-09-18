@@ -1,0 +1,24 @@
+network:
+  name: DiffusionV3
+  device: cuda
+  dtype: float32
+  components:
+    patch_size: None
+    hidden_d: 16
+    sequence_lenght: 50
+    decoder: UNetenc UNetbase MHABatchFeature Unetdec
+    activation: GMMActivationV2
+optimizer:
+  name: Adam
+  params:
+    lr: 0.001
+    amsgrad: true
+search_attention: false
+training:
+  name: DiffusionV3
+  iterations: 150
+dataset:
+  name: lab_logo_dense3
+  save: density
+  offset: 0
+  batch_size: 50

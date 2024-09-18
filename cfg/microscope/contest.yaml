@@ -1,0 +1,11 @@
+#Microscope parameter file
+name: Contest
+#pixel values -> photons 13.06
+px_size: 100
+expected_number_of_photons: 50.
+exposure_time: 20e-3
+dark_noise: 10.
+quantum_efficiency: 0.80
+gain: 1.
+redout_noise: 0.1
+psf_sigma: 139.6

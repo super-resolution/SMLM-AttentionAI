@@ -97,7 +97,7 @@ class GMMLossDecode(torch.nn.Module):
     Gaussian Mixture Model loss
     Adapted from Decode
     """
-    def __init__(self, size:Iterable[Tensor,np.ndarray]) -> Tensor:
+    def __init__(self, size:Iterable[Tensor,np.ndarray], multiplier=[1,1,1]) -> Tensor:
         """
         Initialize a grid for loss
         :param size: Size of output featuremaps/input image
@@ -105,7 +105,7 @@ class GMMLossDecode(torch.nn.Module):
         super().__init__()
         mesh = torch.meshgrid([torch.arange(0, size[0])+.5, torch.arange(0, size[1])+.5])
         self.grid = torch.stack(mesh, 0)[None, :].to("cuda")
-
+        self.multiplier = multiplier
 
     def grid_coords_xy(self,pos_xy:Tensor) -> Tensor:
         """
@@ -176,6 +176,6 @@ class GMMLossDecode(torch.nn.Module):
         bg_loss = torch.nn.MSELoss()(bg,bg_truth)*10
         if seperate:
             return torch.tensor([gmm_loss,c_loss, bg_loss])
-        loss = gmm_loss+c_loss + bg_loss
+        loss = self.multiplier[0]*gmm_loss+self.multiplier[1]*c_loss + self.multiplier[2]*bg_loss
 
         return loss

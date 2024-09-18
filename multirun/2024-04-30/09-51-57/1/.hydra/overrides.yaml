@@ -1,0 +1,5 @@
+- dataset.name=lab_logo_dense2
+- training.name=DiffusionV2_8
+- network=DiffusionV2
+- network.components.hidden_d=8
+- dataset.save=density
