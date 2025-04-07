@@ -1,16 +1,23 @@
-# SMLM Attention AI
+# SMLM-AttentionAI - Improving single molecule localisation microscopy reconstruction by extending the temporal context
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub issues](https://img.shields.io/github/issues/super-resolution/SMLM-AttentionAI.svg)](https://github.com/super-resolution/SMLM-AttentionAI/issues)
 
 
-This repository implements a novel deep learning method for single-molecule localization microscopy (SMLM) that harnesses extended temporal context to enhance localization precision. Traditional SMLM techniques typically fit Gaussian models to isolated frames, limiting their performance under high-density conditions and challenging signal-to-noise ratios. Our approach overcomes these limitations by:
+This repository hosts the code and data for SMLM-AttentionAI as described in
 
-- **Leveraging Temporal Information:** Integrates long time-series data to capture repeated emitter activity and background fluctuations, improving localization in complex imaging scenarios.
-- **Incorporating Attention Mechanisms:** Combines a U-Net architecture with a multi-head attention block inspired by Transformer models, enabling the network to dynamically focus on relevant temporal features.
-- **Accurate Simulation:** Utilizes an EMCCD-based simulator to generate realistic training data, ensuring that the model is well-calibrated to the specific noise and signal properties encountered in practical experiments.
-- **Competitive Performance:** Demonstrates performance close to the theoretical Cramér-Rao lower bound and compares favorably against state-of-the-art tools through extensive benchmarking and ablation studies.
-- **Resource Efficiency:** Designed with a shallow spatial compression and a broad temporal context, making retraining feasible even in resource-constrained environments.
+__"Improving single molecule localisation microscopy reconstruction by extending the temporal context"__
+by Sebastian Reinhard, Vincent Ebert, Jann Schrama, Markus Sauer and Philip Kollmannsberger (2024)
+
+----
+
+SMLM-AttentionAI implements a novel deep learning method for single-molecule localization microscopy (SMLM) that harnesses extended temporal context to enhance localization precision. Traditional SMLM techniques typically fit Gaussian models to isolated frames, limiting their performance under high-density conditions and challenging signal-to-noise ratios. Our approach overcomes these limitations by:
+
+- **Leveraging Temporal Information** by integrating long time-series data to capture repeated emitter activity and background fluctuations, improving localization in complex imaging scenarios.
+- **Incorporating Attention Mechanisms** by combining a U-Net with a multi-head attention block inspired by Transformer models, enabling the network to dynamically focus on relevant temporal features.
+- **Accurate Simulation** using an EMCCD-based simulator to generate realistic training data, ensuring that the model is well-calibrated to the specific noise and signal properties encountered in practical experiments.
+- **Competitive Performance** demonstrating performance close to the theoretical Cramér-Rao lower bound and comparing favorably against state-of-the-art tools through extensive benchmarking and ablation studies.
+- **Resource Efficiency** with a shallow spatial compression and a broad temporal context, making retraining feasible even in resource-constrained environments.
 
 This project aims to advance SMLM imaging by fully exploiting the temporal correlations inherent in blinking fluorophores, thereby enabling more robust and precise super-resolution microscopy under a variety of experimental conditions.
 
@@ -25,7 +32,7 @@ cd SMLM-AttentionAI
 pip install -r requirements.txt
 ```
 
-Ensure you have Python 3.9+ and pip installed on your system.
+Ensure you have Python 3.9+ and pip installed on your system. We recommend using a dedicated environment, e.g. using miniconda.
 
 ## Usage
 ### Running an evaluation
@@ -54,7 +61,7 @@ To evaluate a dataset:
     - CRLB plots
     - Jaccard-Index and RMSE
 
-### Running Simulations
+### Running simulations
 
 To generate synthetic SMLM data for training or testing:
 
