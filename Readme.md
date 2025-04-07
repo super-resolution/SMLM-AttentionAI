@@ -11,6 +11,18 @@ by Sebastian Reinhard, Vincent Ebert, Jann Schrama, Markus Sauer and Philip Koll
 
 ----
 
+1) [Installation](#installation)
+2) [Usage](#usage)
+    - [Running an evaluation](#eval)
+    - [Running simulations](#sim)
+    - [Training the network](#training)
+3) [Configuration Files](#config)
+4) [Simulation Module](#simulation)
+5) [Models Module](#models)
+6) [Visualization Module](#vis)
+7) [Contributors](#contrib)
+8) [License](#license)
+
 SMLM-AttentionAI implements a novel deep learning method for single-molecule localization microscopy (SMLM) that harnesses extended temporal context to enhance localization precision. Traditional SMLM techniques typically fit Gaussian models to isolated frames, limiting their performance under high-density conditions and challenging signal-to-noise ratios. Our approach overcomes these limitations by:
 
 - **Leveraging Temporal Information** by integrating long time-series data to capture repeated emitter activity and background fluctuations, improving localization in complex imaging scenarios.
@@ -21,8 +33,8 @@ SMLM-AttentionAI implements a novel deep learning method for single-molecule loc
 
 This project aims to advance SMLM imaging by fully exploiting the temporal correlations inherent in blinking fluorophores, thereby enabling more robust and precise super-resolution microscopy under a variety of experimental conditions.
 
-
-## Installation
+<a name="installation"></a>
+## 1) Installation
 
 
 1. From source
@@ -32,9 +44,11 @@ cd SMLM-AttentionAI
 pip install -r requirements.txt
 ```
 
-Ensure you have Python 3.9+ and pip installed on your system. We recommend using a dedicated environment, e.g. using miniconda.
+Ensure you have Python 3.9+ and pip installed on your system. We recommend a dedicated environment, e.g. using miniconda.
 
-## Usage
+<a name="usage"></a>
+## 2) Usage
+<a name="eval"></a>
 ### Running an evaluation
 To evaluate a dataset:
 1. Configure evaluation parameters in `eval.yaml` and `default.yaml`:
@@ -51,7 +65,7 @@ To evaluate a dataset:
     ```
     The script generates:
     - Localisations from the underlying image data
-    - An high performance OpenGL rendering instance
+    - A high performance OpenGL rendering instance
     - Hardware optimized filters with live rendering
     - An output image
     ```
@@ -61,6 +75,7 @@ To evaluate a dataset:
     - CRLB plots
     - Jaccard-Index and RMSE
 
+<a name="sim"></a>
 ### Running simulations
 
 To generate synthetic SMLM data for training or testing:
@@ -85,6 +100,7 @@ To generate synthetic SMLM data for training or testing:
 
 Monitor progress in the console output and check the logs directory for detailed simulation reports.
 
+<a name="training"></a>
 ### Training the network
 To train the network
 1. Configure training parameters in `train.yaml`
@@ -100,7 +116,8 @@ The script generates:
     - Output Metrics for `compare_network_performance.py`
     - training checkpoints 
 
-## Configuration Files
+<a name="config"></a>
+## 3) Configuration Files
 
 The `cfg` folder contains YAML configuration files that control various aspects of the application:
 
@@ -129,7 +146,7 @@ Dataset configuration:
 
 
 #### `defaults.yaml`
-Defines falbacks for `network`, `dataset` and `optimizer`:
+Defines fallbacks for `network`, `dataset` and `optimizer`:
 To use a specific configuration:
 ```python
 from hydra import compose, initialize
@@ -138,8 +155,8 @@ initialize(config_path="cfg")
 cfg = compose(config_name="config")
 ```
 
-
-## SMLM-AttentionAI Simulation Module
+<a name="simulation"></a>
+## 4) Simulation Module
 
 This module contains code for simulating Single Molecule Localization Microscopy (SMLM) data with various data augmentation capabilities.
 
@@ -165,7 +182,8 @@ This module contains code for simulating Single Molecule Localization Microscopy
 
 The module is designed for generating synthetic SMLM data with realistic noise characteristics and data augmentation capabilities, primarily using PyTorch for GPU acceleration.
 
-## SMLM-AttentionAI Models module
+<a name="models"></a>
+## 5) Models module
 
 The project consists of several key components organized into directories:
 
@@ -189,7 +207,8 @@ The project consists of several key components organized into directories:
 
 Each module is designed to work together for SMLM (Single-Molecule Localization Microscopy) analysis using attention-based deep learning approaches.
 
-## SMLM-AttentionAI Visualization Module
+<a name="vis"></a>
+## 6) Visualization Module
 
 This module handles OpenGL-based visualization and GUI components for SMLM data display.
 
@@ -223,17 +242,20 @@ This module handles OpenGL-based visualization and GUI components for SMLM data 
 - Real-time visualization updates
 
 The module provides high-performance rendering capabilities with an intuitive user interface for exploring SMLM datasets.
-## Contributors
+
+<a name="contrib"></a>
+## 7) Contributors
 
     Sebastian Reinhard (sebastian.uj.reinhard@gmail.com)
     Philip Kollmannsberger
     Jann Schrama
     Markus Sauer
 
-## License
+<a name="license"></a>
+## 8) License
 
 This project is licensed under the MIT License - see the LICENSE file for details.
 Acknowledgments
 
-This package was developed as part of research conducted at Julius Maximillians University.
+This package was developed as part of research conducted at Julius Maximillians University Würzburg.
 Hat tip to the open-source community for their support and contributions.
