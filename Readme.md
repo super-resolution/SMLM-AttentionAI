@@ -6,8 +6,9 @@
 
 This repository hosts the code and data for SMLM-AttentionAI as described in
 
-__"Improving single molecule localisation microscopy reconstruction by extending the temporal context"__
-by Sebastian Reinhard, Vincent Ebert, Jann Schrama, Markus Sauer and Philip Kollmannsberger (2024)
+__"Improving single molecule localisation microscopy reconstruction by extending the temporal context"__<br>
+Sebastian Reinhard, Vincent Ebert, Jann Schrama, Markus Sauer and Philip Kollmannsberger __(2025)__<br>
+[https://www.biorxiv.org/content/10.1101/2025.04.05.647262v1]
 
 ----
 
