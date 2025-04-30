@@ -2,6 +2,7 @@
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub issues](https://img.shields.io/github/issues/super-resolution/SMLM-AttentionAI.svg)](https://github.com/super-resolution/SMLM-AttentionAI/issues)
+<a name="top"></a>
 
 
 This repository hosts the code and data for SMLM-AttentionAI as described in
@@ -47,6 +48,7 @@ pip install -r requirements.txt
 
 Ensure you have Python 3.9+ and pip installed on your system. We recommend a dedicated environment, e.g. using miniconda.
 
+[back to top](#top)
 <a name="usage"></a>
 ## 2) Usage
 <a name="eval"></a>
@@ -59,6 +61,8 @@ To evaluate a dataset:
     - Training (corresponding to network)
     - Dataset
     - Device
+  
+Trained model weights can be downloaded [here](https://drive.google.com/drive/folders/1by3MwybpiqkW5-LG6PDVwFi1wLSQHbMb?usp=sharing).
 
 2. Run the evaluation script
     ```bash
@@ -117,6 +121,7 @@ The script generates:
     - Output Metrics for `compare_network_performance.py`
     - training checkpoints 
 
+[back to top](#top)
 <a name="config"></a>
 ## 3) Configuration Files
 
@@ -156,6 +161,7 @@ initialize(config_path="cfg")
 cfg = compose(config_name="config")
 ```
 
+[back to top](#top)
 <a name="simulation"></a>
 ## 4) Simulation Module
 
@@ -183,6 +189,7 @@ This module contains code for simulating Single Molecule Localization Microscopy
 
 The module is designed for generating synthetic SMLM data with realistic noise characteristics and data augmentation capabilities, primarily using PyTorch for GPU acceleration.
 
+[back to top](#top)
 <a name="models"></a>
 ## 5) Models module
 
@@ -208,6 +215,7 @@ The project consists of several key components organized into directories:
 
 Each module is designed to work together for SMLM (Single-Molecule Localization Microscopy) analysis using attention-based deep learning approaches.
 
+[back to top](#top)
 <a name="vis"></a>
 ## 6) Visualization Module
 
@@ -244,6 +252,7 @@ This module handles OpenGL-based visualization and GUI components for SMLM data 
 
 The module provides high-performance rendering capabilities with an intuitive user interface for exploring SMLM datasets.
 
+[back to top](#top)
 <a name="contrib"></a>
 ## 7) Contributors
 
