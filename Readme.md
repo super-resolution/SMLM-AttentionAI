@@ -1,8 +1,8 @@
+<a name="top"></a>
 # SMLM-AttentionAI - Improving single molecule localisation microscopy reconstruction by extending the temporal context
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](https://opensource.org/licenses/MIT)
 [![Python](https://img.shields.io/badge/python-3.9+-blue.svg)](https://www.python.org/downloads/)
 [![GitHub issues](https://img.shields.io/github/issues/super-resolution/SMLM-AttentionAI.svg)](https://github.com/super-resolution/SMLM-AttentionAI/issues)
-<a name="top"></a>
 
 
 This repository hosts the code and data for SMLM-AttentionAI as described in
@@ -62,7 +62,7 @@ To evaluate a dataset:
     - Dataset
     - Device
   
-Trained model weights can be downloaded [here](https://drive.google.com/drive/folders/1by3MwybpiqkW5-LG6PDVwFi1wLSQHbMb?usp=sharing).
+    Trained model weights can be downloaded [here](https://drive.google.com/drive/folders/1by3MwybpiqkW5-LG6PDVwFi1wLSQHbMb?usp=sharing).
 
 2. Run the evaluation script
     ```bash
